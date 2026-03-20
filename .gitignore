@@ -1,0 +1,8 @@
+/dokploy
+/rapport/*.aux
+/rapport/*.bbl
+/rapport/*.blg
+/rapport/*.log
+/rapport/*.out
+/rapport/*.toc
+/rapport/rapport.synctex.gz

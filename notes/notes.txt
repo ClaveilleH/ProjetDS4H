@@ -1,0 +1,48 @@
+Plan : 
+	Intro :
+		Contexte & Objectifs
+		Explication sujet
+			Expreimentation d'un cloud self hosted type render pour cours IOT
+			...
+
+	State of art & Analyse des besoins:
+		Qu'est ce que le cloud
+		Quels sont les diff outils/solutions
+		Pourquoi self-hosted
+		Choix de la techno
+		Besoins fonctionnels et techniques
+
+	Mise en oeuvre:
+		Integration et installation
+		Tests
+		
+	Bilan & Perspectives
+		Résultats obtenus vs objectifs initiaux
+		Points forts et limites de la solution
+		Améliorations envisagées
+		Retour d'expérience
+
+	Conclusion
+
+	Annexes
+		Commandes d'installation
+		Schémas d'architecture ?
+		Références et documentation
+
+	A ajouter (pas sur et je sais pas où)
+		Réplication de l'archi (pour que les eleves puissent l'avoir en local)
+		Sécurité ?
+
+
+
+
+
+
+
+============================================
+	Details des besoins:
+		runtime / bdd
+		perfs (cbn d'utilisateurs)
+		code libre
+		container
+		gratuitée

@@ -1,0 +1,130 @@
+\documentclass{rapportClass} % Classe de document (rapport)
+
+
+
+\title{Rapport de Projet}
+\author{Hugo CLAVEILLE}
+% -- Master 1 Informatique
+\date{\today}
+
+
+
+
+% Appliquer aussi aux pages de type 'plain' (début de chapitre, sommaire…)
+% \fancypagestyle{plain}{
+%   \fancyhf{}
+%   \fancyhead[L]{Rapport de Projet}
+%   \fancyhead[C]{M1 Informatique}
+%   \fancyhead[R]{Hugo}
+%   \fancyfoot[C]{\thepage}
+%   \renewcommand{\headrulewidth}{0.4pt}
+% }
+
+\begin{document}
+
+\begin{titlepage}
+    \thispagestyle{empty} % pas d'en-tête/pied ici
+    
+    \begin{center}
+        % Logo en haut
+        \includegraphics[width=1\textwidth]{assets/logo.png}\\[2cm]
+        
+        % Titre
+        {\Huge \textbf{Rapport de Projet}}\\[1cm]
+        {\Large DS4H}\\[1cm]
+
+        \vspace{1cm}
+        % Auteur
+        \textbf{Hugo CLAVEILLE}\\[0.5cm]
+        
+        % Sous-titre
+        {\Large Master 1 Informatique}\\[2cm]
+        
+        % Date
+        \vfill
+        {\large \today}
+    \end{center}
+\end{titlepage}
+
+\newpage
+\thispagestyle{empty}
+\tableofcontents
+\newpage
+
+\chapter{Introduction}
+
+\chapter{State of art et Analyse des besoins}
+\section{Qu'est ce que le cloud}
+
+Dans cette section, nous allons essayer de définir ce qu'est le \textbf{cloud computing}, ses caractéristiques, et les différentes formes qu'il peut prendre.
+Il est important de comprendre les bases du cloud computing pour pouvoir analyser les besoins et faire des choix éclairés pour notre projet.
+Il faut noter que le cloud computing est un domaine en constante évolution, et il existe de nombreuses définitions et interprétations différentes.
+Cependant, nous allons essayer de donner une définition générale qui englobe les principales caractéristiques du cloud a l'heure actuelle.
+
+
+Le cloud computing est un \textbf{modèle de fourniture de services informatiques} qui permet d'accéder à des ressources informatiques (serveurs, stockage, bases de données, réseaux, logiciels, etc.) via Internet. 
+Contrairement à l’informatique traditionnelle, où les ressources sont hébergées localement, le cloud externalise ces infrastructures vers des \textbf{centres de données distants}, gérés par des prestataires spécialisés.
+\cite{ISO2026,NIST2026}.
+
+
+\subsection{Caractéristiques clés (NIST/ISO, 2026)}
+\begin{itemize}
+    \item \textbf{Accès réseau omniprésent} : Les ressources sont accessibles depuis n’importe quel appareil connecté à Internet.
+    \item \textbf{Pool de ressources mutualisées} : Les infrastructures sont partagées et allouées dynamiquement selon les besoins (virtualisation, conteneurs).
+    \item \textbf{Élasticité et scalabilité} : Les ressources peuvent être ajustées automatiquement, en temps réel, pour répondre à la demande.
+    \item \textbf{Self-service à la demande} : L’utilisateur peut provisionner des ressources (ex : machines virtuelles, bases de données) sans intervention humaine du fournisseur.
+    \item \textbf{Facturation à l’usage} : Modèle économique "pay-as-you-go", où le coût est proportionnel à la consommation réelle.
+\end{itemize}
+
+\subsection{Évolution récente (2026)}
+En 2026, le cloud n’est plus seulement un \textbf{lieu de stockage} ou d’hébergement, mais une \textbf{plateforme d’innovation} intégrant :
+\begin{itemize}
+    \item L’\textbf{intelligence artificielle} (ex : GPU-as-a-Service pour l’entraînement de modèles, AIOps pour l’optimisation automatique des ressources) \cite{LeBigData2026}.
+    \item L’\textbf{Edge Computing} : traitement des données à la périphérie du réseau pour réduire la latence, notamment pour l’IoT et les applications temps réel \cite{Syslearn2026}.
+    \item Les \textbf{architectures hybrides et multi-cloud} : les entreprises combinent clouds publics, privés et infrastructures locales pour éviter le \textit{vendor lock-in} et optimiser flexibilité/sécurité \cite{ObjetConnecte2026}.
+    \item La \textbf{souveraineté des données} : développement de clouds locaux (ex : OVHcloud en France) pour se conformer aux réglementations comme le RGPD \cite{TechInsider2026}.
+\end{itemize}
+
+\subsection{Pourquoi cette définition est-elle importante pour notre projet ?}
+Cette compréhension permet d’identifier :
+\begin{itemize}
+    \item Les \textbf{avantages} du cloud (flexibilité, coût, innovation) mais aussi ses \textbf{limites} (dépendance, sécurité, latence).
+    \item Les \textbf{critères de choix} entre cloud public, privé, hybride ou \textit{self-hosted}, en fonction des besoins en souveraineté, performance et budget.
+\end{itemize}
+
+\section{Differentes méthodes}
+\subsection{Cloud Public}
+\subsection{Cloud Privé}
+\subsection{Cloud Hybride}
+
+
+\section{Contexte d'utilisation} % comment moi je vais l'utiliser
+Dans le cadre du projet \textbf{DS4H}, il m'a été confié la mission de concevoir et déployer une \textbf{solution self-hosted} 
+pour remplacer le service \textbf{Render} utilisé dans le cours d’\textbf{IoT}. L’objectif est de fournir une alternative locale, 
+souveraine et maîtrisée, permettant aux étudiants et enseignants de déployer, 
+gérer et monitorer des applications IoT sans dépendre d’un service cloud externe.
+
+Cette initiative s’inscrit dans une démarche visant à :
+\begin{itemize}
+    \item \textbf{Réduire la dépendance} aux services tiers, en alignement avec les principes de souveraineté numérique et de résilience pédagogique.
+    \item \textbf{Reproduire les fonctionnalités essentielles} de Render (déploiement continu, gestion des environnements, monitoring basique) 
+    tout en s’adaptant aux besoins spécifiques du cours (protocoles IoT, gestion des devices, etc.).
+    \item \textbf{Faciliter l’apprentissage} en offrant un environnement contrôlé et accessible, 
+    propice à l’expérimentation des concepts d’IoT et d’infrastructure.
+\end{itemize}
+
+L’absence de contraintes techniques précises laisse une grande flexibilité pour le choix de la solution, qui sera déterminé lors de l’\textbf{analyse des besoins} et des choix technologiques présentés dans les sections suivantes.
+\section{Analyse des besoins}
+
+\chapter{Pourquoi self-hosted ?}
+
+\chapter{Choix de la techno}
+
+\chapter{Mise en place de l'infrastructure}
+
+
+% \printbibliography
+\bibliographystyle{plain}
+\bibliography{refs}
+
+\end{document}
