@@ -92,10 +92,115 @@ Cette compréhension permet d’identifier :
     \item Les \textbf{critères de choix} entre cloud public, privé, hybride ou \textit{self-hosted}, en fonction des besoins en souveraineté, performance et budget.
 \end{itemize}
 
-\section{Differentes méthodes}
+\section{Différentes méthodes}
+
+Cette section présente les trois principaux modèles de déploiement cloud : \textbf{public}, \textbf{privé} et \textbf{hybride}. Chaque modèle répond à des besoins spécifiques en termes de flexibilité, de sécurité, de coût et de souveraineté.
+
 \subsection{Cloud Public}
+
+\subsubsection{Définition}
+Le \textbf{cloud public} est un modèle où les ressources informatiques (serveurs, stockage, applications) sont mises à disposition par un fournisseur tiers via Internet. Ces ressources sont partagées entre plusieurs clients (multi-tenancy) et accessibles à la demande, avec une facturation généralement basée sur l’usage (pay-as-you-go).
+
+\subsubsection{Exemples de fournisseurs}
+\begin{itemize}
+    \item Amazon Web Services (AWS)
+    \item Microsoft Azure
+    \item Google Cloud Platform (GCP)
+    \item IBM Cloud
+\end{itemize}
+
+\subsubsection{Avantages}
+\begin{itemize}
+    \item \textbf{Coût réduit} : Pas d’investissement initial en infrastructure, paiement à l’usage.
+    \item \textbf{Élasticité} : Scalabilité automatique pour répondre à la demande.
+    \item \textbf{Maintenance externalisée} : Le fournisseur gère les mises à jour, la sécurité physique et la disponibilité.
+    \item \textbf{Accès global} : Disponibilité mondiale avec des data centers répartis géographiquement.
+\end{itemize}
+
+\subsubsection{Inconvénients}
+\begin{itemize}
+    \item \textbf{Dépendance au fournisseur} : Risque de \textit{vendor lock-in} et dépendance aux conditions tarifaires.
+    \item \textbf{Sécurité et conformité} : Les données sont hébergées chez un tiers, ce qui peut poser des problèmes de conformité (ex : RGPD).
+    \item \textbf{Latence} : Peut être élevée selon la localisation des data centers.
+    \item \textbf{Manque de contrôle} : L’utilisateur n’a pas la main sur l’infrastructure sous-jacente.
+\end{itemize}
+
+\subsubsection{Cas d’usage typiques}
+\begin{itemize}
+    \item Hébergement de sites web et applications grand public.
+    \item Déploiement de services SaaS (ex : Gmail, Salesforce).
+    \item Environnements de développement/test éphémères.
+\end{itemize}
+
 \subsection{Cloud Privé}
+
+\subsubsection{Définition}
+Le \textbf{cloud privé} est une infrastructure cloud dédiée à une seule organisation. Il peut être hébergé en interne (on-premise) ou chez un prestataire externe, mais reste exclusif à l’organisation. Ce modèle offre un contrôle total sur les ressources et la sécurité.
+
+\subsubsection{Exemples de solutions}
+\begin{itemize}
+    \item OpenStack (open source)
+    \item VMware Cloud
+    \item Microsoft Azure Stack
+    \item Clouds souverains (ex : OVHcloud, 3DS Outscale)
+\end{itemize}
+
+\subsubsection{Avantages}
+\begin{itemize}
+    \item \textbf{Sécurité renforcée} : Isolation des données et contrôle total sur l’infrastructure.
+    \item \textbf{Conformité} : Idéal pour les secteurs réglementés (santé, finance, défense).
+    \item \textbf{Personnalisation} : Adaptation fine des ressources aux besoins spécifiques.
+    \item \textbf{Performances} : Latence réduite et ressources dédiées.
+\end{itemize}
+
+\subsubsection{Inconvénients}
+\begin{itemize}
+    \item \textbf{Coût élevé} : Investissement initial important en matériel et maintenance.
+    \item \textbf{Complexité de gestion} : Nécessite des compétences internes pour l’administration.
+    \item \textbf{Scalabilité limitée} : L’extension des ressources peut être lente et coûteuse.
+    \item \textbf{Risque de sous-utilisation} : Les ressources dédiées peuvent être sous-exploitées, entraînant un gaspillage.
+    \item \textbf{Manque de redondance} : En cas de panne, la récupération peut être plus complexe sans les infrastructures de secours d’un cloud public.
+\end{itemize}
+
+\subsubsection{Cas d’usage typiques}
+\begin{itemize}
+    \item Environnements sensibles (données médicales, financières).
+    \item Applications critiques nécessitant une haute disponibilité.
+    \item Projets nécessitant une souveraineté totale sur les données.
+\end{itemize}
+
 \subsection{Cloud Hybride}
+
+\subsubsection{Définition}
+Le \textbf{cloud hybride} combine les modèles public et privé, permettant aux organisations de bénéficier des avantages des deux approches. Les ressources sont orchestrées pour communiquer entre elles, offrant flexibilité et optimisation des coûts.
+
+\subsubsection{Exemples d’architectures}
+\begin{itemize}
+    \item Utilisation d’un cloud privé pour les données sensibles et d’un cloud public pour les pics de charge.
+    \item Intégration d’AWS Outposts (extension d’AWS sur site) avec un cloud privé OpenStack.
+\end{itemize}
+
+\subsubsection{Avantages}
+\begin{itemize}
+    \item \textbf{Flexibilité} : Adaptation dynamique des ressources selon les besoins.
+    \item \textbf{Optimisation des coûts} : Utilisation du cloud public pour les charges variables et du privé pour les données critiques.
+    \item \textbf{Continuité d’activité} : Redondance entre clouds pour une haute disponibilité.
+    \item \textbf{Conformité} : Possibilité de garder les données sensibles en local tout en utilisant le cloud public pour le reste.
+\end{itemize}
+
+\subsubsection{Inconvénients}
+\begin{itemize}
+    \item \textbf{Complexité} : Gestion et intégration des environnements public/privé.
+    \item \textbf{Sécurité} : Nécessite une stratégie unifiée pour protéger les échanges entre clouds.
+    \item \textbf{Coût de mise en place} : Investissement initial pour l’interconnexion et l’orchestration.
+\end{itemize}
+
+\subsubsection{Cas d’usage typiques}
+\begin{itemize}
+    \item Entreprises avec des besoins variables (ex : e-commerce avec pics saisonniers).
+    \item Projets nécessitant à la fois souveraineté et scalabilité (ex : santé, administration).
+    \item Migration progressive vers le cloud (stratégie "lift-and-shift").
+\end{itemize}
 
 
 \section{Contexte d'utilisation} % comment moi je vais l'utiliser
@@ -115,10 +220,19 @@ Cette initiative s’inscrit dans une démarche visant à :
 
 L’absence de contraintes techniques précises laisse une grande flexibilité pour le choix de la solution, qui sera déterminé lors de l’\textbf{analyse des besoins} et des choix technologiques présentés dans les sections suivantes.
 \section{Analyse des besoins}
+Le but de ce projet étant d'implémenter une solution de cloud self-hosted pour remplacer Render, il est essentiel de comprendre les besoins spécifiques liés à ce contexte d’utilisation.
+\begin{itemize}
+    \item \textbf{Deploiement facile} : Les utilisateurs doivent pouvoir déployer leurs code sans que la complexité technique ne soit un obstacle.
+    \item \textbf{Gestion des comptes utilisateurs} : Il doit être possible de créer et gérer des comptes pour les étudiants.
+    \item \textbf{Monitoring basique} : Les utilisateurs doivent pouvoir surveiller l’état de leurs applications (logs, ressources utilisées).
+\end{itemize}
+
+
 
 \chapter{Pourquoi self-hosted ?}
 
 \chapter{Choix de la techno}
+\
 
 \chapter{Mise en place de l'infrastructure}
 
