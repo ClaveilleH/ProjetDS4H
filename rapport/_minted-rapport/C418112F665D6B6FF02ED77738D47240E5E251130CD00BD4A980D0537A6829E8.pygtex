@@ -1,0 +1,65 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+Créer un cloud \PYGZdq{}self\PYGZhy{}hosted\PYGZdq{} à la manière de **Render** ou **Heroku** (souvent appelé un **PaaS** \PYGZhy{} Platform as a Service) en utilisant **OpenStack** est un projet ambitieux.
+
+OpenStack est complexe car c\PYGZsq{}est un **IaaS** (Infrastructure as a Service). Pour obtenir l\PYGZsq{}expérience \PYGZdq{}cliquez et déployez\PYGZdq{} de Render, vous devez construire une couche d\PYGZsq{}abstraction par\PYGZhy{}dessus OpenStack.
+
+Voici la stratégie pour y parvenir :
+
+\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}
+
+\PYGZsh{}\PYGZsh{}\PYGZsh{} 1\PYG{k}{\PYGZbs{}.} La base : Déployer l\PYGZsq{}infrastructure (OpenStack)
+
+OpenStack va gérer vos ressources brutes (calcul, stockage, réseau).
+
+  * **La solution recommandée :** N\PYGZsq{}installez pas OpenStack \PYGZdq{}à la main\PYGZdq{}. Utilisez **OpenStack\PYGZhy{}Ansible** ou **Kolla\PYGZhy{}Ansible**. Ces outils utilisent des conteneurs pour faire tourner les services Cloud, ce qui facilite grandement la maintenance.
+  * **Services indispensables :**
+      * *Keystone* (Identité)
+      * *Nova* (Calcul/VM)
+      * *Neutron* (Réseau)
+      * *Glance* (Images d\PYGZsq{}OS)
+      * *Cinder* (Stockage bloc)
+
+\PYGZsh{}\PYGZsh{}\PYGZsh{} 2\PYG{k}{\PYGZbs{}.} Le moteur de déploiement : Kubernetes sur OpenStack
+
+Render ne déploie pas directement sur des machines virtuelles, il utilise des conteneurs. La manière la plus moderne de créer un PaaS sur OpenStack est d\PYGZsq{}utiliser OpenStack pour créer des clusters Kubernetes.
+
+  * **OpenStack Magnum :** C\PYGZsq{}est le service OpenStack dédié à la création de clusters de conteneurs (Kubernetes).
+  * **Pourquoi ?** Kubernetes gérera l\PYGZsq{}orchestration de vos applications, tandis qu\PYGZsq{}OpenStack gérera les serveurs physiques en dessous.
+
+\PYGZsh{}\PYGZsh{}\PYGZsh{} 3\PYG{k}{\PYGZbs{}.} La couche \PYGZdq{}Render\PYGZhy{}like\PYGZdq{} (Le PaaS)
+
+Pour avoir l\PYGZsq{}expérience utilisateur de Render (Git Push → Déploiement), vous devez installer une plateforme de développement sur votre Kubernetes. Voici les meilleures options open\PYGZhy{}source :
+
+  * **Coolify :** Probablement l\PYGZsq{}alternative la plus proche de Render aujourd\PYGZsq{}hui. Très simple à auto\PYGZhy{}héberger.
+  * **Dokku :** Un \PYGZdq{}mini\PYGZhy{}Heroku\PYGZdq{} très puissant, parfait si vous n\PYGZsq{}avez qu\PYGZsq{}un seul gros serveur.
+  * **CapRover :** Très visuel, avec un \PYGZdq{}App Store\PYGZdq{} pour déployer des bases de données en un clic.
+
+\PYGZsh{}\PYGZsh{}\PYGZsh{} 4\PYG{k}{\PYGZbs{}.} Automatiser le flux (CI/CD)
+
+Pour que cela ressemble à Render, le processus doit être automatique :
+
+1.  **Git :** Vous poussez votre code sur votre propre instance **GitLab** ou **Gitea**.
+2.  **Build :** Un outil comme **Cloud Native Buildpacks** (utilisé par Render) transforme votre code en image de conteneur sans que vous ayez à écrire de Dockerfile.
+3.  **Run :** L\PYGZsq{}image est poussée sur votre cluster géré par OpenStack.
+
+\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}\PYGZhy{}
+
+\PYGZsh{}\PYGZsh{}\PYGZsh{} Résumé de la pile technologique (Stack)
+
+| Couche | Technologie recommandée |
+| :\PYGZhy{}\PYGZhy{}\PYGZhy{} | :\PYGZhy{}\PYGZhy{}\PYGZhy{} |
+| **Matériel** | Vos serveurs physiques |
+| **Infrastructure (IaaS)** | **OpenStack** (via Kolla\PYGZhy{}Ansible) |
+| **Orchestration** | **Kubernetes** (via OpenStack Magnum) |
+| **Interface PaaS** | **Coolify** ou **Dokku** |
+| **Accès Public** | **Traefik** ou **Nginx Ingress** (pour les URL en [https://www.google.com/search?q=.votre\PYGZhy{}cloud.com](https://www.google.com/search?q=.votre\PYGZhy{}cloud.com)) |
+
+\PYGZsh{}\PYGZsh{}\PYGZsh{} Est\PYGZhy{}ce une bonne idée ?
+
+  * **Les avantages :** Contrôle total de vos données, aucun coût de bande passante caché, apprentissage immense.
+  * **Les inconvénients :** **Énorme charge de maintenance.** OpenStack est un \PYGZdq{}monstre\PYGZdq{} qui nécessite beaucoup de RAM (minimum 16\PYGZhy{}32 Go juste pour le plan de contrôle) et une surveillance constante.
+
+Si votre objectif est simplement d\PYGZsq{}avoir un \PYGZdq{}Render à la maison\PYGZdq{} sans la complexité d\PYGZsq{}OpenStack, installer **Coolify** directement sur un serveur Linux (Ubuntu) est 10 fois plus simple.
+
+Souhaitez\PYGZhy{}vous que je détaille l\PYGZsq{}installation d\PYGZsq{}OpenStack ou préférez\PYGZhy{}vous regarder comment configurer la partie PaaS (Coolify) ?
+\end{Verbatim}

@@ -1,6 +1,10 @@
-\documentclass{rapportClass} % Classe de document (rapport)
+  \documentclass{report} % Classe de document (rapport)
 
-
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{minted}
+\usepackage[hybrid]{markdown}
 
 \title{Rapport de Projet}
 \author{Hugo CLAVEILLE}
@@ -53,89 +57,429 @@
 
 \chapter{Introduction}
 
-\chapter{State of art et Analyse des besoins}
-\section{Qu'est ce que le cloud}
+Je commencerais par évoquer les concepts sous-jacents à l'apparition
+du cloud. Il s'agit de "poser" les notions manipulées par le travail
+qui va suivre.
 
-Dans cette section, nous allons essayer de définir ce qu'est le \textbf{cloud computing}, ses caractéristiques, et les différentes formes qu'il peut prendre.
-Il est important de comprendre les bases du cloud computing pour pouvoir analyser les besoins et faire des choix éclairés pour notre projet.
-Il faut noter que le cloud computing est un domaine en constante évolution, et il existe de nombreuses définitions et interprétations différentes.
-Cependant, nous allons essayer de donner une définition générale qui englobe les principales caractéristiques du cloud a l'heure actuelle.
+Comme souvent, les choses se construisent au fur et à mesure.
+
+\section{Evolutions \ldots vers l'infrastructure cloud}
+\subsection{Abstraction}
+Vouloir abstraire la machine sur laquelle on veut faire un exécuter un
+programme est un souhait qui apparaît avec les premiers systèmes
+d'exploitation.
+
+Bien avant le cloud, au milieu des années 60, Multics (Multiplexed
+Information and Computing Service) est un système d'exploitation conçu
+avec une vision de "Computer Utility" (service informatique public).
+
+Pour ses créateurs (MIT, Bell Labs et GE), la puissance de calcul doit
+être "accédée'' comme l'électricité : vous branchez une console dans
+le mur, et vous avez accès à une ressource partagée, sans savoir où se
+trouve la machine.
+
+Multics avait la philosophie du Cloud (l'informatique comme service
+public partagé) et l'architecture du Cloud (modularité, isolation,
+persistance), mais il lui manquait la puissance des machines et la
+couche réseau mondiale pour aboutir.
+
+\subsection{Accés distant}
+Les machines ont toujours été développées avec l'idée d'être accédées à distance.
+
+G.Stibitz développe le premier additionneur electromécanique
+sur 2 bits en 1937. \cite{WikipediaAdder2026}
+
+% ref : \url{https://en.wikipedia.org/wiki/Adder_(electronics)}
+
+Immédiatement, il complexifie son calculateur et imagine un accès
+distant. Lors d'une démonstration à la réunion de l'American
+Mathematical Society au Dartmouth College en septembre 1940, Stibitz
+utilisa un télétype modifié pour envoyer des commandes par lignes
+télégraphiques au Complex Number Calculator situé à New York. \cite{Stibitz2012}
+
+% ref : https://history.computer.org/pioneers/stibitz.html
+
+\subsection{Collaboration}
+Dans les années 1990, l'émergence des réseaux et la multiplication des
+machines permettent l'émergence du Grid Computing (Informatique en Grille).
+
+Tous ces unités centrales (PC par exemple), qui sont souvent sous
+utilisées, pourraient être mobilisées pour accélérer le traitement d'une
+tâche.
+
+Le grid computing agit comme un système distribué pour le partage
+collaboratif des ressources.  Celles-ci sont réparties entre
+différentes unités de calcul situées sur différents sites, pays et
+continents.
+
+C’est là que le symbole du "nuage" commence à être utilisé dans les
+schémas réseau pour représenter ce qui se passe "à l'extérieur" de
+l'ordinateur local, dans une zone dont on ne gère pas l'infrastructure
+technique mais qui collabore pour résoudre des problèmes complexes.
 
 
-Le cloud computing est un \textbf{modèle de fourniture de services informatiques} qui permet d'accéder à des ressources informatiques (serveurs, stockage, bases de données, réseaux, logiciels, etc.) via Internet. 
-Contrairement à l’informatique traditionnelle, où les ressources sont hébergées localement, le cloud externalise ces infrastructures vers des \textbf{centres de données distants}, gérés par des prestataires spécialisés.
-\cite{ISO2026,NIST2026}.
+\subsection{As a service}
+
+En 1999, l'entreprise Salesforce lance un logiciel de gestion de la
+relation client (CRM) accessible via un simple navigateur Web.
+
+C'est la naissance du SaaS ("Software as a Service"). C'est un
+changement de paradigme commercial majeur.
+
+On ne possède plus le logiciel, on s'y abonne et on y accède par HTTP
+(Hypertext Transfer Protocol) jusque là utilisé pour transférer du
+HTML (HyperText Markup Language).
+
+\subsection{La vision commerciale}
+
+C'est sans doute l'étape la plus concrète car elle fait vraiment
+diverger le cloud d'une structure de type Grid Computing.
+
+Dès le début des années 2000, Amazon construit une infrastructure
+massive qui lui permet d'absorber des pics de trafic de sa
+boutique en ligne comme par exemple à Noël.
+
+Elle fait néanmoins le constat que ses ressources sont inutilisée 90
+\% de l'année.
+
+Le Grid Computing a été pensé avec une vision scientifique de
+l'amélioration des performances. Amazon a une approche commerciale :
+Louer cette infrastructure vide à d'autres entreprises.
+
+En 2006, Amazon lance AWS (Amazon Web Services) avec des services
+comme S3 (stockage) et EC2 (calcul).  Pour la première fois, une
+startup pouvait louer la puissance d'un supercalculateur pour quelques
+dollars par heure.
 
 
-\subsection{Caractéristiques clés (NIST/ISO, 2026)}
+\section{Les impacts informatiques}
+
+\subsection{Le déploiement}
+
+Puisque l'infrastructure d'exécution est externe, il ne suffit plus de
+compiler et d'exécuter, le logiciel doit être déployé sur cette infrastructure louée.
+
+\subsection{Transparence}
+Pour que l'externalisation de l'infrastructure soit transparente à l'usage, elle
+devra remplir de nombreux critères parmi lesquels une haute
+disponibilité, une faible latence.
+
+Ce dernier point impacte la topologie de l'infrastructure qui tend
+vers un réseau ubiquitaire se rapprochant des utilisateurs.
+
+Plusieurs instances d'un même logiciel vont coexister dans l'infrastructure.
+
+
+\subsection{Infrastructure as Code : IaC}
+
+Traditionnellement, l'infrastructure (serveurs, câbles, pare-feu)
+était du "Hardware" : quelque chose de solide qu'on touche, qu'on
+visse dans une baie et qu'on configure manuellement via des câbles ou
+des écrans.
+
+Avec le cloud, "l'infrastructure devient du logiciel" (ou
+Infrastructure as Code - IaC). La création et la gestion de ses
+serveurs est traitée comme on traite le code d'une application.
+
+L'administrateur système ne manipule plus des machines, mais des
+abstractions. Il devient un développeur de plateforme.
+
+Voici les 4 piliers de cette mutation :
+\begin{enumerate}
+\item La définition par le texte (Fichiers de configuration)
+
+  Au lieu de cliquer sur des boutons dans une interface web pour créer
+  un serveur, vous écrivez un fichier texte (souvent en format YAML ou
+  JSON).
+
+  Exemple : "Je veux 3 serveurs avec 8 Go de RAM, situés à Paris, avec
+  un accès ouvert sur le port 80."
+
+  Ce fichier est votre infrastructure.
+
+  Pour la déployer, vous l'envoyez à une API (via des outils comme
+  Terraform, CloudFormation ou Pulumi), et le Cloud "matérialise" ces
+  ressources pour vous.
+
+  \item Le versioning (Comme sur GitHub)
+
+    Puisque votre infrastructure est maintenant un fichier texte, vous
+    pouvez utiliser les mêmes outils que les développeurs :
+    \begin{itemize}
+    \item Historique : Vous pouvez voir qui a modifié la taille d'un serveur il y a 3 jours.
+    \item Rollback : Si une modification de votre réseau provoque une
+      panne, vous "revenez à la version précédente" du fichier et le
+      Cloud remet l'infrastructure dans son état antérieur.
+    \item Branches : Vous pouvez avoir une branche "Test" et une branche "Production" de votre infrastructure.
+    \end{itemize}
+
+  \item La reproductibilité parfaite
+
+    C'est la fin du syndrome du "ça marche sur ma machine" ou du "le
+    serveur de test n'est pas configuré comme la prod".
+
+    Avec l'infrastructure logicielle, vous utilisez exactement le même
+    script pour créer votre environnement de développement, de test et
+    de production.
+
+    Vous garantissez que les règles de sécurité et les performances
+    sont identiques partout, sans risque d'erreur humaine (un oubli de
+    case à cocher, par exemple).
+
+  \item  L'immuabilité (Le concept "Phoenix")
+
+    C'est le changement de mentalité le plus radical :
+
+    Avant si un serveur tombait
+    malade, on passait des heures à le soigner, à modifier sa
+    configuration manuellement pour le réparer.
+
+    Maintenant si un serveur a un problème ou
+    doit être mis à jour, on ne le répare pas. On supprime l'instance
+    et on relance le script de l'infrastructure. Le logiciel recrée un
+    serveur tout neuf, parfaitement configuré, en quelques secondes.
+  \end{enumerate}
+
+
+  Imaginez que vous deviez déployer votre application dans 10 pays
+  différents pour réduire la latence.
+
+  Sans IaC, Il faudrait des semaines pour configurer manuellement
+  chaque centre de données.
+
+  Avec l'infrastructure logicielle : Vous lancez votre script 10 fois
+  avec une variable différente pour la région. En quelques minutes,
+  votre infrastructure mondiale est opérationnelle.
+
+\subsection{Développement-Exploitation :  DEVOPS}
+
+Le DEVOPS est une évolution de l'administration système qui adopte la
+philosophie agile pour ne plus être un goulot d'étranglement.
+
+Cette démarche essaye faire converger des contraintes antagonistes :
 \begin{itemize}
-    \item \textbf{Accès réseau omniprésent} : Les ressources sont accessibles depuis n’importe quel appareil connecté à Internet.
-    \item \textbf{Pool de ressources mutualisées} : Les infrastructures sont partagées et allouées dynamiquement selon les besoins (virtualisation, conteneurs).
-    \item \textbf{Élasticité et scalabilité} : Les ressources peuvent être ajustées automatiquement, en temps réel, pour répondre à la demande.
-    \item \textbf{Self-service à la demande} : L’utilisateur peut provisionner des ressources (ex : machines virtuelles, bases de données) sans intervention humaine du fournisseur.
-    \item \textbf{Facturation à l’usage} : Modèle économique "pay-as-you-go", où le coût est proportionnel à la consommation réelle.
+\item D'un coté, l'"agile'' qui vise à accélérer les vitesses de
+  développement et de mise en production.
+\item De l'autre, l'administration système qui cherche à trouver une
+  solution stable, fonctionnelle, sécurisée, \ldots
 \end{itemize}
 
-\subsection{Évolution récente (2026)}
-En 2026, le cloud n’est plus seulement un \textbf{lieu de stockage} ou d’hébergement, mais une \textbf{plateforme d’innovation} intégrant :
+L'Agile est né pour les développeurs. Son but est de dire : "Arrêtons
+de prévoir un projet sur 2 ans, travaillons par petits cycles pour
+avoir des retours rapides du client." \ldots et donc corriger
+rapidement et fréquemment le logiciel en construction.
+
+Cette approche se focalise sur l'organisation du travail avec
+notamment la mise en place de réunions régulières et fréquentes
+(Scrum), l'établissement de priorités, \ldots
+
+Or comme on l'a déjà souligné, avec une approche cloud, la mise en
+production c'est le déploiement. Souvent l'Agile s'arrêtait
+à la porte de la mise en production. Le développeur finissait sa tâche
+"Agilement", mais le serveur n'était pas prêt.
+
+L'administrateur système (l'Ops) n'est pas enclin au changement car le
+changement apporte des pannes. Il est plutôt perçu comme un frein par les
+développeurs.
+
+Le DevOps est né parce que l'Agile ne servait à rien si le déploiement
+sur les serveurs prenait 3 mois.
+
+% \subsection{Machines virtuelles}
+% ... pourquoi ?
+% quels types de virtualisations  ?
+\subsection{Machines virtuelles et virtualisation}
+
+La virtualisation est une technologie fondamentale qui a permis l’émergence du cloud computing. 
+Elle consiste à abstraire les ressources matérielles d’un ordinateur afin de permettre l’exécution 
+de plusieurs environnements isolés sur une même machine physique.
+
+\subsubsection{Pourquoi la virtualisation ?}
+
+Avant l’apparition de la virtualisation, un serveur physique était généralement dédié à une seule application. 
+Cette approche entraînait une sous-utilisation importante des ressources matérielles (CPU, mémoire, stockage).
+
+La virtualisation permet de résoudre ce problème en faisant coexister plusieurs machines virtuelles (VM) sur un même serveur physique.
+
+Les principaux objectifs sont :
 \begin{itemize}
-    \item L’\textbf{intelligence artificielle} (ex : GPU-as-a-Service pour l’entraînement de modèles, AIOps pour l’optimisation automatique des ressources) \cite{LeBigData2026}.
-    \item L’\textbf{Edge Computing} : traitement des données à la périphérie du réseau pour réduire la latence, notamment pour l’IoT et les applications temps réel \cite{Syslearn2026}.
-    \item Les \textbf{architectures hybrides et multi-cloud} : les entreprises combinent clouds publics, privés et infrastructures locales pour éviter le \textit{vendor lock-in} et optimiser flexibilité/sécurité \cite{ObjetConnecte2026}.
-    \item La \textbf{souveraineté des données} : développement de clouds locaux (ex : OVHcloud en France) pour se conformer aux réglementations comme le RGPD \cite{TechInsider2026}.
+\item \textbf{Optimisation des ressources} : meilleure utilisation du matériel
+\item \textbf{Isolation} : chaque VM est indépendante des autres
+\item \textbf{Flexibilité} : déploiement rapide de nouveaux environnements
+\item \textbf{Portabilité} : une VM peut être déplacée d’un serveur à un autre
 \end{itemize}
 
-\subsection{Pourquoi cette définition est-elle importante pour notre projet ?}
-Cette compréhension permet d’identifier :
+Avec pour objectif d'utiliser au mieux les ressources matérielles, d'isoler les applications, de faciliter le déploiement et la portabilité. 
+%, la virtualisation est devenue un pilier du cloud computing.
+
+\subsubsection{Historique}
+
+La virtualisation ne date pas du cloud. Dès les années 1970, IBM développe VM/370, un système permettant à plusieurs utilisateurs dexécuter simultanément des systèmes d’exploitation sur un même ordinateur central.
+
+Dans les années 1990, avec la démocratisation des ordinateurs personnels, des solutions comme Windows/386 permettent d’exécuter plusieurs environnements DOS.
+
+En 1995, la machine virtuelle Java (JVM) introduit une nouvelle forme de virtualisation : une abstraction logicielle permettant d’exécuter un programme indépendamment du matériel.
+
+Ce n’est qu’au début des années 2000 que la virtualisation devient centrale avec l’essor du cloud computing.
+
+\subsubsection{Principe de fonctionnement}
+
+Une machine virtuelle est une simulation logicielle d’un ordinateur physique.
+
+Chaque VM possède : un système d’exploitation invité, de la mémoire virtuelle, un processeur virtuel et des périphériques simulés.
+
+Ces ressources sont fournies et gérées par un logiciel appelé \textbf{hyperviseur}.
+
+\subsubsection{Les hyperviseurs}
+
+L’hyperviseur est la couche logicielle qui permet de créer, exécuter et gérer les machines virtuelles.
+
+On distingue deux types :
+
 \begin{itemize}
-    \item Les \textbf{avantages} du cloud (flexibilité, coût, innovation) mais aussi ses \textbf{limites} (dépendance, sécurité, latence).
-    \item Les \textbf{critères de choix} entre cloud public, privé, hybride ou \textit{self-hosted}, en fonction des besoins en souveraineté, performance et budget.
+\item \textbf{Type 1 (bare-metal)} : fonctionne directement sur le matériel
+
+Comme VMware ESXi ou Xen, ces hyperviseurs sont utilisés dans les datacenters et le cloud pour leur performance et leur sécurité.
+Ils offrent une isolation forte entre les VM et un accès direct aux ressources matérielles, ce qui les rend adaptés aux environnements de production à grande échelle. 
+
+\item \textbf{Type 2} : fonctionne au-dessus d’un système d’exploitation
+Les hyperviseurs de type 2, sont des logiciels qui s’exécutent sur un système d’exploitation hôte, comme VirtualBox ou VMware Workstation.
+Plus faciles à installer et à utiliser, ils sont souvent utilisés pour le développement, les tests ou l’apprentissage, 
+mais ne sont pas adaptés aux environnements de production en raison de leur performance inférieure et de leur isolation moins robuste.
+\end{itemize}
+
+\subsubsection{Limites des machines virtuelles}
+
+Malgré leurs avantages, les machines virtuelles présentent certaines limites :
+
+\begin{itemize}
+  \item Consommation importante de ressources (chaque VM embarque un OS complet)
+  \item Temps de démarrage relativement long
+  \item Complexité de gestion à grande échelle
+\end{itemize}
+
+Ces limites ont conduit à l’émergence des conteneurs, plus légers et plus rapides.
+
+\subsubsection{Types de virtualisation}
+
+% Il existe plusieurs approches :
+
+% \begin{itemize}
+% \item \textbf{Virtualisation complète} : la VM simule entièrement le matériel, sans modification du système invité
+% \item \textbf{Paravirtualisation} : le système invité est modifié pour interagir avec l’hyperviseur
+% \item \textbf{Virtualisation au niveau du système (conteneurs)} : partage du noyau du système hôte (ex : Docker)
+% \end{itemize}
+
+\subsubsection{Lien avec le cloud}
+
+La virtualisation est la base du cloud computing. Elle permet aux fournisseurs comme AWS de mutualiser leurs infrastructures et de proposer des ressources à la demande.
+
+Par exemple, une instance EC2 correspond à une machine virtuelle exécutée sur un serveur physique partagé avec d’autres utilisateurs.
+
+Cela permet :
+\begin{itemize}
+\item une facturation à l’usage
+\item une scalabilité rapide
+\item une isolation entre clients
 \end{itemize}
 
 \section{Différentes méthodes}
 
-Cette section présente les trois principaux modèles de déploiement cloud : \textbf{public}, \textbf{privé} et \textbf{hybride}. Chaque modèle répond à des besoins spécifiques en termes de flexibilité, de sécurité, de coût et de souveraineté.
+Cette section présente les trois principaux modèles de déploiement
+cloud : \textbf{public}, \textbf{privé} et \textbf{hybride}.
 
+Chaque modèle répond à des besoins spécifiques en termes de
+flexibilité, de sécurité, de coût et de souveraineté.
+
+%%=========================================================
 \subsection{Cloud Public}
 
 \subsubsection{Définition}
-Le \textbf{cloud public} est un modèle où les ressources informatiques (serveurs, stockage, applications) sont mises à disposition par un fournisseur tiers via Internet. Ces ressources sont partagées entre plusieurs clients (multi-tenancy) et accessibles à la demande, avec une facturation généralement basée sur l’usage (pay-as-you-go).
+Le \textbf{cloud public} est un modèle où les ressources informatiques
+(serveurs, stockage, applications) sont mises à disposition par un
+fournisseur tiers via Internet.
 
-\subsubsection{Exemples de fournisseurs}
-\begin{itemize}
-    \item Amazon Web Services (AWS)
-    \item Microsoft Azure
-    \item Google Cloud Platform (GCP)
-    \item IBM Cloud
-\end{itemize}
+Ces ressources sont partagées entre plusieurs clients (multi-tenancy)
+et accessibles à la demande, avec une facturation généralement basée
+sur l’usage (pay-as-you-go).
+On le trouve chez des fournisseurs comme AWS, Microsoft Azure ou Google Cloud Platform.
 
+% \subsubsection{Exemples de fournisseurs}
+% \begin{itemize}
+%     \item Amazon Web Services (AWS)
+%     \item Microsoft Azure
+%     \item Google Cloud Platform (GCP)
+%     \item IBM Cloud
+% \end{itemize}
+
+% {\color{red} Ce qui suit n'est pas rédigé .. c'est du copier coller chatgpt  =$>$ PAS BON !}
+  
 \subsubsection{Avantages}
-\begin{itemize}
-    \item \textbf{Coût réduit} : Pas d’investissement initial en infrastructure, paiement à l’usage.
-    \item \textbf{Élasticité} : Scalabilité automatique pour répondre à la demande.
-    \item \textbf{Maintenance externalisée} : Le fournisseur gère les mises à jour, la sécurité physique et la disponibilité.
-    \item \textbf{Accès global} : Disponibilité mondiale avec des data centers répartis géographiquement.
-\end{itemize}
+Ce modèle permet aux entreprises de bénéficier d’une infrastructure évolutive sans avoir à investir dans du matériel coûteux ou à gérer la maintenance. 
+Les fournisseurs de cloud public offrent une large gamme de services (calcul, stockage, bases de données, 
+intelligence artificielle) qui peuvent être rapidement provisionnés et intégrés.
+Il permet également une grande flexibilité, avec la possibilité d’ajuster les ressources en fonction des besoins, 
+et une accessibilité mondiale grâce à des centres de données répartis géographiquement.
+C'est le fournisseur qui gère la sécurité physique, les mises à jour et la disponibilité, ce qui réduit la charge de travail pour les utilisateurs finaux.
+
+% \begin{itemize}
+%     \item \textbf{Coût réduit} : Pas d’investissement initial en infrastructure, paiement à l’usage.
+%     \item \textbf{Élasticité} : Scalabilité automatique pour répondre à la demande.
+%     \item \textbf{Maintenance externalisée} : Le fournisseur gère les mises à jour, la sécurité physique et la disponibilité.
+%     \item \textbf{Accès global} : Disponibilité mondiale avec des data centers répartis géographiquement.
+% \end{itemize}
 
 \subsubsection{Inconvénients}
-\begin{itemize}
-    \item \textbf{Dépendance au fournisseur} : Risque de \textit{vendor lock-in} et dépendance aux conditions tarifaires.
-    \item \textbf{Sécurité et conformité} : Les données sont hébergées chez un tiers, ce qui peut poser des problèmes de conformité (ex : RGPD).
-    \item \textbf{Latence} : Peut être élevée selon la localisation des data centers.
-    \item \textbf{Manque de contrôle} : L’utilisateur n’a pas la main sur l’infrastructure sous-jacente.
-\end{itemize}
 
-\subsubsection{Cas d’usage typiques}
-\begin{itemize}
-    \item Hébergement de sites web et applications grand public.
-    \item Déploiement de services SaaS (ex : Gmail, Salesforce).
-    \item Environnements de développement/test éphémères.
-\end{itemize}
+% Mais ce genre de modèle présente aussi des inconvénients, premièrement, la dépendance au fournisseur, qui peut entraîner un risque de \textit{vendor lock-in} et une dépendance aux conditions tarifaires.
+Mais ce type de modèle présente aussi des inconvénients, notamment une dépendance au fournisseur, 
+qui peut entraîner une forte contrainte vis-à-vis de ses conditions tarifaires. 
+Mais aussi des enjeux de sécurité et de conformité, puisque les données sont hébergées chez un tiers, 
+ce qui peut soulever des questions réglementaires (par exemple vis-à-vis du RGPD).
+La latence peut également être un problème, surtout si les utilisateurs sont éloignés des centres de données du fournisseur, 
+bien que la plupart des grands fournisseurs offrent des options pour choisir la région de déploiement.
+Enfin, le manque de contrôle sur l’infrastructure sous-jacente peut être un frein pour certaines organisations,
+% \begin{itemize}
+%     \item \textbf{Dépendance au fournisseur} : Risque de \textit{vendor lock-in} et dépendance aux conditions tarifaires.
+%     \item \textbf{Sécurité et conformité} : Les données sont hébergées chez un tiers, ce qui peut poser des problèmes de conformité (ex : RGPD).
+%       {\color{red} pourquoi ?}
+%     \item \textbf{Latence} : Peut être élevée selon la localisation des data centers.
+%       {\color{red} pourtant chez AWS tu choisis ta région !}
+%     \item \textbf{Manque de contrôle} : L’utilisateur n’a pas la main sur l’infrastructure sous-jacente.
+      
+% \end{itemize}
 
+% \subsubsection{Cas d’usage typiques}
+% \begin{itemize}
+%     \item Hébergement de sites web et applications grand public.
+%     \item Déploiement de services SaaS (ex : Gmail, Salesforce).
+%     \item Environnements de développement/test éphémères.
+% \end{itemize}
+
+
+%%====================================================
 \subsection{Cloud Privé}
 
 \subsubsection{Définition}
-Le \textbf{cloud privé} est une infrastructure cloud dédiée à une seule organisation. Il peut être hébergé en interne (on-premise) ou chez un prestataire externe, mais reste exclusif à l’organisation. Ce modèle offre un contrôle total sur les ressources et la sécurité.
+Le \textbf{cloud privé} est une infrastructure cloud dédiée à une
+seule organisation.
+
+
+Il peut être hébergé en interne (on-premise) ou
+chez un prestataire externe, mais reste exclusif à l’organisation. 
+Dans le case d’un cloud privé on-premise, l’organisation possède et gère elle-même l’infrastructure, offrant un contrôle total sur les ressources 
+et les solutions de sécurité.
+
+% {\color{red} ca veut dire quoi "Ce
+%   modèle offre un contrôle total sur les ressources et la sécurité.'' ?}
+{\color{green} j'ai encore pas mal de lecture la dessus, je comprends pas tout, je finira de rédiger cette partie plus tard}
+
+
+{\color{red} AWS VPC ?}
+
+{\color{red} \url{https://aws.amazon.com/fr/vpc/} eux, expliquent un peu l'intéret du contrôle "total".
+remarque aussi que le moindre EC2 est placé dans un VPC par defaut }
+{\color{red} c'est quoi le contrôle total ?}
 
 \subsubsection{Exemples de solutions}
 \begin{itemize}
@@ -145,6 +489,7 @@ Le \textbf{cloud privé} est une infrastructure cloud dédiée à une seule orga
     \item Clouds souverains (ex : OVHcloud, 3DS Outscale)
 \end{itemize}
 
+{\color{red} Ce qui suit n'est pas rédigé .. c'est du copier coller chatgpt  =$>$ PAS BON !}
 \subsubsection{Avantages}
 \begin{itemize}
     \item \textbf{Sécurité renforcée} : Isolation des données et contrôle total sur l’infrastructure.
@@ -169,10 +514,16 @@ Le \textbf{cloud privé} est une infrastructure cloud dédiée à une seule orga
     \item Projets nécessitant une souveraineté totale sur les données.
 \end{itemize}
 
+%%====================================================
 \subsection{Cloud Hybride}
 
 \subsubsection{Définition}
-Le \textbf{cloud hybride} combine les modèles public et privé, permettant aux organisations de bénéficier des avantages des deux approches. Les ressources sont orchestrées pour communiquer entre elles, offrant flexibilité et optimisation des coûts.
+Le \textbf{cloud hybride} combine les modèles public et privé,
+permettant aux organisations de bénéficier des avantages des deux
+approches.
+
+Les ressources sont orchestrées pour communiquer entre elles, offrant
+flexibilité et optimisation des coûts.
 
 \subsubsection{Exemples d’architectures}
 \begin{itemize}
@@ -203,24 +554,170 @@ Le \textbf{cloud hybride} combine les modèles public et privé, permettant aux 
 \end{itemize}
 
 
+{\color{red} on ne ressent pas une grande profondeur de connaissance : illustre , explique, donne du corps !!!}
+
+{\color{red} 
+\section{Modèles d'exploitation}
+
+IaaS
+PaaS
+SaaS
+}
+
+
+
+\chapter{Objectif du travail}
+
+
+
+
+\section{Qu'est ce que le cloud}
+
+Dans cette section, nous allons essayer de définir ce qu'est le
+\textbf{cloud computing}, ses caractéristiques, et les différentes
+formes qu'il peut prendre.
+
+Il est important de comprendre les bases du cloud computing pour
+pouvoir analyser les besoins et faire des choix éclairés pour notre
+projet.
+
+Il faut noter que le cloud computing est un domaine en constante
+évolution, et il existe de nombreuses définitions et interprétations
+différentes. Cependant, nous allons essayer de donner une définition
+générale qui englobe les principales caractéristiques du cloud a
+l'heure actuelle.
+
+Le cloud computing est un \textbf{modèle de fourniture de services
+  informatiques} qui permet d'accéder à des ressources informatiques
+(serveurs, stockage, bases de données, réseaux, logiciels, etc.) via
+Internet.
+
+Contrairement à l’informatique "traditionnelle", où les ressources
+sont hébergées localement, le cloud externalise ces infrastructures
+vers des \textbf{centres de données distants}, gérés par des
+prestataires spécialisés.  \cite{ISO2026,NIST2026}.
+
+
+{\color{red} Contrairement à l’informatique "traditionnelle", où les ressources
+sont hébergées localement, le paradigme du cloud externalise ces infrastructures
+vers des \textbf{centres de données distants}, souvent gérés par des
+prestataires spécialisés.  \cite{ISO2026,NIST2026}.
+
+\medskip
+sinon ca te met en porte à faux parce que toi tu veux faire un cloud qui n 'externalise pas complètement)
+ même relation qu'entre Internet et Intranet}
+
+
+
+\subsection{Caractéristiques clés (NIST/ISO, 2026)}
+
+{\color{red} Ce qui suit n'est pas rédigé .. c'est du copier coller chatgpt  =$>$ PAS BON !}
+
+\begin{itemize}
+\item \textbf{Accès réseau omniprésent} : Les ressources sont
+  accessibles depuis n’importe quel appareil connecté à Internet.
+\item \textbf{Pool de ressources mutualisées} : Les infrastructures
+  sont partagées et allouées dynamiquement selon les besoins
+  (virtualisation, conteneurs).
+\item \textbf{Élasticité et scalabilité} : Les ressources peuvent être
+  ajustées automatiquement, en temps réel, pour répondre à la demande.
+\item \textbf{Self-service à la demande} : L’utilisateur peut
+  provisionner des ressources (ex : machines virtuelles, bases de
+  données) sans intervention humaine du fournisseur.
+\item \textbf{Facturation à l’usage} : Modèle économique
+  "pay-as-you-go", où le coût est proportionnel à la consommation
+  réelle.
+\end{itemize}
+
+\subsection{Évolutions récentes (2026)}
+
+{\color{red} Ce qui suit n'est pas rédigé .. c'est du copier coller chatgpt  =$>$ PAS BON !}
+
+En 2026, le cloud n’est plus seulement un \textbf{lieu de stockage} ou
+d’hébergement, mais une \textbf{plateforme d’innovation} intégrant :
+\begin{itemize}
+\item L’\textbf{intelligence artificielle} (ex : GPU-as-a-Service pour
+  l’entraînement de modèles, AIOps pour l’optimisation automatique des
+  ressources) \cite{LeBigData2026}.
+\item L’\textbf{Edge Computing} : traitement des données à la
+  périphérie du réseau pour réduire la latence, notamment pour l’IoT
+  et les applications temps réel \cite{Syslearn2026}.
+
+  {\color{red} Plus que ca !!! regarde le concept de continuum computing }
+  
+\item Les \textbf{architectures hybrides et multi-cloud} : les
+  entreprises combinent clouds publics, privés et infrastructures
+  locales pour éviter le \textit{vendor lock-in} et optimiser
+  flexibilité/sécurité \cite{ObjetConnecte2026}.
+
+  {\color{red} vendor lock-in ? }
+
+  
+\item La \textbf{souveraineté des données} : développement de clouds
+  locaux (ex : OVHcloud en France) pour se conformer aux
+  réglementations comme le RGPD \cite{TechInsider2026}.
+\end{itemize}
+
+\subsection{Pourquoi cette définition est-elle importante pour notre projet ?}
+
+{\color{red} Ce qui suit n'est pas rédigé .. c'est du copier coller chatgpt  =$>$ PAS BON !}
+
+\begin{Huge}
+  {\color{red}rédiger ce n'est pas qu'énoncer \ldots c'est expliquer}  
+\end{Huge}
+
+
+Cette compréhension permet d’identifier :
+\begin{itemize}
+\item Les \textbf{avantages} du cloud (flexibilité, coût, innovation)
+  mais aussi ses \textbf{limites} (dépendance, sécurité, latence).
+
+  {\color{red} tu es sûr que le cout est un avantage  ?}
+\item Les \textbf{critères de choix} entre cloud public, privé,
+  hybride ou \textit{self-hosted}, en fonction des besoins en
+  souveraineté, performance et budget.
+
+  {\color{red} public? privé? on ne sait pas encore ce que c'est !}
+\end{itemize}
+
 \section{Contexte d'utilisation} % comment moi je vais l'utiliser
-Dans le cadre du projet \textbf{DS4H}, il m'a été confié la mission de concevoir et déployer une \textbf{solution self-hosted} 
-pour remplacer le service \textbf{Render} utilisé dans le cours d’\textbf{IoT}. L’objectif est de fournir une alternative locale, 
-souveraine et maîtrisée, permettant aux étudiants et enseignants de déployer, 
-gérer et monitorer des applications IoT sans dépendre d’un service cloud externe.
+Dans le cadre du projet \textbf{DS4H}, il m'a été confié la mission de
+concevoir et déployer une \textbf{solution self-hosted} pour remplacer
+le service \textbf{Render} utilisé dans le cours d’\textbf{IoT}.
+
+L’objectif est de fournir une alternative locale, souveraine et
+maîtrisée, permettant aux étudiants et enseignants de déployer, gérer
+et monitorer des applications IoT sans dépendre d’un service cloud
+externe.
+
+{\color{red} quel modèle ? IaaS, PaaS ?}
+
 
 Cette initiative s’inscrit dans une démarche visant à :
 \begin{itemize}
-    \item \textbf{Réduire la dépendance} aux services tiers, en alignement avec les principes de souveraineté numérique et de résilience pédagogique.
-    \item \textbf{Reproduire les fonctionnalités essentielles} de Render (déploiement continu, gestion des environnements, monitoring basique) 
-    tout en s’adaptant aux besoins spécifiques du cours (protocoles IoT, gestion des devices, etc.).
-    \item \textbf{Faciliter l’apprentissage} en offrant un environnement contrôlé et accessible, 
-    propice à l’expérimentation des concepts d’IoT et d’infrastructure.
+\item \textbf{Réduire la dépendance} aux services tiers, en alignement
+  avec les principes de souveraineté numérique et de résilience
+  pédagogique.
+\item \textbf{Reproduire les fonctionnalités essentielles} de Render
+  (déploiement continu, gestion des environnements, monitoring
+  basique) tout en s’adaptant aux besoins spécifiques du cours
+  (protocoles IoT, gestion des devices, etc.).
+\item \textbf{Faciliter l’apprentissage} en offrant un environnement
+  contrôlé et accessible, propice à l’expérimentation des concepts
+  d’IoT et d’infrastructure.
 \end{itemize}
 
-L’absence de contraintes techniques précises laisse une grande flexibilité pour le choix de la solution, qui sera déterminé lors de l’\textbf{analyse des besoins} et des choix technologiques présentés dans les sections suivantes.
+
+L’absence de contraintes techniques précises laisse une grande
+flexibilité pour le choix de la solution, qui sera déterminé lors de
+l’\textbf{analyse des besoins} et des choix technologiques présentés
+dans les sections suivantes.
+
+
 \section{Analyse des besoins}
-Le but de ce projet étant d'implémenter une solution de cloud self-hosted pour remplacer Render, il est essentiel de comprendre les besoins spécifiques liés à ce contexte d’utilisation.
+Le but de ce projet étant d'implémenter une solution de cloud
+self-hosted pour remplacer Render, il est essentiel de comprendre les
+besoins spécifiques liés à ce contexte d’utilisation.
 \begin{itemize}
     \item \textbf{Deploiement facile} : Les utilisateurs doivent pouvoir déployer leurs code sans que la complexité technique ne soit un obstacle.
     \item \textbf{Gestion des comptes utilisateurs} : Il doit être possible de créer et gérer des comptes pour les étudiants.
@@ -231,11 +728,186 @@ Le but de ce projet étant d'implémenter une solution de cloud self-hosted pour
 
 \chapter{Pourquoi self-hosted ?}
 
-\chapter{Choix de la techno}
-\
+{\color{red} tu as répondu au dessus ?  sauf que tu as oublié le coût !!!}
 
+\chapter{Choix de la techno}
+
+
+
+%%=========================================================
 \chapter{Mise en place de l'infrastructure}
 
+\section{Première approche : Dokploy}
+Dokploy est une solution open-source de déploiement de service et base de donnée. %c'est le bon terme ? 
+Elle permet de déployer facilement des applications à partir d’un dépôt Git, en utilisant des conteneurs Docker.
+
+\subsection{Installation et configuration}
+L’installation de Dokploy est relativement simple et peut être réalisée en une seule commande sur un serveur Linux.
+% curl -sSL https://dokploy.com/install.sh | sh
+Une fois installé, il faut créer des identifiants administrateur et configurer les paramètres de base (certificats SSL, domaine).
+
+\subsection{Services proposés par Dokploy}
+Dokploy offre plusieurs services clés :
+\begin{itemize}
+\item \textbf{Déploiement continu} : Intégration avec Git pour déployer automatiquement les applications à chaque push.
+\item \textbf{Gestion des bases de données} : Création et gestion de bases de données MySQL, MongoDB, etc.
+\item \textbf{Monitoring} : Visualisation des logs et des ressources utilisées par les applications.
+\item \textbf{Interface utilisateur} : Dashboard web pour gérer les applications et les utilisateurs, 
+l'administrateur peut créer des comptes et les associer a différents projets en parametrant 
+les permissions (création d'application, accès aux logs, etc\dots).
+Et les utilisateurs peuvent se connecter pour déployer et monitorer leurs applications en gérant tout depuisde panel.
+\end{itemize}
+
+\subsection{Avantages et inconvénients de Dokploy}
+\subsubsection{Avantages}
+Il est facile à installer et à utiliser, avec une interface conviviale. Il offre une bonne intégration avec Git et supporte plusieurs types de bases de données.
+Cela permet de répondre rapidement aux besoins.
+\subsubsection{Inconvénients}
+Il peut être limité en termes de scalabilité et de personnalisation. La communauté est relativement petite, ce qui peut poser des problèmes de support et de développement à long terme.
+Bien qu'il offre la possibilité d'avoir plusieurs machines sur lesquelles déployer, il n'est pas conçu pour gérer une infrastructure complexe ou à grande échelle.
+
+\section{Approche approfondie : OpenStack}
+il faut que je test openStack et que je fasse des recherches dessus
+
+%%=========================================================
+
+{\color{red} 
+Moi je commencerais par coolify ou autre truc simple et apres openstack !?
+
+\begin{itemize}
+\item Gemini dit 2 minutes ! 
+\item Il devrait déjà y avoir un truc comme ca qui tourne !
+\end{itemize}
+}
+
+\subsection{Q: comment faire un cloud self hosted a la render avec openstack}
+Gemini a dit :
+\begin{minted}{tex}
+Créer un cloud "self-hosted" à la manière de **Render** ou **Heroku** (souvent appelé un **PaaS** - Platform as a Service) en utilisant **OpenStack** est un projet ambitieux.
+
+OpenStack est complexe car c'est un **IaaS** (Infrastructure as a Service). Pour obtenir l'expérience "cliquez et déployez" de Render, vous devez construire une couche d'abstraction par-dessus OpenStack.
+
+Voici la stratégie pour y parvenir :
+
+-----
+
+### 1\. La base : Déployer l'infrastructure (OpenStack)
+
+OpenStack va gérer vos ressources brutes (calcul, stockage, réseau).
+
+  * **La solution recommandée :** N'installez pas OpenStack "à la main". Utilisez **OpenStack-Ansible** ou **Kolla-Ansible**. Ces outils utilisent des conteneurs pour faire tourner les services Cloud, ce qui facilite grandement la maintenance.
+  * **Services indispensables :**
+      * *Keystone* (Identité)
+      * *Nova* (Calcul/VM)
+      * *Neutron* (Réseau)
+      * *Glance* (Images d'OS)
+      * *Cinder* (Stockage bloc)
+
+### 2\. Le moteur de déploiement : Kubernetes sur OpenStack
+
+Render ne déploie pas directement sur des machines virtuelles, il utilise des conteneurs. La manière la plus moderne de créer un PaaS sur OpenStack est d'utiliser OpenStack pour créer des clusters Kubernetes.
+
+  * **OpenStack Magnum :** C'est le service OpenStack dédié à la création de clusters de conteneurs (Kubernetes).
+  * **Pourquoi ?** Kubernetes gérera l'orchestration de vos applications, tandis qu'OpenStack gérera les serveurs physiques en dessous.
+
+### 3\. La couche "Render-like" (Le PaaS)
+
+Pour avoir l'expérience utilisateur de Render (Git Push → Déploiement), vous devez installer une plateforme de développement sur votre Kubernetes. Voici les meilleures options open-source :
+
+  * **Coolify :** Probablement l'alternative la plus proche de Render aujourd'hui. Très simple à auto-héberger.
+  * **Dokku :** Un "mini-Heroku" très puissant, parfait si vous n'avez qu'un seul gros serveur.
+  * **CapRover :** Très visuel, avec un "App Store" pour déployer des bases de données en un clic.
+
+### 4\. Automatiser le flux (CI/CD)
+
+Pour que cela ressemble à Render, le processus doit être automatique :
+
+1.  **Git :** Vous poussez votre code sur votre propre instance **GitLab** ou **Gitea**.
+2.  **Build :** Un outil comme **Cloud Native Buildpacks** (utilisé par Render) transforme votre code en image de conteneur sans que vous ayez à écrire de Dockerfile.
+3.  **Run :** L'image est poussée sur votre cluster géré par OpenStack.
+
+-----
+
+### Résumé de la pile technologique (Stack)
+
+| Couche | Technologie recommandée |
+| :--- | :--- |
+| **Matériel** | Vos serveurs physiques |
+| **Infrastructure (IaaS)** | **OpenStack** (via Kolla-Ansible) |
+| **Orchestration** | **Kubernetes** (via OpenStack Magnum) |
+| **Interface PaaS** | **Coolify** ou **Dokku** |
+| **Accès Public** | **Traefik** ou **Nginx Ingress** (pour les URL en [https://www.google.com/search?q=.votre-cloud.com](https://www.google.com/search?q=.votre-cloud.com)) |
+
+### Est-ce une bonne idée ?
+
+  * **Les avantages :** Contrôle total de vos données, aucun coût de bande passante caché, apprentissage immense.
+  * **Les inconvénients :** **Énorme charge de maintenance.** OpenStack est un "monstre" qui nécessite beaucoup de RAM (minimum 16-32 Go juste pour le plan de contrôle) et une surveillance constante.
+
+Si votre objectif est simplement d'avoir un "Render à la maison" sans la complexité d'OpenStack, installer **Coolify** directement sur un serveur Linux (Ubuntu) est 10 fois plus simple.
+
+Souhaitez-vous que je détaille l'installation d'OpenStack ou préférez-vous regarder comment configurer la partie PaaS (Coolify) ?
+\end{minted}
+
+\subsection{ et avec coolify ?}
+Gemini a dit
+\begin{minted}{tex}
+Si tu veux une expérience **"à la Render"** (Git Push, déploiement automatique, bases de données en un clic) sans t'arracher les cheveux sur OpenStack, **Coolify** est l'outil parfait. C'est ce qu'on appelle un "PaaS auto-hébergé".
+
+Voici comment transformer un simple serveur en ton propre Cloud privé avec Coolify.
+
+---
+
+### 1. La philosophie Coolify
+Contrairement à OpenStack qui gère des machines virtuelles, Coolify gère des **conteneurs (Docker)**. Il s'installe sur une machine Linux vierge et devient ton centre de contrôle.
+
+### 2. Installation (La minute magique)
+Il te suffit d'une machine sous Ubuntu (ou Debian/CentOS) avec au moins **2 Go de RAM**. Connecte-toi en SSH et lance cette commande :
+
+```bash
+curl -fsSL https://get.coollabs.io/coolify/install.sh | bash
+```
+
+Une fois terminé, tu accèdes à une interface web ultra-propre (généralement sur le port `8000`).
+
+### 3. Comment il reproduit l'expérience "Render"
+
+Coolify automatise tout ce qui est normalement pénible dans l'administration système :
+
+*   **Connexion Git :** Tu lies ton compte GitHub ou GitLab. Dès que tu pousses du code, Coolify le détecte, crée une nouvelle image de ton app et la déploie.
+*   **Reverse Proxy intégré :** Il installe automatiquement **Traefik**. Tu n'as pas à configurer de fichiers Nginx compliqués pour avoir tes noms de domaine.
+*   **SSL Automatique :** Il génère tes certificats **Let's Encrypt** (HTTPS) tout seul.
+*   **Bases de données :** Tu cliques sur "PostgreSQL" ou "Redis", et il te déploie une instance sécurisée avec une interface de gestion intégrée.
+
+---
+
+### 4. La configuration "Multi-Serveurs" (Le vrai Cloud)
+Si tu veux vraiment faire comme Render et ne pas tout mettre sur une seule machine :
+1.  Tu installes Coolify sur un serveur principal (le **Control Plane**).
+2.  Tu achètes d'autres serveurs vides (tes **Nodes**).
+3.  Dans l'interface Coolify, tu ajoutes l'IP de tes autres serveurs via SSH.
+4.  Désormais, quand tu déploies une application, tu peux choisir sur quel serveur elle doit tourner.
+
+### 5. Comparaison : Coolify vs OpenStack
+
+| Fonctionnalité | Coolify | OpenStack |
+| :--- | :--- | :--- |
+| **Difficulté** |  (Très facile) | (Expert) |
+| **Installation** | 2 minutes | 2 jours (minimum) |
+| **Ressources** | Très léger (quelques Mo de RAM) | Très lourd (besoin de 32 Go+ RAM) |
+| **Usage** | Déployer des Apps et des DB | Créer des Datacenters virtuels |
+
+---
+
+### Le conseil du "pro"
+Si tu veux un Cloud robuste à la maison ou en entreprise :
+1.  Prends un serveur chez un hébergeur (Hetzner, OVH, DigitalOcean) ou un vieux PC puissant.
+2.  Installe **Docker** et **Coolify**.
+3.  Utilise un service comme **Cloudflare** pour ton DNS.
+
+**C'est la solution la plus proche de l'esprit DevOps moderne :** tu ne perds pas de temps à "réparer" des serveurs, tu passes ton temps à "déployer" des applications.
+
+Est-ce que tu as déjà un serveur sous la main pour tester, ou tu veux que je t'explique comment lier ton GitHub à Coolify ?
+\end{minted}
 
 % \printbibliography
 \bibliographystyle{plain}

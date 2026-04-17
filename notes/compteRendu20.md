@@ -27,7 +27,7 @@ Pour résumer les différentes solutions que j'ai trouvées :
   - Solution légère et simple, elle offre une interface en ligne de commande et un deploiment git
   - Elle est assez populaire
   - Probleme : n'offre pas d'interface graphique, donc pas très user friendly je trouve pour les personnes non techniques & du coup pas de logs ?
-- Dockpoly :
+- Dockploy :
   - Assez peu connu j'ai l'impression, j'ai du mal a faire marcher il y a un probleme avec docker et vu que je dois tout apprendre sur docker je rame..
   - Offre une interface graphique et un deploiment git
   - Il y a aussi la possibilité de creer des bases de données dont mongodb avec une methode d'acces et de gestion pour les utilisateurs

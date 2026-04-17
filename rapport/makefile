@@ -1,7 +1,7 @@
 # Makefile pour rapport LaTeX avec biblatex
 MAIN=rapport
 BIBFILE=refs
-PDFLATEX=pdflatex -interaction=nonstopmode -synctex=1
+PDFLATEX=pdflatex -interaction=nonstopmode -synctex=1 -shell-escape
 BIBER=bibtex
 
 # Cibles principales
