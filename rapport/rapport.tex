@@ -46,632 +46,9 @@
 
 \chapter{Abstract}
 
+% ======================================================================================================================
 \chapter{Introduction}
-
-Je commencerais par évoquer les concepts sous-jacents à l'apparition
-du cloud. Il s'agit de "poser" les notions manipulées par le travail
-qui va suivre.
-
-Comme souvent, les choses se construisent au fur et à mesure.
-
-\section{Evolutions \ldots vers l'infrastructure cloud}
-\subsection{Abstraction}
-Vouloir abstraire la machine sur laquelle on veut faire un exécuter un
-programme est un souhait qui apparaît avec les premiers systèmes
-d'exploitation.
-
-Bien avant le cloud, au milieu des années 60, Multics (Multiplexed
-Information and Computing Service) est un système d'exploitation conçu
-avec une vision de "Computer Utility" (service informatique public).
-
-Pour ses créateurs (MIT, Bell Labs et GE), la puissance de calcul doit
-être "accédée'' comme l'électricité : vous branchez une console dans
-le mur, et vous avez accès à une ressource partagée, sans savoir où se
-trouve la machine.
-
-Multics avait la philosophie du Cloud (l'informatique comme service
-public partagé) et l'architecture du Cloud (modularité, isolation,
-persistance), mais il lui manquait la puissance des machines et la
-couche réseau mondiale pour aboutir.
-
-\subsection{Accés distant}
-Les machines ont toujours été développées avec l'idée d'être accédées à distance.
-
-G.Stibitz développe le premier additionneur electromécanique
-sur 2 bits en 1937. \cite{WikipediaAdder2026}
-
-% ref : \url{https://en.wikipedia.org/wiki/Adder_(electronics)}
-
-Immédiatement, il complexifie son calculateur et imagine un accès
-distant. Lors d'une démonstration à la réunion de l'American
-Mathematical Society au Dartmouth College en septembre 1940, Stibitz
-utilisa un télétype modifié pour envoyer des commandes par lignes
-télégraphiques au Complex Number Calculator situé à New York. \cite{Stibitz2012}
-
-% ref : https://history.computer.org/pioneers/stibitz.html
-
-\subsection{Collaboration}
-Dans les années 1990, l'émergence des réseaux et la multiplication des
-machines permettent l'émergence du Grid Computing (Informatique en Grille).
-
-Tous ces unités centrales (PC par exemple), qui sont souvent sous
-utilisées, pourraient être mobilisées pour accélérer le traitement d'une
-tâche.
-
-Le grid computing agit comme un système distribué pour le partage
-collaboratif des ressources.  Celles-ci sont réparties entre
-différentes unités de calcul situées sur différents sites, pays et
-continents.
-
-C’est là que le symbole du "nuage" commence à être utilisé dans les
-schémas réseau pour représenter ce qui se passe "à l'extérieur" de
-l'ordinateur local, dans une zone dont on ne gère pas l'infrastructure
-technique mais qui collabore pour résoudre des problèmes complexes.
-
-
-\subsection{As a service}
-
-En 1999, l'entreprise Salesforce lance un logiciel de gestion de la
-relation client (CRM) accessible via un simple navigateur Web.
-
-C'est la naissance du SaaS ("Software as a Service"). C'est un
-changement de paradigme commercial majeur.
-
-On ne possède plus le logiciel, on s'y abonne et on y accède par HTTP
-(Hypertext Transfer Protocol) jusque là utilisé pour transférer du
-HTML (HyperText Markup Language).
-
-\subsection{La vision commerciale}
-
-C'est sans doute l'étape la plus concrète car elle fait vraiment
-diverger le cloud d'une structure de type Grid Computing.
-
-Dès le début des années 2000, Amazon construit une infrastructure
-massive qui lui permet d'absorber des pics de trafic de sa
-boutique en ligne comme par exemple à Noël.
-
-Elle fait néanmoins le constat que ses ressources sont inutilisée 90
-\% de l'année.
-
-Le Grid Computing a été pensé avec une vision scientifique de
-l'amélioration des performances. Amazon a une approche commerciale :
-Louer cette infrastructure vide à d'autres entreprises.
-
-En 2006, Amazon lance AWS (Amazon Web Services) avec des services
-comme S3 (stockage) et EC2 (calcul).  Pour la première fois, une
-startup pouvait louer la puissance d'un supercalculateur pour quelques
-dollars par heure.
-
-
-\section{Les impacts informatiques}
-
-\subsection{Le déploiement}
-
-Puisque l'infrastructure d'exécution est externe, il ne suffit plus de
-compiler et d'exécuter, le logiciel doit être déployé sur cette infrastructure louée.
-
-\subsection{Transparence}
-Pour que l'externalisation de l'infrastructure soit transparente à l'usage, elle
-devra remplir de nombreux critères parmi lesquels une haute
-disponibilité, une faible latence.
-
-Ce dernier point impacte la topologie de l'infrastructure qui tend
-vers un réseau ubiquitaire se rapprochant des utilisateurs.
-
-Plusieurs instances d'un même logiciel vont coexister dans l'infrastructure.
-
-
-\subsection{Infrastructure as Code : IaC}
-
-Traditionnellement, l'infrastructure (serveurs, câbles, pare-feu)
-était du "Hardware" : quelque chose de solide qu'on touche, qu'on
-visse dans une baie et qu'on configure manuellement via des câbles ou
-des écrans.
-
-Avec le cloud, "l'infrastructure devient du logiciel" (ou
-Infrastructure as Code - IaC). La création et la gestion de ses
-serveurs est traitée comme on traite le code d'une application.
-
-L'administrateur système ne manipule plus des machines, mais des
-abstractions. Il devient un développeur de plateforme.
-
-Voici les 4 piliers de cette mutation :
-\begin{enumerate}
-\item La définition par le texte (Fichiers de configuration)
-
-  Au lieu de cliquer sur des boutons dans une interface web pour créer
-  un serveur, vous écrivez un fichier texte (souvent en format YAML ou
-  JSON).
-
-  Exemple : "Je veux 3 serveurs avec 8 Go de RAM, situés à Paris, avec
-  un accès ouvert sur le port 80."
-
-  Ce fichier est votre infrastructure.
-
-  Pour la déployer, vous l'envoyez à une API (via des outils comme
-  Terraform, CloudFormation ou Pulumi), et le Cloud "matérialise" ces
-  ressources pour vous.
-
-  \item Le versioning (Comme sur GitHub)
-
-    Puisque votre infrastructure est maintenant un fichier texte, vous
-    pouvez utiliser les mêmes outils que les développeurs :
-    \begin{itemize}
-    \item Historique : Vous pouvez voir qui a modifié la taille d'un serveur il y a 3 jours.
-    \item Rollback : Si une modification de votre réseau provoque une
-      panne, vous "revenez à la version précédente" du fichier et le
-      Cloud remet l'infrastructure dans son état antérieur.
-    \item Branches : Vous pouvez avoir une branche "Test" et une branche "Production" de votre infrastructure.
-    \end{itemize}
-
-  \item La reproductibilité parfaite
-
-    C'est la fin du syndrome du "ça marche sur ma machine" ou du "le
-    serveur de test n'est pas configuré comme la prod".
-
-    Avec l'infrastructure logicielle, vous utilisez exactement le même
-    script pour créer votre environnement de développement, de test et
-    de production.
-
-    Vous garantissez que les règles de sécurité et les performances
-    sont identiques partout, sans risque d'erreur humaine (un oubli de
-    case à cocher, par exemple).
-
-  \item  L'immuabilité (Le concept "Phoenix")
-
-    C'est le changement de mentalité le plus radical :
-
-    Avant si un serveur tombait
-    malade, on passait des heures à le soigner, à modifier sa
-    configuration manuellement pour le réparer.
-
-    Maintenant si un serveur a un problème ou
-    doit être mis à jour, on ne le répare pas. On supprime l'instance
-    et on relance le script de l'infrastructure. Le logiciel recrée un
-    serveur tout neuf, parfaitement configuré, en quelques secondes.
-  \end{enumerate}
-
-
-  Imaginez que vous deviez déployer votre application dans 10 pays
-  différents pour réduire la latence.
-
-  Sans IaC, Il faudrait des semaines pour configurer manuellement
-  chaque centre de données.
-
-  Avec l'infrastructure logicielle : Vous lancez votre script 10 fois
-  avec une variable différente pour la région. En quelques minutes,
-  votre infrastructure mondiale est opérationnelle.
-
-\subsection{Développement-Exploitation :  DEVOPS}
-
-Le DEVOPS est une évolution de l'administration système qui adopte la
-philosophie agile pour ne plus être un goulot d'étranglement.
-
-Cette démarche essaye faire converger des contraintes antagonistes :
-\begin{itemize}
-\item D'un coté, l'"agile'' qui vise à accélérer les vitesses de
-  développement et de mise en production.
-\item De l'autre, l'administration système qui cherche à trouver une
-  solution stable, fonctionnelle, sécurisée, \ldots
-\end{itemize}
-
-L'Agile est né pour les développeurs. Son but est de dire : "Arrêtons
-de prévoir un projet sur 2 ans, travaillons par petits cycles pour
-avoir des retours rapides du client." \ldots et donc corriger
-rapidement et fréquemment le logiciel en construction.
-
-Cette approche se focalise sur l'organisation du travail avec
-notamment la mise en place de réunions régulières et fréquentes
-(Scrum), l'établissement de priorités, \ldots
-
-Or comme on l'a déjà souligné, avec une approche cloud, la mise en
-production c'est le déploiement. Souvent l'Agile s'arrêtait
-à la porte de la mise en production. Le développeur finissait sa tâche
-"Agilement", mais le serveur n'était pas prêt.
-
-L'administrateur système (l'Ops) n'est pas enclin au changement car le
-changement apporte des pannes. Il est plutôt perçu comme un frein par les
-développeurs.
-
-Le DevOps est né parce que l'Agile ne servait à rien si le déploiement
-sur les serveurs prenait 3 mois.
-
-% \subsection{Machines virtuelles}
-% ... pourquoi ?
-% quels types de virtualisations  ?
-\subsection{Machines virtuelles et virtualisation}
-
-La virtualisation est une technologie fondamentale qui a permis l’émergence du cloud computing. 
-Elle consiste à abstraire les ressources matérielles d’un ordinateur afin de permettre l’exécution 
-de plusieurs environnements isolés sur une même machine physique.
-
-\subsubsection{Pourquoi la virtualisation ?}
-
-Avant l’apparition de la virtualisation, un serveur physique était généralement dédié à une seule application. 
-Cette approche entraînait une sous-utilisation importante des ressources matérielles (CPU, mémoire, stockage).
-
-La virtualisation permet de résoudre ce problème en faisant coexister plusieurs machines virtuelles (VM) sur un même serveur physique.
-
-Les principaux objectifs sont :
-\begin{itemize}
-\item \textbf{Optimisation des ressources} : meilleure utilisation du matériel
-\item \textbf{Isolation} : chaque VM est indépendante des autres
-\item \textbf{Flexibilité} : déploiement rapide de nouveaux environnements
-\item \textbf{Portabilité} : une VM peut être déplacée d’un serveur à un autre
-\end{itemize}
-
-Avec pour objectif d'utiliser au mieux les ressources matérielles, d'isoler les applications, de faciliter le déploiement et la portabilité. 
-%, la virtualisation est devenue un pilier du cloud computing.
-
-\subsubsection{Historique}
-
-La virtualisation ne date pas du cloud. Dès les années 1970, IBM développe VM/370, un système permettant à plusieurs utilisateurs dexécuter simultanément des systèmes d’exploitation sur un même ordinateur central.
-
-Dans les années 1990, avec la démocratisation des ordinateurs personnels, des solutions comme Windows/386 permettent d’exécuter plusieurs environnements DOS.
-
-En 1995, la machine virtuelle Java (JVM) introduit une nouvelle forme de virtualisation : une abstraction logicielle permettant d’exécuter un programme indépendamment du matériel.
-
-Ce n’est qu’au début des années 2000 que la virtualisation devient centrale avec l’essor du cloud computing.
-
-\subsubsection{Principe de fonctionnement}
-
-Une machine virtuelle est une simulation logicielle d’un ordinateur physique.
-
-Chaque VM possède : un système d’exploitation invité, de la mémoire virtuelle, un processeur virtuel et des périphériques simulés.
-
-Ces ressources sont fournies et gérées par un logiciel appelé \textbf{hyperviseur}.
-
-\subsubsection{Les hyperviseurs}
-
-L’hyperviseur est la couche logicielle qui permet de créer, exécuter et gérer les machines virtuelles.
-
-On distingue deux types :
-
-\begin{itemize}
-\item \textbf{Type 1 (bare-metal)} : fonctionne directement sur le matériel
-
-Comme VMware ESXi ou Xen, ces hyperviseurs sont utilisés dans les datacenters et le cloud pour leur performance et leur sécurité.
-Ils offrent une isolation forte entre les VM et un accès direct aux ressources matérielles, ce qui les rend adaptés aux environnements de production à grande échelle. 
-
-\item \textbf{Type 2} : fonctionne au-dessus d’un système d’exploitation
-Les hyperviseurs de type 2, sont des logiciels qui s’exécutent sur un système d’exploitation hôte, comme VirtualBox ou VMware Workstation.
-Plus faciles à installer et à utiliser, ils sont souvent utilisés pour le développement, les tests ou l’apprentissage, 
-mais ne sont pas adaptés aux environnements de production en raison de leur performance inférieure et de leur isolation moins robuste.
-\end{itemize}
-
-\subsubsection{Limites des machines virtuelles}
-
-Malgré leurs avantages, les machines virtuelles présentent certaines limites :
-
-\begin{itemize}
-  \item Consommation importante de ressources (chaque VM embarque un OS complet)
-  \item Temps de démarrage relativement long
-  \item Complexité de gestion à grande échelle
-\end{itemize}
-
-Ces limites ont conduit à l’émergence des conteneurs, plus légers et plus rapides.
-
-\subsubsection{Types de virtualisation}
-
-% Il existe plusieurs approches :
-
-% \begin{itemize}
-% \item \textbf{Virtualisation complète} : la VM simule entièrement le matériel, sans modification du système invité
-% \item \textbf{Paravirtualisation} : le système invité est modifié pour interagir avec l’hyperviseur
-% \item \textbf{Virtualisation au niveau du système (conteneurs)} : partage du noyau du système hôte (ex : Docker)
-% \end{itemize}
-
-\subsubsection{Lien avec le cloud}
-
-La virtualisation est la base du cloud computing. Elle permet aux fournisseurs comme AWS de mutualiser leurs infrastructures et de proposer des ressources à la demande.
-
-Par exemple, une instance EC2 correspond à une machine virtuelle exécutée sur un serveur physique partagé avec d’autres utilisateurs.
-
-Cela permet :
-\begin{itemize}
-\item une facturation à l’usage
-\item une scalabilité rapide
-\item une isolation entre clients
-\end{itemize}
-
-\section{Différentes méthodes}
-
-Cette section présente les trois principaux modèles de déploiement
-cloud : \textbf{public}, \textbf{privé} et \textbf{hybride}.
-
-Chaque modèle répond à des besoins spécifiques en termes de
-flexibilité, de sécurité, de coût et de souveraineté.
-
-%%=========================================================
-\subsection{Cloud Public}
-
-\subsubsection{Définition}
-Le \textbf{cloud public} est un modèle où les ressources informatiques
-(serveurs, stockage, applications) sont mises à disposition par un
-fournisseur tiers via Internet.
-
-Ces ressources sont partagées entre plusieurs clients (multi-tenancy)
-et accessibles à la demande, avec une facturation généralement basée
-sur l’usage (pay-as-you-go).
-On le trouve chez des fournisseurs comme AWS, Microsoft Azure ou Google Cloud Platform.
-
-% \subsubsection{Exemples de fournisseurs}
-% \begin{itemize}
-%     \item Amazon Web Services (AWS)
-%     \item Microsoft Azure
-%     \item Google Cloud Platform (GCP)
-%     \item IBM Cloud
-% \end{itemize}
-
-% {\color{red} Ce qui suit n'est pas rédigé .. c'est du copier coller chatgpt  =$>$ PAS BON !}
-  
-\subsubsection{Avantages}
-Ce modèle permet aux entreprises de bénéficier d’une infrastructure évolutive sans avoir à investir dans du matériel coûteux ou à gérer la maintenance. 
-Les fournisseurs de cloud public offrent une large gamme de services (calcul, stockage, bases de données, 
-intelligence artificielle) qui peuvent être rapidement provisionnés et intégrés.
-Il permet également une grande flexibilité, avec la possibilité d’ajuster les ressources en fonction des besoins, 
-et une accessibilité mondiale grâce à des centres de données répartis géographiquement.
-C'est le fournisseur qui gère la sécurité physique, les mises à jour et la disponibilité, ce qui réduit la charge de travail pour les utilisateurs finaux.
-
-% \begin{itemize}
-%     \item \textbf{Coût réduit} : Pas d’investissement initial en infrastructure, paiement à l’usage.
-%     \item \textbf{Élasticité} : Scalabilité automatique pour répondre à la demande.
-%     \item \textbf{Maintenance externalisée} : Le fournisseur gère les mises à jour, la sécurité physique et la disponibilité.
-%     \item \textbf{Accès global} : Disponibilité mondiale avec des data centers répartis géographiquement.
-% \end{itemize}
-
-\subsubsection{Inconvénients}
-
-% Mais ce genre de modèle présente aussi des inconvénients, premièrement, la dépendance au fournisseur, qui peut entraîner un risque de \textit{vendor lock-in} et une dépendance aux conditions tarifaires.
-Mais ce type de modèle présente aussi des inconvénients, notamment une dépendance au fournisseur, 
-qui peut entraîner une forte contrainte vis-à-vis de ses conditions tarifaires. 
-Mais aussi des enjeux de sécurité et de conformité, puisque les données sont hébergées chez un tiers, 
-ce qui peut soulever des questions réglementaires (par exemple vis-à-vis du RGPD).
-La latence peut également être un problème, surtout si les utilisateurs sont éloignés des centres de données du fournisseur, 
-bien que la plupart des grands fournisseurs offrent des options pour choisir la région de déploiement.
-Enfin, le manque de contrôle sur l’infrastructure sous-jacente peut être un frein pour certaines organisations,
-% \begin{itemize}
-%     \item \textbf{Dépendance au fournisseur} : Risque de \textit{vendor lock-in} et dépendance aux conditions tarifaires.
-%     \item \textbf{Sécurité et conformité} : Les données sont hébergées chez un tiers, ce qui peut poser des problèmes de conformité (ex : RGPD).
-%       {\color{red} pourquoi ?}
-%     \item \textbf{Latence} : Peut être élevée selon la localisation des data centers.
-%       {\color{red} pourtant chez AWS tu choisis ta région !}
-%     \item \textbf{Manque de contrôle} : L’utilisateur n’a pas la main sur l’infrastructure sous-jacente.
-      
-% \end{itemize}
-
-% \subsubsection{Cas d’usage typiques}
-% \begin{itemize}
-%     \item Hébergement de sites web et applications grand public.
-%     \item Déploiement de services SaaS (ex : Gmail, Salesforce).
-%     \item Environnements de développement/test éphémères.
-% \end{itemize}
-
-
-%%====================================================
-\subsection{Cloud Privé}
-
-\subsubsection{Définition}
-Le \textbf{cloud privé} est une infrastructure cloud dédiée à une
-seule organisation.
-
-
-Il peut être hébergé en interne (on-premise) ou
-chez un prestataire externe, mais reste exclusif à l’organisation. 
-Dans le case d’un cloud privé on-premise, l’organisation possède et gère elle-même l’infrastructure, offrant un contrôle total sur les ressources 
-et les solutions de sécurité.
-
-% {\color{red} ca veut dire quoi "Ce
-%   modèle offre un contrôle total sur les ressources et la sécurité.'' ?}
-{\color{green} j'ai encore pas mal de lecture la dessus, je comprends pas tout, je finira de rédiger cette partie plus tard}
-
-
-{\color{red} AWS VPC ?}
-
-{\color{red} \url{https://aws.amazon.com/fr/vpc/} eux, expliquent un peu l'intéret du contrôle "total".
-remarque aussi que le moindre EC2 est placé dans un VPC par defaut }
-{\color{red} c'est quoi le contrôle total ?}
-
-\subsubsection{Exemples de solutions}
-\begin{itemize}
-    \item OpenStack (open source)
-    \item VMware Cloud
-    \item Microsoft Azure Stack
-    \item Clouds souverains (ex : OVHcloud, 3DS Outscale)
-\end{itemize}
-
-{\color{red} Ce qui suit n'est pas rédigé .. c'est du copier coller chatgpt  =$>$ PAS BON !}
-\subsubsection{Avantages}
-\begin{itemize}
-    \item \textbf{Sécurité renforcée} : Isolation des données et contrôle total sur l’infrastructure.
-    \item \textbf{Conformité} : Idéal pour les secteurs réglementés (santé, finance, défense).
-    \item \textbf{Personnalisation} : Adaptation fine des ressources aux besoins spécifiques.
-    \item \textbf{Performances} : Latence réduite et ressources dédiées.
-\end{itemize}
-
-\subsubsection{Inconvénients}
-\begin{itemize}
-    \item \textbf{Coût élevé} : Investissement initial important en matériel et maintenance.
-    \item \textbf{Complexité de gestion} : Nécessite des compétences internes pour l’administration.
-    \item \textbf{Scalabilité limitée} : L’extension des ressources peut être lente et coûteuse.
-    \item \textbf{Risque de sous-utilisation} : Les ressources dédiées peuvent être sous-exploitées, entraînant un gaspillage.
-    \item \textbf{Manque de redondance} : En cas de panne, la récupération peut être plus complexe sans les infrastructures de secours d’un cloud public.
-\end{itemize}
-
-\subsubsection{Cas d’usage typiques}
-\begin{itemize}
-    \item Environnements sensibles (données médicales, financières).
-    \item Applications critiques nécessitant une haute disponibilité.
-    \item Projets nécessitant une souveraineté totale sur les données.
-\end{itemize}
-
-%%====================================================
-\subsection{Cloud Hybride}
-
-\subsubsection{Définition}
-Le \textbf{cloud hybride} combine les modèles public et privé,
-permettant aux organisations de bénéficier des avantages des deux
-approches.
-
-Les ressources sont orchestrées pour communiquer entre elles, offrant
-flexibilité et optimisation des coûts.
-
-\subsubsection{Exemples d’architectures}
-\begin{itemize}
-    \item Utilisation d’un cloud privé pour les données sensibles et d’un cloud public pour les pics de charge.
-    \item Intégration d’AWS Outposts (extension d’AWS sur site) avec un cloud privé OpenStack.
-\end{itemize}
-
-\subsubsection{Avantages}
-\begin{itemize}
-    \item \textbf{Flexibilité} : Adaptation dynamique des ressources selon les besoins.
-    \item \textbf{Optimisation des coûts} : Utilisation du cloud public pour les charges variables et du privé pour les données critiques.
-    \item \textbf{Continuité d’activité} : Redondance entre clouds pour une haute disponibilité.
-    \item \textbf{Conformité} : Possibilité de garder les données sensibles en local tout en utilisant le cloud public pour le reste.
-\end{itemize}
-
-\subsubsection{Inconvénients}
-\begin{itemize}
-    \item \textbf{Complexité} : Gestion et intégration des environnements public/privé.
-    \item \textbf{Sécurité} : Nécessite une stratégie unifiée pour protéger les échanges entre clouds.
-    \item \textbf{Coût de mise en place} : Investissement initial pour l’interconnexion et l’orchestration.
-\end{itemize}
-
-\subsubsection{Cas d’usage typiques}
-\begin{itemize}
-    \item Entreprises avec des besoins variables (ex : e-commerce avec pics saisonniers).
-    \item Projets nécessitant à la fois souveraineté et scalabilité (ex : santé, administration).
-    \item Migration progressive vers le cloud (stratégie "lift-and-shift").
-\end{itemize}
-
-
-{\color{red} on ne ressent pas une grande profondeur de connaissance : illustre , explique, donne du corps !!!}
-
-{\color{red} 
-\section{Modèles d'exploitation}
-
-IaaS
-PaaS
-SaaS
-}
-
-
-
-\chapter{Objectif du travail}
-
-
-
-
-\section{Qu'est ce que le cloud}
-
-Dans cette section, nous allons essayer de définir ce qu'est le
-\textbf{cloud computing}, ses caractéristiques, et les différentes
-formes qu'il peut prendre.
-
-Il est important de comprendre les bases du cloud computing pour
-pouvoir analyser les besoins et faire des choix éclairés pour notre
-projet.
-
-Il faut noter que le cloud computing est un domaine en constante
-évolution, et il existe de nombreuses définitions et interprétations
-différentes. Cependant, nous allons essayer de donner une définition
-générale qui englobe les principales caractéristiques du cloud a
-l'heure actuelle.
-
-Le cloud computing est un \textbf{modèle de fourniture de services
-  informatiques} qui permet d'accéder à des ressources informatiques
-(serveurs, stockage, bases de données, réseaux, logiciels, etc.) via
-Internet.
-
-Contrairement à l’informatique "traditionnelle", où les ressources
-sont hébergées localement, le cloud externalise ces infrastructures
-vers des \textbf{centres de données distants}, gérés par des
-prestataires spécialisés.  \cite{ISO2026,NIST2026}.
-
-
-{\color{red} Contrairement à l’informatique "traditionnelle", où les ressources
-sont hébergées localement, le paradigme du cloud externalise ces infrastructures
-vers des \textbf{centres de données distants}, souvent gérés par des
-prestataires spécialisés.  \cite{ISO2026,NIST2026}.
-
-\medskip
-sinon ca te met en porte à faux parce que toi tu veux faire un cloud qui n 'externalise pas complètement)
- même relation qu'entre Internet et Intranet}
-
-
-
-\subsection{Caractéristiques clés (NIST/ISO, 2026)}
-
-{\color{red} Ce qui suit n'est pas rédigé .. c'est du copier coller chatgpt  =$>$ PAS BON !}
-
-\begin{itemize}
-\item \textbf{Accès réseau omniprésent} : Les ressources sont
-  accessibles depuis n’importe quel appareil connecté à Internet.
-\item \textbf{Pool de ressources mutualisées} : Les infrastructures
-  sont partagées et allouées dynamiquement selon les besoins
-  (virtualisation, conteneurs).
-\item \textbf{Élasticité et scalabilité} : Les ressources peuvent être
-  ajustées automatiquement, en temps réel, pour répondre à la demande.
-\item \textbf{Self-service à la demande} : L’utilisateur peut
-  provisionner des ressources (ex : machines virtuelles, bases de
-  données) sans intervention humaine du fournisseur.
-\item \textbf{Facturation à l’usage} : Modèle économique
-  "pay-as-you-go", où le coût est proportionnel à la consommation
-  réelle.
-\end{itemize}
-
-\subsection{Évolutions récentes (2026)}
-
-{\color{red} Ce qui suit n'est pas rédigé .. c'est du copier coller chatgpt  =$>$ PAS BON !}
-
-En 2026, le cloud n’est plus seulement un \textbf{lieu de stockage} ou
-d’hébergement, mais une \textbf{plateforme d’innovation} intégrant :
-\begin{itemize}
-\item L’\textbf{intelligence artificielle} (ex : GPU-as-a-Service pour
-  l’entraînement de modèles, AIOps pour l’optimisation automatique des
-  ressources) \cite{LeBigData2026}.
-\item L’\textbf{Edge Computing} : traitement des données à la
-  périphérie du réseau pour réduire la latence, notamment pour l’IoT
-  et les applications temps réel \cite{Syslearn2026}.
-
-  {\color{red} Plus que ca !!! regarde le concept de continuum computing }
-  
-\item Les \textbf{architectures hybrides et multi-cloud} : les
-  entreprises combinent clouds publics, privés et infrastructures
-  locales pour éviter le \textit{vendor lock-in} et optimiser
-  flexibilité/sécurité \cite{ObjetConnecte2026}.
-
-  {\color{red} vendor lock-in ? }
-
-  
-\item La \textbf{souveraineté des données} : développement de clouds
-  locaux (ex : OVHcloud en France) pour se conformer aux
-  réglementations comme le RGPD \cite{TechInsider2026}.
-\end{itemize}
-
-\subsection{Pourquoi cette définition est-elle importante pour notre projet ?}
-
-{\color{red} Ce qui suit n'est pas rédigé .. c'est du copier coller chatgpt  =$>$ PAS BON !}
-
-\begin{Huge}
-  {\color{red}rédiger ce n'est pas qu'énoncer \ldots c'est expliquer}  
-\end{Huge}
-
-
-Cette compréhension permet d’identifier :
-\begin{itemize}
-\item Les \textbf{avantages} du cloud (flexibilité, coût, innovation)
-  mais aussi ses \textbf{limites} (dépendance, sécurité, latence).
-
-  {\color{red} tu es sûr que le cout est un avantage  ?}
-\item Les \textbf{critères de choix} entre cloud public, privé,
-  hybride ou \textit{self-hosted}, en fonction des besoins en
-  souveraineté, performance et budget.
-
-  {\color{red} public? privé? on ne sait pas encore ce que c'est !}
-\end{itemize}
-
-\section{Contexte d'utilisation} % comment moi je vais l'utiliser
+\section{Contexte}
 Dans le cadre du projet \textbf{DS4H}, il m'a été confié la mission de
 concevoir et déployer une \textbf{solution self-hosted} pour remplacer
 le service \textbf{Render} utilisé dans le cours d’\textbf{IoT}.
@@ -681,247 +58,534 @@ maîtrisée, permettant aux étudiants et enseignants de déployer, gérer
 et monitorer des applications IoT sans dépendre d’un service cloud
 externe.
 
-{\color{red} quel modèle ? IaaS, PaaS ?}
+Ce besoin, bien que formulé dans un contexte pédagogique, s’inscrit en
+réalité dans une problématique plus large : celle du \textbf{cloud
+computing} et de ses différentes formes d’exploitation.
 
+En effet, remplacer un service comme Render ne consiste pas uniquement
+à déployer une application sur un serveur. Cela implique de reproduire,
+à plus petite échelle, un ensemble de mécanismes caractéristiques du
+cloud moderne : abstraction de l’infrastructure, déploiement
+automatisé, isolation des applications, gestion multi-utilisateurs et
+élasticité des ressources.
 
-Cette initiative s’inscrit dans une démarche visant à :
+Autrement dit, ce projet revient à concevoir une \textbf{plateforme de
+type PaaS (Platform as a Service)} simplifiée, adaptée à un contexte
+contraint (une seule machine, ressources limitées, utilisateurs non
+experts).
+
+Afin de comprendre les enjeux techniques et les choix réalisés dans ce
+travail, il est donc nécessaire de replacer cette problématique dans
+son contexte historique et conceptuel.
+
+\section{State of the Art}
+
+\subsection{De l’abstraction des ressources au cloud computing}
+
+L’idée d’abstraire les ressources informatiques précède largement
+l’émergence du cloud computing moderne. Dès les premiers systèmes
+d’exploitation, comme Multics, apparaît le concept de « computer
+utility », dans lequel la puissance de calcul est perçue comme un
+service accessible à la demande, indépendamment de la machine
+physique sous-jacente \cite{Multics1965}.
+
+Ce changement de paradigme introduit un principe fondamental du cloud :
+l’utilisateur interagit avec une interface abstraite, tandis que
+l’infrastructure réelle est masquée et gérée séparément.
+
+Dans le cadre de ce projet, cette abstraction est essentielle, car les
+utilisateurs (étudiants) doivent pouvoir déployer leurs applications
+sans avoir à manipuler directement l’infrastructure système.
+
+\subsection{Systèmes distribués et accès distant}
+
+L’accès distant aux ressources de calcul est une idée fondatrice de
+l’informatique. Dès 1940, \textit{George Stibitz} démontre la possibilité
+de piloter une machine à distance via une liaison télégraphique
+\cite{Stibitz2012}.
+
+Cette logique a évolué vers des paradigmes distribués, comme le Grid
+Computing, dans lesquels plusieurs machines collaborent pour exécuter
+des tâches complexes \cite{Foster2001}.
+
+Ces approches introduisent des concepts clés tels que le partage de
+ressources, la transparence réseau et l’exécution distribuée, qui sont
+au cœur des plateformes cloud modernes.
+
+Aujourd’hui, une application n’est plus nécessairement liée à une
+seule machine, mais peut être répartie sur plusieurs instances,
+améliorant ainsi la scalabilité et la tolérance aux pannes.
+
+\subsection{Informatique orientée services}
+
+L’émergence du Software as a Service (SaaS) marque une rupture majeure
+dans la manière de consommer les logiciels. À partir de la fin des
+années 1990, des entreprises comme Salesforce proposent des
+applications accessibles via un navigateur web \cite{Salesforce1999}.
+
+Ce modèle introduit l’idée que les différentes couches de
+l’informatique (logiciel, plateforme, infrastructure) peuvent être
+fournies sous forme de services \cite{NIST2026}.
+
+Cette approche est directement liée à l’objectif de ce projet, qui
+consiste à remplacer Render — une plateforme de type PaaS (Platform as a Service) — par une
+solution auto-hébergée offrant des fonctionnalités similaires de
+déploiement et de gestion d’applications.
+
+\subsection{Virtualisation et conteneurisation}
+
+La virtualisation constitue une technologie clé ayant permis
+l’essor du cloud computing. Elle permet d’exécuter plusieurs
+environnements isolés sur une même machine physique, optimisant ainsi
+l’utilisation des ressources \cite{VMware2007}.
+
+Cependant, les machines virtuelles présentent certaines limites,
+notamment en termes de consommation de ressources et de temps de
+démarrage. Ces contraintes ont conduit à l’émergence des conteneurs,
+qui offrent une isolation plus légère en partageant le noyau du
+système hôte \cite{Merkel2014}.
+
+Les conteneurs sont aujourd’hui devenus l’unité standard de déploiement
+dans les environnements cloud, car ils permettent d’assurer la
+portabilité et la reproductibilité des applications.
+
+Dans ce projet, cette approche est centrale, puisque la solution
+retenue (Dokploy) repose sur l’utilisation de conteneurs Docker pour
+le déploiement et la gestion des applications.
+
+\subsection{Modèles du cloud computing}
+
+Les infrastructures cloud peuvent être classées selon différents
+modèles de déploiement :
+
 \begin{itemize}
-\item \textbf{Réduire la dépendance} aux services tiers, en alignement
-  avec les principes de souveraineté numérique et de résilience
-  pédagogique.
-\item \textbf{Reproduire les fonctionnalités essentielles} de Render
-  (déploiement continu, gestion des environnements, monitoring
-  basique) tout en s’adaptant aux besoins spécifiques du cours
-  (protocoles IoT, gestion des devices, etc.).
-\item \textbf{Faciliter l’apprentissage} en offrant un environnement
-  contrôlé et accessible, propice à l’expérimentation des concepts
-  d’IoT et d’infrastructure.
+\item \textbf{Cloud public} : les ressources sont fournies par un
+prestataire externe et mutualisées entre plusieurs utilisateurs.
+\item \textbf{Cloud privé} : l’infrastructure est dédiée à une seule
+organisation.
+\item \textbf{Cloud hybride} : combinaison des deux approches.
 \end{itemize}
 
+Par ailleurs, les modèles de service définissent le niveau
+d’abstraction proposé \cite{NIST2026, ISO2026} :
 
-L’absence de contraintes techniques précises laisse une grande
-flexibilité pour le choix de la solution, qui sera déterminé lors de
-l’\textbf{analyse des besoins} et des choix technologiques présentés
-dans les sections suivantes.
-
-
-\section{Analyse des besoins}
-Le but de ce projet étant d'implémenter une solution de cloud
-self-hosted pour remplacer Render, il est essentiel de comprendre les
-besoins spécifiques liés à ce contexte d’utilisation.
 \begin{itemize}
-    \item \textbf{Deploiement facile} : Les utilisateurs doivent pouvoir déployer leurs code sans que la complexité technique ne soit un obstacle.
-    \item \textbf{Gestion des comptes utilisateurs} : Il doit être possible de créer et gérer des comptes pour les étudiants.
-    \item \textbf{Monitoring basique} : Les utilisateurs doivent pouvoir surveiller l’état de leurs applications (logs, ressources utilisées).
-    \item \textbf{Coût maîtrisé} : La solution doit être économique à mettre en place et à maintenir, en évitant les coûts récurrents élevés.
+\item \textbf{IaaS} (Infrastructure as a Service) : mise à disposition
+de ressources matérielles virtualisées.
+\item \textbf{PaaS} (Platform as a Service) : environnement de
+déploiement d’applications.
+\item \textbf{SaaS} (Software as a Service) : accès à des logiciels
+complets.
 \end{itemize}
 
+La solution développée dans ce projet peut être interprétée comme une
+forme simplifiée de PaaS, déployée sur une infrastructure
+self-hosted, s’apparentant à un cloud privé.
+
+\subsection{DevOps et Infrastructure as Code}
+
+Le cloud computing moderne repose fortement sur l’automatisation.
+L’Infrastructure as Code (IaC) permet de définir et de gérer
+l’infrastructure à l’aide de fichiers de configuration, garantissant
+la reproductibilité et la cohérence des environnements \cite{Morris2016}.
+
+Parallèlement, les pratiques DevOps visent à réduire la séparation
+entre développement et exploitation, notamment grâce à
+l’automatisation des déploiements et à l’intégration continue
+\cite{Bass2015}.
+
+Ces concepts se retrouvent dans les outils modernes de déploiement,
+qui permettent de connecter un dépôt de code à une infrastructure
+capable de construire et déployer automatiquement une application.
+
+Dans ce projet, ces principes sont directement appliqués à travers
+l’utilisation de Dokploy, qui automatise le déploiement d’applications
+à partir de dépôts Git et fournit un environnement cohérent pour les
+utilisateurs.
+
+\section{Problem statement}
+
+Le besoin identifié dans le cadre du projet ne se limite pas à un
+simple remplacement fonctionnel du service Render. Il s’agit en réalité
+de déployer une plateforme capable de reproduire, dans un contexte
+contraint, certaines propriétés fondamentales d’un environnement cloud.
+
+Le problème peut être formulé de la manière suivante :
+
+\begin{quote}
+Comment déployer une plateforme de type PaaS,
+auto-hébergée, permettant à des utilisateurs non experts de déployer
+et gérer leurs applications, tout en respectant des contraintes fortes
+de ressources, de simplicité et de maintenabilité ?
+\end{quote}
+
+Cette problématique introduit plusieurs contraintes majeures.
+
+Tout d’abord, l’infrastructure disponible est limitée : le système doit
+fonctionner sur un nombre restreint de machines, avec des ressources
+finies en termes de CPU, mémoire et stockage. Contrairement aux
+fournisseurs de cloud public, il n’est pas possible de s’appuyer sur
+une élasticité quasi infinie.
+
+Ensuite, les utilisateurs ciblés — des étudiants — ne disposent pas
+nécessairement de compétences en administration système ou en DevOps.
+La solution doit donc masquer la complexité technique et proposer une
+interface simple et accessible.
+
+Enfin, le projet s’inscrit dans un contexte pédagogique, impliquant une
+facilité de déploiement, de maintenance et de reproduction de
+l’infrastructure, idéalement par une seule personne.
+
+À partir de ces contraintes, plusieurs objectifs techniques peuvent
+être définis :
+
+\begin{itemize}
+\item \textbf{Simplicité de déploiement} : permettre aux utilisateurs de
+déployer une application avec un minimum d’interactions techniques.
+\item \textbf{Isolation des applications} : garantir que les différentes
+applications déployées ne perturbent pas l’environnement global.
+\item \textbf{Gestion multi-utilisateurs} : offrir un système de comptes
+permettant de séparer les usages.
+\item \textbf{Monitoring basique} : fournir un accès aux logs et à
+l’état des applications.
+\item \textbf{Maîtrise des ressources} : limiter l’empreinte système
+afin de préserver les capacités de l’infrastructure.
+\end{itemize}
+
+Ces objectifs serviront de critères d’évaluation pour comparer les
+différentes solutions techniques envisagées dans la suite de ce
+rapport, et justifier le choix final de l’architecture retenue.
 
 
-% \chapter{Pourquoi self-hosted ?}
+% ======================================================================================================================
+\chapter{Matériel et Méthodes}
 
-% {\color{red} tu as répondu au dessus ?  sauf que tu as oublié le coût !!!}
+\section{Infrastructure disponible}
 
-\chapter{Choix de la techno}
+L'ensemble des expérimentations a été réalisé sur un serveur privé
+virtuel (VPS) tournant sous Debian GNU/Linux 12 (Bookworm), 
+disposant des ressources suivantes :
 
-Face aux besoins identifiés — déploiement simple, gestion d'utilisateurs, monitoring basique et coût maîtrisé —
-plusieurs solutions de cloud self-hosted ont été évaluées. L'objectif n'est pas de construire une infrastructure 
-de production industrielle, mais de fournir un environnement pédagogique fonctionnel, maintenable par une seule 
-personne et accessible à des étudiants sans expertise DevOps.
+\begin{itemize}
+    \item \textbf{CPU} : 2 vCPU Intel Xeon E5-2680 v4 @ 2.40 GHz
+    \item \textbf{RAM} : 4.2 Go (environ 1.5 Go disponibles en conditions normales)
+    \item \textbf{Stockage} : 25 Go (dont 2.1 Go libres au moment du déploiement)
+\end{itemize}
 
-\section{Solutions envisagées}
+\vspace{0.5cm}
 
-\subsection{OpenStack}
-OpenStack est la référence du cloud privé open-source. Il reproduit fidèlement les primitives d'un cloud public 
-(instances de calcul, réseaux virtuels, stockage objet, etc.) et est utilisé par de nombreux opérateurs en production.
+Cette contrainte est déterminante, car elle impose des limites strictes
+en termes de mémoire, de puissance de calcul et d’espace disque. Contrairement
+aux environnements cloud publics, aucune élasticité automatique n’est
+possible.
 
-Cependant, sa complexité d'installation et d'administration est incompatible avec notre contexte : 
-il nécessite typiquement plusieurs machines physiques dédiées, une équipe pour le maintenir, 
-et une courbe d'apprentissage très significative. Ce serait, pour reprendre l'analogie du chapitre précédent, 
-utiliser une infrastructure de datacenter pour remplacer un service de déploiement étudiant. 
-OpenStack a donc été écarté dès le début de l'évaluation.
+Dans ce contexte, toute solution retenue doit être :
+\begin{itemize}
+\item légère en consommation de ressources,
+\item simple à déployer sur une machine unique,
+\item capable de coexister avec plusieurs applications sans saturation rapide.
+\end{itemize}
 
-\subsection{Kubernetes (k3s)}
-Kubernetes est le standard de facto pour l'orchestration de conteneurs à grande échelle. 
-Sa version allégée, k3s, réduit les prérequis matériels tout en conservant l'essentiel de l'API Kubernetes.
+Ces contraintes ont fortement influencé les choix technologiques
+présentés dans la suite de cette section.
 
-Le problème est similaire à OpenStack : Kubernetes est conçu pour gérer des centaines de services 
-sur des dizaines de nœuds, avec une gestion fine des ressources, de la haute disponibilité et du 
-réseau. Pour notre cas d'usage, cela représente une complexité accidentelle\footnote{On parle de 
-complexité accidentelle lorsque la complexité vient de l'outil choisi et non du problème à résoudre.} 
-importante. Par ailleurs, Kubernetes n'intègre pas nativement d'interface utilisateur pour 
-les déploiements applicatifs ni de gestion de comptes étudiants.
+\section{Solutions candidates}
 
-\subsection{Dokku}
-Dokku se présente comme un Heroku self-hosted minimaliste. Il permet de déployer une application 
-via un simple \texttt{git push}, ce qui correspond bien au niveau de simplicité recherché. 
+Plusieurs solutions de cloud self-hosted ont été étudiées afin de
+répondre aux besoins identifiés dans la section précédente.
 
-Toutefois, Dokku reste un outil orienté ligne de commande, sans interface web native pour les utilisateurs finaux.
-La gestion multi-utilisateurs y est limitée et repose essentiellement sur des accès SSH.
-Pour des étudiants habitués à une interface web comme Render, la transition aurait été moins naturelle.
+L’objectif n’est pas de construire une infrastructure industrielle,
+mais de sélectionner une solution adaptée à un contexte pédagogique,
+avec un compromis entre fonctionnalités et complexité.
 
-\subsection{CapRover}
-CapRover propose une interface web et un déploiement par conteneurs Docker, avec une approche 
-plus accessible que Kubernetes. Il supporte le déploiement depuis un dépôt Git et propose une 
-gestion basique des applications.
+\subsection{Méthodologie de sélection}
 
-Cependant, la gestion des utilisateurs y est rudimentaire : CapRover fonctionne historiquement 
-avec un unique compte administrateur, et bien que des évolutions aient été apportées, 
-la séparation des droits entre projets reste peu granulaire. C'est un critère important pour 
-notre contexte, où chaque étudiant doit accéder uniquement à ses propres applications.
+Les solutions ont été évaluées selon les critères suivants :
 
-\subsection{Coolify}
-Coolify est une solution récente et activement développée qui propose une interface moderne, 
-le déploiement depuis Git, la gestion de bases de données, et un système multi-utilisateurs. 
-Elle s'est révélée être un concurrent sérieux à Dokploy sur le papier.
+\begin{itemize}
+\item \textbf{Facilité de déploiement} : installation rapide sur une machine unique.
+\item \textbf{Support du déploiement applicatif} : intégration avec Git et Docker.
+\item \textbf{Gestion multi-utilisateurs} : capacité à isoler les projets.
+\item \textbf{Interface utilisateur} : accessibilité pour des utilisateurs non experts.
+\item \textbf{Consommation de ressources} : compatibilité avec les contraintes du VPS.
+\end{itemize}
 
-La raison de son élimination est cependant pragmatique : l'image Docker de Coolify dépasse 
-les 20 Go une fois déployée avec ses dépendances. Sur le VPS utilisé pour ce projet, 
-dont l'espace disque est limité, cela rendait l'installation tout simplement impossible sans 
-sacrifier la majeure partie des ressources disponibles pour les applications étudiantes elles-mêmes.
+\subsection{Solutions étudiées}
 
-C'est un exemple concret de contrainte d'infrastructure qui ne ressort pas des comparatifs 
-en ligne, mais qui s'impose dès qu'on passe à la pratique.
+\textbf{OpenStack} constitue une référence pour les clouds privés
+open-source. Toutefois, sa complexité et ses besoins matériels le
+rendent inadapté à une infrastructure limitée.
 
-\section{Tableau comparatif}
+\textbf{Kubernetes (k3s)} offre une orchestration avancée des conteneurs,
+mais introduit une complexité importante qui dépasse les besoins du projet.
+
+\textbf{Dokku} propose une approche minimaliste basée sur Git, mais
+reste limité en termes d’interface utilisateur et de gestion multi-utilisateurs.
+
+\textbf{CapRover} apporte une interface web et une gestion simplifiée
+des applications, mais reste limité dans la gestion fine des utilisateurs.
+
+\textbf{Coolify} présente des fonctionnalités avancées et une interface
+moderne, mais sa consommation importante de ressources (notamment en
+espace disque) le rend incompatible avec l’infrastructure disponible.
 
 \begin{table}[h!]
 \centering
-\begin{tabular}{|l|c|c|c|c|c|}
+\begin{tabular}{|l|c|c|c|c|c|c|}
 \hline
-\textbf{Solution} & \textbf{Interface web} & \textbf{Multi-utilisateurs} & \textbf{Déploiement Git} & \textbf{Complexité} & \textbf{Adéquation} \\
+\textbf{Solution} & \textbf{Interface web} & \textbf{Multi-users} & \textbf{Git deploy} & \textbf{Complexité} & \textbf{Ressources} & \textbf{Adéquation} \\
 \hline
-OpenStack   & \checkmark & \checkmark & $\sim$ & Très élevée  & \texttimes \\
-Kubernetes (k3s) & $\sim$ & $\sim$ & $\sim$ & Élevée & \texttimes \\
-Dokku       & \texttimes & Limitée    & \checkmark & Faible  & $\sim$ \\
-CapRover    & \checkmark & Limitée    & \checkmark & Moyenne & $\sim$ \\
-Coolify     & \checkmark & \checkmark & \checkmark & Faible  & \checkmark \\
-Dokploy     & \checkmark & \checkmark & \checkmark & Faible  & \checkmark \\
+OpenStack        & \checkmark & \checkmark & $\sim$     & Très élevée & Élevées  & \texttimes \\
+Kubernetes (k3s) & $\sim$     & $\sim$     & $\sim$     & Élevée      & Moyennes & \texttimes \\
+Dokku            & \texttimes & Limitée    & \checkmark & Faible      & Faibles  & $\sim$ \\
+CapRover         & \checkmark & Limitée    & \checkmark & Moyenne     & Faibles  & $\sim$ \\
+Coolify          & \checkmark & \checkmark & \checkmark & Faible      & +20 Go   & \texttimes \\
+Dokploy          & \checkmark & \checkmark & \checkmark & Faible      & Faibles  & \checkmark \\
 \hline
 \end{tabular}
 \caption{Comparaison des solutions de cloud self-hosted évaluées}
 \label{tab:comparaison}
 \end{table}
 
-\section{Justification du choix : Dokploy}
+\section{Solution retenue : Dokploy}
 
-Au terme de cette évaluation, Dokploy a été retenu pour plusieurs raisons convergentes.
+Au regard des critères définis, \textbf{Dokploy} a été retenu comme
+solution principale.
 
-D'abord, il répond directement aux quatre besoins identifiés : déploiement depuis Git en quelques 
-clics, gestion de comptes utilisateurs avec des permissions par projet, monitoring des logs et 
-des ressources depuis le dashboard, et installation en une seule commande sur un serveur Linux standard.
+Ce choix repose sur plusieurs éléments :
 
-Ensuite, son niveau de complexité est cohérent avec les ressources disponibles pour ce projet : 
-une seule machine, un seul administrateur, et des utilisateurs qui ne doivent pas avoir à se 
-préoccuper de l'infrastructure sous-jacente.
-
-Enfin, contrairement à Kubernetes ou OpenStack, Dokploy ne cherche pas à être un cloud généraliste. 
-C'est précisément ce qui en fait un choix pertinent ici : il résout notre problème sans introduire 
-une complexité accidentelle disproportionnée.
-
-
-%%=========================================================
-\chapter{Mise en place de l'infrastructure}
-
-\section{Dokploy}
-Dokploy est une solution open-source de déploiement de service et base de donnée. %c'est le bon terme ? 
-Elle permet de déployer facilement des applications à partir d’un dépôt Git, en utilisant des conteneurs Docker.
-
-\subsection{Installation et configuration}
-L’installation de Dokploy est relativement simple et peut être réalisée en une seule commande sur un serveur Linux.
-% curl -sSL https://dokploy.com/install.sh | sh
-Une fois installé, il faut créer des identifiants administrateur et configurer les paramètres de base (certificats SSL, domaine).
-
-\subsection{Services proposés par Dokploy}
-Dokploy offre plusieurs services clés :
 \begin{itemize}
-\item \textbf{Déploiement continu} : Intégration avec Docker et les plateformes Git (GitHub, GitLab, Gitea, Bitbucket, etc.)
-pour déployer automatiquement les applications à chaque push, avec la possibilité de déposer directement les fichiers.
-\item \textbf{Gestion des bases de données} : %Création et gestion de bases de données MySQL, MongoDB, etc.
-Dokploy propose une interface pour créer et gérer des bases de données, avec des options de sauvegarde et de restauration.
-\item \textbf{Monitoring} : Visualisation des logs et des ressources utilisées par les applications.
-\item \textbf{Interface utilisateur} : Dashboard web pour gérer les applications et les utilisateurs, 
-l'administrateur peut créer des comptes et les associer a différents projets en parametrant 
-les permissions (création d'application, accès aux logs, etc\dots).
-Et les utilisateurs peuvent se connecter pour déployer et monitorer leurs applications en gérant tout depuisde panel.
+\item Une installation simple en une commande sur un serveur Linux.
+\item Une interface web permettant une prise en main rapide.
+\item Une intégration native avec Git pour le déploiement continu.
+\item Un support du multi-utilisateur avec gestion des permissions.
+\item Une consommation de ressources compatible avec le VPS.
 \end{itemize}
 
+Dokploy repose sur l’utilisation de conteneurs Docker pour isoler les
+applications et sur un proxy (Traefik) pour exposer les services.
 
-Pour les administrateurs, Dokploy offre des fonctionnalités de gestion avancées, telles que la configuration des domaines
-personnalisés, la gestion des certificats SSL, la possibilité de définir des règles de déploiement spécifiques pour chaque projet.
-Il permet également de configurer plusieurs machines sur lesquelles déployer les applications, offrant ainsi une certaine 
-flexibilité dans la gestion de l'infrastructure. Consultable facilement depuis le dashboard, les administrateurs peuvent 
-suivre l'état de chaque machine, les applications déployées et les ressources utilisées.
+Il constitue ainsi une implémentation légère d’une plateforme de type
+PaaS, adaptée à un contexte pédagogique.
 
-\subsection{Avantages et inconvénients de Dokploy}
-\subsubsection{Avantages}
-Il est facile à installer et à utiliser, avec une interface conviviale. Il offre une bonne intégration avec Git et supporte plusieurs types de bases de données.
-Cela permet de répondre rapidement aux besoins.
-\subsubsection{Inconvénients}
-Il peut être limité en termes de scalabilité et de personnalisation. La communauté est relativement petite, ce qui peut poser des problèmes de support et de développement à long terme.
-Bien qu'il offre la possibilité d'avoir plusieurs machines sur lesquelles déployer, il n'est pas conçu pour gérer une infrastructure complexe ou à grande échelle.
+\section{Application déployée : RNN server}
 
-\section{Cas d'usage : déploiement d'un RNN de classification de texte}
-Afin d'illustrer les capacités et les limites de notre solution de cloud self-hosted, nous avons choisi de déployer un
-modèle de réseau de neurones récurrent (RNN) pour la classification de texte.
-Nous disposons de 3 fichiers :
+Afin d’évaluer la solution retenue, une application de test a été
+déployée.
+
+Il s’agit d’un serveur de classification de texte basé sur un réseau
+de neurones récurrent (RNN), permettant de simuler une charge
+applicative réaliste.
+
+L’application est composée de trois éléments :
+
 \begin{itemize}
-\item \textbf{RNN\_factory.py} : genere le RNN et l'entraîne
-\item \textbf{RNN\_client.py} : client qui envoie des requetes de classification
-\item \textbf{RNN\_server.py} : serveur qui reçoit les requetes et retourne les résultats
+\item \textbf{RNN\_factory.py} : génération et entraînement du modèle.
+\item \textbf{RNN\_server.py} : serveur exposant une API de classification.
+\item \textbf{RNN\_client.py} : client permettant de générer des requêtes.
 \end{itemize}
 
-L'objectif est de déployer le serveur et de simuler des requetes afin de tester la scalabilité et les performances de notre infrastructure.
+Le déploiement repose sur un conteneur Docker, défini par un
+\texttt{Dockerfile} et un fichier \texttt{requirements.txt} décrivant
+les dépendances (notamment TensorFlow et Flask).
 
-\subsection{Déploiement avec Dokploy}
+Cette application a été choisie car elle permet :
+\begin{itemize}
+\item de simuler une charge CPU significative,
+\item de tester la stabilité du déploiement,
+\item d’évaluer la capacité de montée en charge de la plateforme.
+\end{itemize}
 
-Dans un premier temps, un nouveau projet est créé au sein de Dokploy sous l'intitulé ``RNN-Classification''. 
-À l'intérieur de ce projet, une application est ensuite ajoutée et nommée ``RNN-Server''.
+% ======================================================================================================================
+\chapter{Résultats}
 
-Plusieurs approches de déploiement sont envisageables. Il est possible d’utiliser une image Docker préalablement construite 
-et publiée sur un registre (tel que Docker Hub ou GitHub Container Registry), que Dokploy peut déployer directement. 
-Une autre option consiste à fournir directement les fichiers sources à Dokploy afin qu’il construise l’image à partir d’un Dockerfile. 
-Enfin, il est également possible de connecter un dépôt Git (GitHub, GitLab, etc.) afin d’automatiser le processus 
-de déploiement lors de chaque mise à jour du code.
+\section{Déploiement}
 
-Dans le cadre de ce projet, la troisième approche a été retenue afin de bénéficier d’un flux de travail plus intégré et automatisé. 
-Un dépôt Git est donc créé pour le projet, dans lequel sont ajoutés les fichiers \texttt{RNN\_factory.py}, \texttt{RNN\_client.py} et 
-\texttt{RNN\_server.py}.
+La première phase d’expérimentation a consisté à déployer l’application
+RNN-Server sur l’infrastructure self-hosted via Dokploy.
+Le déploiement a été réalisé à partir d’un dépôt Git connecté à la
+plateforme, permettant une construction automatique de l’image Docker
+et son exécution sur le serveur.
+Une fois déployée, l’application est accessible via une URL publique
+configurée (\texttt{rnn.dokploy.claveille.fr}) et exposée sur le port
+5000 via un reverse proxy (Traefik).
+Le déploiement s’est effectué sans intervention manuelle sur la
+machine hôte, ce qui confirme le bon fonctionnement du pipeline
+d’intégration entre Git, Docker et Dokploy.
 
-Un fichier \texttt{Dockerfile} est ensuite défini afin de spécifier les étapes de construction de l’image de l’application, 
-ainsi qu’un fichier \texttt{requirements.txt} listant les dépendances nécessaires, telles que TensorFlow et Flask.
+\section{Performance under load}
 
-Du côté de Dokploy, le projet est configuré pour se connecter au dépôt Git et pour utiliser le Dockerfile afin de construire 
-automatiquement l’image à chaque nouvelle version poussée sur le dépôt. La commande de lancement du serveur est également définie, 
-à savoir : \texttt{gunicorn --bind 0.0.0.0:5000 RNN\_server:app}.
+Afin d’évaluer le comportement de l’application en conditions de
+charge, des requêtes continues ont été envoyées au serveur via le
+client \texttt{RNN\_client.py}.
+Les observations montrent qu’à charge constante, une seule instance du
+serveur consomme environ 40\% des ressources CPU disponibles sur la
+machine.
+Ce résultat met en évidence une saturation rapide des ressources dans
+le cas d’un modèle mono-instance, ce qui constitue une limite
+importante de la configuration initiale.
+L’application reste fonctionnelle, mais les temps de réponse
+augmentent progressivement en fonction du volume de requêtes.
 
-Enfin il faut parametrer le donmaine sur lequel va répondre l'api, ici j'ai choisi \texttt{rnn.dokpoly.claveille.fr} et le port (ici : 5000).
+\section{Horizontal scaling}
 
-Une fois la configuration terminée, le déploiement peut être initié. Dokploy se charge alors de construire l’image Docker, 
-de la déployer sur le cluster, puis d’exposer le service via une URL accessible.
+Afin d’évaluer les capacités de montée en charge, plusieurs instances
+du serveur ont été déployées en parallèle.
+Dokploy permet la duplication des conteneurs (réplicas), chacun
+exécutant une instance indépendante de l’application.
+Le trafic entrant est automatiquement réparti entre les instances via
+le reverse proxy Traefik, assurant une forme de load balancing.
 
-\subsection{Tests de scalabilité et de performance}
-Une fois le serveur déployé, on utilise le script \texttt{RNN\_client.py} pour envoyer des requêtes de classification 
-afin de tester les performances de l’application. 
+L’utilisation d’un registry Docker (GitHub Container Registry) garantit
+que toutes les instances utilisent une image identique et cohérente.
+Les tests montrent une amélioration de la capacité globale de
+traitement, avec une réduction de la saturation CPU par instance.
+Cependant, cette approche atteint rapidement ses limites dans un
+contexte de ressources matérielles fixes, où l’augmentation du nombre
+d’instances conduit à une contention globale du système.
 
-On peut remarquer qu'en faisant des requettes en continu l'application utilise déja 40\% du CPU qui lui est alloué.
-Cela illustre les limites de notre infrastructure : avec une seule instance du serveur, la capacité de traitement est rapidement saturée.
+\section{Automatisation du scaling via l'API Dokploy}
 
-\section{Scalabilité avec Dokploy}
-Nous allons donc tester la scalabilité de notre solution en augmentant le nombre d'instances du serveur. 
-Dokploy permet de faire cela facilement depuis le dashboard, en ajustant le nombre de conteneurs déployés pour 
-l'application.
+Dokploy expose une API REST complète, accessible depuis
+\texttt{/api} et documentée via une interface Swagger disponible
+à \texttt{<domaine>:3000/swagger}. L'authentification s'effectue
+par clé API, générée depuis le profil administrateur.
 
-Pour cela, Dokploy nécessite un \texttt{Docker Registry}, qui est un service de stockage et de distribution d'images Docker. 
-Il joue le rôle d'un dépôt centralisé depuis lequel chaque instance peut récupérer l'image de l'application à déployer. 
-Sans ce registry, les différents conteneurs ne pourraient pas accéder à une version commune et cohérente de l'image.
+Cette API permet notamment de modifier le nombre de réplicas d'une
+application via l'endpoint \texttt{application.update}, en passant
+le champ \texttt{replicas} dans le corps de la requête :
 
-Nous utilisons ici le \texttt{GitHub Container Registry (GHCR)}, qui s'intègre nativement avec notre dépôt GitHub et 
-ne nécessite pas d'infrastructure supplémentaire. Une fois le registry configuré dans Dokploy, il suffit d'ajuster 
-le nombre de réplicas depuis l'onglet \texttt{Advanced} de l'application. Traefik, le reverse proxy intégré à Dokploy, 
-se charge alors automatiquement de répartir le trafic entre les différentes instances.
+Sur cette base, un script d'autoscaling a été développé. Son
+principe est le suivant : il interroge périodiquement l'utilisation
+CPU de la machine hôte, puis ajuste le nombre de réplicas de
+l'application en conséquence.
 
-% \subsection{
+Ce script constitue une forme rudimentaire d'autoscaling horizontal,
+analogue au principe du \textit{Horizontal Pod Autoscaler} (HPA) de
+Kubernetes, mais implémenté sans dépendance à un orchestrateur
+complexe.
+
+Il est important de noter que Dokploy ne propose pas nativement de
+mécanisme d'autoscaling automatique pour les applications non-Compose
+\footnote{Cette fonctionnalité est explicitement listée comme manquante
+dans le suivi des issues du projet.}. Ce script pallie donc cette
+limite de manière pragmatique, en exploitant l'API existante.
+
+% ======================================================================================================================
+\chapter{Discussion}
+
+\section{Adéquation de la solution aux besoins}
+
+Les résultats obtenus confirment que Dokploy répond aux quatre critères
+initialement définis. Le déploiement depuis un dépôt Git s'effectue
+sans intervention manuelle sur la machine hôte, la gestion des comptes
+utilisateurs permet une séparation effective des projets, et le
+dashboard offre un accès suffisant aux logs et à l'état des
+applications.
+
+Cependant, ces résultats doivent être nuancés au regard des contraintes
+de l'infrastructure. Avec seulement 2 vCPU et 4.2 Go de RAM, la
+plateforme montre ses limites dès qu'une application commence à
+solliciter significativement les ressources : une seule instance du
+serveur RNN consomme 40\% du CPU disponible, laissant peu de marge
+pour les autres applications déployées simultanément.
+
+\section{Limites identifiées}
+
+\subsection{Limites matérielles}
+
+La contrainte la plus immédiate est celle du stockage : avec 2.1 Go
+libres au moment du déploiement, le VPS ne laisse que peu de marge
+pour accueillir de nouvelles applications. C'est d'ailleurs cette
+contrainte qui a directement éliminé Coolify de la sélection, dont
+l'image Docker dépasse 20 Go — un exemple concret où les comparatifs
+en ligne ne reflètent pas les réalités d'une infrastructure contrainte.
+
+Le scaling horizontal, bien que fonctionnel techniquement, atteint
+rapidement ses limites sur une machine unique : multiplier les
+instances ne fait que redistribuer une ressource CPU fixe, sans
+l'augmenter. Cette limite est fondamentalement différente de ce
+qu'offrirait un cloud public, où l'élasticité est quasi illimitée.
+
+\subsection{Limites de Dokploy}
+
+Dokploy est un projet récent, avec une communauté encore restreinte.
+Cela implique un support limité et une certaine incertitude sur la
+pérennité de la solution à long terme.
+
+Par ailleurs, bien qu'il supporte le déploiement multi-machines,
+Dokploy n'est pas conçu pour orchestrer une infrastructure complexe.
+Il ne propose pas de mécanismes avancés de tolérance aux pannes, de
+migration automatique de conteneurs ou de gestion fine des ressources
+par application.
+
+\section{Ce que ce projet n'est pas}
+
+Il est important de rappeler que la solution déployée ici ne constitue
+pas un cloud au sens industriel du terme. Elle ne propose pas
+d'élasticité automatique, ni de haute disponibilité garantie, ni de
+facturation à l'usage.
+
+C'est un choix assumé : l'objectif n'était pas de reproduire AWS à
+petite échelle, mais de fournir un environnement suffisamment simple
+et maîtrisé pour un usage pédagogique. La complexité accidentelle
+introduite par des solutions comme Kubernetes ou OpenStack aurait été
+un obstacle, non un atout, dans ce contexte.
+
+\section{Perspectives}
+
+Plusieurs axes d'amélioration peuvent être envisagés.
+
+\textbf{À court terme}, une augmentation des ressources du VPS (passage à 4
+vCPU et 8 Go de RAM) permettrait de lever les principales contraintes
+matérielles observées et d'accueillir davantage d'applications
+simultanées.
+
+\textbf{À moyen terme}, l'ajout d'une machine secondaire permettrait de
+distribuer les charges entre deux nœuds, ce que Dokploy supporte
+nativement. Cela apporterait une forme de résilience sans nécessiter
+de migration vers un outil plus complexe.
+
+Enfin, \textbf{si les besoins venaient à croître significativement} — notamment
+en termes de nombre d'utilisateurs ou de criticité des applications —
+une migration vers une solution d'orchestration plus robuste comme
+k3s, couplée à une interface de déploiement dédiée, constituerait une
+évolution naturelle.
+
+% ======================================================================================================================
+\chapter{Conclusion}
+
+Ce projet avait pour objectif de concevoir et déployer une plateforme
+de type PaaS auto-hébergée, en remplacement du service Render utilisé
+dans le cours d'IoT du projet DS4H.
+
+La démarche adoptée a consisté à partir des besoins concrets —
+déploiement simple, gestion multi-utilisateurs, monitoring basique et
+contraintes de ressources — pour évaluer méthodiquement plusieurs
+solutions existantes, avant de retenir Dokploy comme outil le mieux
+adapté au contexte.
+
+Les expérimentations menées ont confirmé la viabilité de cette
+approche : le déploiement d'une application depuis un dépôt Git
+s'effectue sans intervention manuelle, le scaling horizontal est
+fonctionnel, et l'automatisation via l'API permet d'aller au-delà
+des capacités natives de la plateforme.
+
+Ces résultats ont cependant mis en évidence les limites inhérentes à
+une infrastructure contrainte : sur un VPS de 2 vCPU et 4.2 Go de
+RAM, la marge de manœuvre reste étroite, et le scaling horizontal
+ne compense pas l'absence d'élasticité réelle.
+
+Plus largement, ce projet illustre une tension fondamentale du cloud
+computing : entre la puissance des solutions industrielles et la
+complexité qu'elles introduisent. Choisir un outil, c'est aussi
+choisir le niveau de complexité que l'on est prêt à assumer.
+
+Dans ce cas précis, la contrainte pédagogique a guidé vers une
+solution volontairement simple, maintenable par une seule personne,
+et suffisamment transparente pour que les étudiants puissent se
+concentrer sur leurs applications plutôt que sur l'infrastructure
+qui les héberge.
 
 
 % \printbibliography

@@ -75,7 +75,8 @@
 }
 
 
-\setlength{\parskip}{0.8em} % espace entre les paragraphes
+\setlength{\parskip}{0em} % espace entre les paragraphes
+% \setlength{\parskip}{0.8em} % espace entre les paragraphes
 
 
 % Bibliographie
