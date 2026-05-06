@@ -1,17 +1,28 @@
-% \documentclass{report} % Classe de document (rapport)
-% \usepackage{xcolor}
-% \usepackage{graphicx}
-% \usepackage{hyperref}
-% \usepackage{minted}
-% \usepackage[hybrid]{markdown}
+  \documentclass{report} % Classe de document (rapport)
 
-\documentclass{rapportClass} % Classe de document personnalisée
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{minted}
+\usepackage[hybrid]{markdown}
 
 \title{Rapport de Projet}
 \author{Hugo CLAVEILLE}
 % -- Master 1 Informatique
 \date{\today}
 
+
+
+
+% Appliquer aussi aux pages de type 'plain' (début de chapitre, sommaire…)
+% \fancypagestyle{plain}{
+%   \fancyhf{}
+%   \fancyhead[L]{Rapport de Projet}
+%   \fancyhead[C]{M1 Informatique}
+%   \fancyhead[R]{Hugo}
+%   \fancyfoot[C]{\thepage}
+%   \renewcommand{\headrulewidth}{0.4pt}
+% }
 
 \begin{document}
 
@@ -24,7 +35,7 @@
         
         % Titre
         {\Huge \textbf{Rapport de Projet}}\\[1cm]
-        {\Large Self Hosted Cloud Implementation}\\[1cm]
+        {\Large DS4H}\\[1cm]
 
         \vspace{1cm}
         % Auteur
@@ -43,8 +54,6 @@
 \thispagestyle{empty}
 \tableofcontents
 \newpage
-
-\chapter{Abstract}
 
 \chapter{Introduction}
 
@@ -713,117 +722,22 @@ besoins spécifiques liés à ce contexte d’utilisation.
     \item \textbf{Deploiement facile} : Les utilisateurs doivent pouvoir déployer leurs code sans que la complexité technique ne soit un obstacle.
     \item \textbf{Gestion des comptes utilisateurs} : Il doit être possible de créer et gérer des comptes pour les étudiants.
     \item \textbf{Monitoring basique} : Les utilisateurs doivent pouvoir surveiller l’état de leurs applications (logs, ressources utilisées).
-    \item \textbf{Coût maîtrisé} : La solution doit être économique à mettre en place et à maintenir, en évitant les coûts récurrents élevés.
 \end{itemize}
 
 
 
-% \chapter{Pourquoi self-hosted ?}
+\chapter{Pourquoi self-hosted ?}
 
-% {\color{red} tu as répondu au dessus ?  sauf que tu as oublié le coût !!!}
+{\color{red} tu as répondu au dessus ?  sauf que tu as oublié le coût !!!}
 
 \chapter{Choix de la techno}
 
-Face aux besoins identifiés — déploiement simple, gestion d'utilisateurs, monitoring basique et coût maîtrisé —
-plusieurs solutions de cloud self-hosted ont été évaluées. L'objectif n'est pas de construire une infrastructure 
-de production industrielle, mais de fournir un environnement pédagogique fonctionnel, maintenable par une seule 
-personne et accessible à des étudiants sans expertise DevOps.
-
-\section{Solutions envisagées}
-
-\subsection{OpenStack}
-OpenStack est la référence du cloud privé open-source. Il reproduit fidèlement les primitives d'un cloud public 
-(instances de calcul, réseaux virtuels, stockage objet, etc.) et est utilisé par de nombreux opérateurs en production.
-
-Cependant, sa complexité d'installation et d'administration est incompatible avec notre contexte : 
-il nécessite typiquement plusieurs machines physiques dédiées, une équipe pour le maintenir, 
-et une courbe d'apprentissage très significative. Ce serait, pour reprendre l'analogie du chapitre précédent, 
-utiliser une infrastructure de datacenter pour remplacer un service de déploiement étudiant. 
-OpenStack a donc été écarté dès le début de l'évaluation.
-
-\subsection{Kubernetes (k3s)}
-Kubernetes est le standard de facto pour l'orchestration de conteneurs à grande échelle. 
-Sa version allégée, k3s, réduit les prérequis matériels tout en conservant l'essentiel de l'API Kubernetes.
-
-Le problème est similaire à OpenStack : Kubernetes est conçu pour gérer des centaines de services 
-sur des dizaines de nœuds, avec une gestion fine des ressources, de la haute disponibilité et du 
-réseau. Pour notre cas d'usage, cela représente une complexité accidentelle\footnote{On parle de 
-complexité accidentelle lorsque la complexité vient de l'outil choisi et non du problème à résoudre.} 
-importante. Par ailleurs, Kubernetes n'intègre pas nativement d'interface utilisateur pour 
-les déploiements applicatifs ni de gestion de comptes étudiants.
-
-\subsection{Dokku}
-Dokku se présente comme un Heroku self-hosted minimaliste. Il permet de déployer une application 
-via un simple \texttt{git push}, ce qui correspond bien au niveau de simplicité recherché. 
-
-Toutefois, Dokku reste un outil orienté ligne de commande, sans interface web native pour les utilisateurs finaux.
-La gestion multi-utilisateurs y est limitée et repose essentiellement sur des accès SSH.
-Pour des étudiants habitués à une interface web comme Render, la transition aurait été moins naturelle.
-
-\subsection{CapRover}
-CapRover propose une interface web et un déploiement par conteneurs Docker, avec une approche 
-plus accessible que Kubernetes. Il supporte le déploiement depuis un dépôt Git et propose une 
-gestion basique des applications.
-
-Cependant, la gestion des utilisateurs y est rudimentaire : CapRover fonctionne historiquement 
-avec un unique compte administrateur, et bien que des évolutions aient été apportées, 
-la séparation des droits entre projets reste peu granulaire. C'est un critère important pour 
-notre contexte, où chaque étudiant doit accéder uniquement à ses propres applications.
-
-\subsection{Coolify}
-Coolify est une solution récente et activement développée qui propose une interface moderne, 
-le déploiement depuis Git, la gestion de bases de données, et un système multi-utilisateurs. 
-Elle s'est révélée être un concurrent sérieux à Dokploy sur le papier.
-
-La raison de son élimination est cependant pragmatique : l'image Docker de Coolify dépasse 
-les 20 Go une fois déployée avec ses dépendances. Sur le VPS utilisé pour ce projet, 
-dont l'espace disque est limité, cela rendait l'installation tout simplement impossible sans 
-sacrifier la majeure partie des ressources disponibles pour les applications étudiantes elles-mêmes.
-
-C'est un exemple concret de contrainte d'infrastructure qui ne ressort pas des comparatifs 
-en ligne, mais qui s'impose dès qu'on passe à la pratique.
-
-\section{Tableau comparatif}
-
-\begin{table}[h!]
-\centering
-\begin{tabular}{|l|c|c|c|c|c|}
-\hline
-\textbf{Solution} & \textbf{Interface web} & \textbf{Multi-utilisateurs} & \textbf{Déploiement Git} & \textbf{Complexité} & \textbf{Adéquation} \\
-\hline
-OpenStack   & \checkmark & \checkmark & $\sim$ & Très élevée  & \texttimes \\
-Kubernetes (k3s) & $\sim$ & $\sim$ & $\sim$ & Élevée & \texttimes \\
-Dokku       & \texttimes & Limitée    & \checkmark & Faible  & $\sim$ \\
-CapRover    & \checkmark & Limitée    & \checkmark & Moyenne & $\sim$ \\
-Coolify     & \checkmark & \checkmark & \checkmark & Faible  & \checkmark \\
-Dokploy     & \checkmark & \checkmark & \checkmark & Faible  & \checkmark \\
-\hline
-\end{tabular}
-\caption{Comparaison des solutions de cloud self-hosted évaluées}
-\label{tab:comparaison}
-\end{table}
-
-\section{Justification du choix : Dokploy}
-
-Au terme de cette évaluation, Dokploy a été retenu pour plusieurs raisons convergentes.
-
-D'abord, il répond directement aux quatre besoins identifiés : déploiement depuis Git en quelques 
-clics, gestion de comptes utilisateurs avec des permissions par projet, monitoring des logs et 
-des ressources depuis le dashboard, et installation en une seule commande sur un serveur Linux standard.
-
-Ensuite, son niveau de complexité est cohérent avec les ressources disponibles pour ce projet : 
-une seule machine, un seul administrateur, et des utilisateurs qui ne doivent pas avoir à se 
-préoccuper de l'infrastructure sous-jacente.
-
-Enfin, contrairement à Kubernetes ou OpenStack, Dokploy ne cherche pas à être un cloud généraliste. 
-C'est précisément ce qui en fait un choix pertinent ici : il résout notre problème sans introduire 
-une complexité accidentelle disproportionnée.
 
 
 %%=========================================================
 \chapter{Mise en place de l'infrastructure}
 
-\section{Dokploy}
+\section{Première approche : Dokploy}
 Dokploy est une solution open-source de déploiement de service et base de donnée. %c'est le bon terme ? 
 Elle permet de déployer facilement des applications à partir d’un dépôt Git, en utilisant des conteneurs Docker.
 
@@ -835,23 +749,14 @@ Une fois installé, il faut créer des identifiants administrateur et configurer
 \subsection{Services proposés par Dokploy}
 Dokploy offre plusieurs services clés :
 \begin{itemize}
-\item \textbf{Déploiement continu} : Intégration avec Docker et les plateformes Git (GitHub, GitLab, Gitea, Bitbucket, etc.)
-pour déployer automatiquement les applications à chaque push, avec la possibilité de déposer directement les fichiers.
-\item \textbf{Gestion des bases de données} : %Création et gestion de bases de données MySQL, MongoDB, etc.
-Dokploy propose une interface pour créer et gérer des bases de données, avec des options de sauvegarde et de restauration.
+\item \textbf{Déploiement continu} : Intégration avec Git pour déployer automatiquement les applications à chaque push.
+\item \textbf{Gestion des bases de données} : Création et gestion de bases de données MySQL, MongoDB, etc.
 \item \textbf{Monitoring} : Visualisation des logs et des ressources utilisées par les applications.
 \item \textbf{Interface utilisateur} : Dashboard web pour gérer les applications et les utilisateurs, 
 l'administrateur peut créer des comptes et les associer a différents projets en parametrant 
 les permissions (création d'application, accès aux logs, etc\dots).
 Et les utilisateurs peuvent se connecter pour déployer et monitorer leurs applications en gérant tout depuisde panel.
 \end{itemize}
-
-
-Pour les administrateurs, Dokploy offre des fonctionnalités de gestion avancées, telles que la configuration des domaines
-personnalisés, la gestion des certificats SSL, la possibilité de définir des règles de déploiement spécifiques pour chaque projet.
-Il permet également de configurer plusieurs machines sur lesquelles déployer les applications, offrant ainsi une certaine 
-flexibilité dans la gestion de l'infrastructure. Consultable facilement depuis le dashboard, les administrateurs peuvent 
-suivre l'état de chaque machine, les applications déployées et les ressources utilisées.
 
 \subsection{Avantages et inconvénients de Dokploy}
 \subsubsection{Avantages}
@@ -861,72 +766,30 @@ Cela permet de répondre rapidement aux besoins.
 Il peut être limité en termes de scalabilité et de personnalisation. La communauté est relativement petite, ce qui peut poser des problèmes de support et de développement à long terme.
 Bien qu'il offre la possibilité d'avoir plusieurs machines sur lesquelles déployer, il n'est pas conçu pour gérer une infrastructure complexe ou à grande échelle.
 
-\section{Cas d'usage : déploiement d'un RNN de classification de texte}
-Afin d'illustrer les capacités et les limites de notre solution de cloud self-hosted, nous avons choisi de déployer un
-modèle de réseau de neurones récurrent (RNN) pour la classification de texte.
-Nous disposons de 3 fichiers :
+\section{Approche approfondie : OpenStack}
+il faut que je test openStack et que je fasse des recherches dessus
+
+%%=========================================================
+
+{\color{red} 
+Moi je commencerais par coolify ou autre truc simple et apres openstack !?
+
 \begin{itemize}
-\item \textbf{RNN\_factory.py} : genere le RNN et l'entraîne
-\item \textbf{RNN\_client.py} : client qui envoie des requetes de classification
-\item \textbf{RNN\_server.py} : serveur qui reçoit les requetes et retourne les résultats
+\item Gemini dit 2 minutes ! 
+\item Il devrait déjà y avoir un truc comme ca qui tourne !
 \end{itemize}
+}
 
-L'objectif est de déployer le serveur et de simuler des requetes afin de tester la scalabilité et les performances de notre infrastructure.
-
-\subsection{Déploiement avec Dokploy}
-
-Dans un premier temps, un nouveau projet est créé au sein de Dokploy sous l'intitulé ``RNN-Classification''. 
-À l'intérieur de ce projet, une application est ensuite ajoutée et nommée ``RNN-Server''.
-
-Plusieurs approches de déploiement sont envisageables. Il est possible d’utiliser une image Docker préalablement construite 
-et publiée sur un registre (tel que Docker Hub ou GitHub Container Registry), que Dokploy peut déployer directement. 
-Une autre option consiste à fournir directement les fichiers sources à Dokploy afin qu’il construise l’image à partir d’un Dockerfile. 
-Enfin, il est également possible de connecter un dépôt Git (GitHub, GitLab, etc.) afin d’automatiser le processus 
-de déploiement lors de chaque mise à jour du code.
-
-Dans le cadre de ce projet, la troisième approche a été retenue afin de bénéficier d’un flux de travail plus intégré et automatisé. 
-Un dépôt Git est donc créé pour le projet, dans lequel sont ajoutés les fichiers \texttt{RNN\_factory.py}, \texttt{RNN\_client.py} et 
-\texttt{RNN\_server.py}.
-
-Un fichier \texttt{Dockerfile} est ensuite défini afin de spécifier les étapes de construction de l’image de l’application, 
-ainsi qu’un fichier \texttt{requirements.txt} listant les dépendances nécessaires, telles que TensorFlow et Flask.
-
-Du côté de Dokploy, le projet est configuré pour se connecter au dépôt Git et pour utiliser le Dockerfile afin de construire 
-automatiquement l’image à chaque nouvelle version poussée sur le dépôt. La commande de lancement du serveur est également définie, 
-à savoir : \texttt{gunicorn --bind 0.0.0.0:5000 RNN\_server:app}.
-
-Enfin il faut parametrer le donmaine sur lequel va répondre l'api, ici j'ai choisi \texttt{rnn.dokpoly.claveille.fr} et le port (ici : 5000).
-
-Une fois la configuration terminée, le déploiement peut être initié. Dokploy se charge alors de construire l’image Docker, 
-de la déployer sur le cluster, puis d’exposer le service via une URL accessible.
-
-\subsection{Tests de scalabilité et de performance}
-Une fois le serveur déployé, on utilise le script \texttt{RNN\_client.py} pour envoyer des requêtes de classification 
-afin de tester les performances de l’application. 
-
-On peut remarquer qu'en faisant des requettes en continu l'application utilise déja 40\% du CPU qui lui est alloué.
-Cela illustre les limites de notre infrastructure : avec une seule instance du serveur, la capacité de traitement est rapidement saturée.
-
-\section{Scalabilité avec Dokploy}
-Nous allons donc tester la scalabilité de notre solution en augmentant le nombre d'instances du serveur. 
-Dokploy permet de faire cela facilement depuis le dashboard, en ajustant le nombre de conteneurs déployés pour 
-l'application.
-
-Pour cela, Dokploy nécessite un \texttt{Docker Registry}, qui est un service de stockage et de distribution d'images Docker. 
-Il joue le rôle d'un dépôt centralisé depuis lequel chaque instance peut récupérer l'image de l'application à déployer. 
-Sans ce registry, les différents conteneurs ne pourraient pas accéder à une version commune et cohérente de l'image.
-
-Nous utilisons ici le \texttt{GitHub Container Registry (GHCR)}, qui s'intègre nativement avec notre dépôt GitHub et 
-ne nécessite pas d'infrastructure supplémentaire. Une fois le registry configuré dans Dokploy, il suffit d'ajuster 
-le nombre de réplicas depuis l'onglet \texttt{Advanced} de l'application. Traefik, le reverse proxy intégré à Dokploy, 
-se charge alors automatiquement de répartir le trafic entre les différentes instances.
-
-% \subsection{
-
+\section{Reste a faire}
+\begin{itemize}
+\item Tester OpenStack
+\item Comparer avec dokploy
+\item Faire un choix final
+\item Rédiger la partie "Mise en place de l'infrastructure" du rapport
+\end{itemize}
 
 % \printbibliography
 \bibliographystyle{plain}
 \bibliography{refs}
-
 
 \end{document}

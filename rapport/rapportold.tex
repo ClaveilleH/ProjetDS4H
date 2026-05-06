@@ -1,17 +1,27 @@
-% \documentclass{report} % Classe de document (rapport)
-% \usepackage{xcolor}
-% \usepackage{graphicx}
-% \usepackage{hyperref}
-% \usepackage{minted}
-% \usepackage[hybrid]{markdown}
-
-\documentclass{rapportClass} % Classe de document personnalisée
+\documentclass{report} % Classe de document (rapport)
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{minted}
+\usepackage[hybrid]{markdown}
 
 \title{Rapport de Projet}
 \author{Hugo CLAVEILLE}
 % -- Master 1 Informatique
 \date{\today}
 
+
+
+
+% Appliquer aussi aux pages de type 'plain' (début de chapitre, sommaire…)
+% \fancypagestyle{plain}{
+%   \fancyhf{}
+%   \fancyhead[L]{Rapport de Projet}
+%   \fancyhead[C]{M1 Informatique}
+%   \fancyhead[R]{Hugo}
+%   \fancyfoot[C]{\thepage}
+%   \renewcommand{\headrulewidth}{0.4pt}
+% }
 
 \begin{document}
 
@@ -24,7 +34,7 @@
         
         % Titre
         {\Huge \textbf{Rapport de Projet}}\\[1cm]
-        {\Large Self Hosted Cloud Implementation}\\[1cm]
+        {\Large DS4H}\\[1cm]
 
         \vspace{1cm}
         % Auteur
@@ -43,8 +53,6 @@
 \thispagestyle{empty}
 \tableofcontents
 \newpage
-
-\chapter{Abstract}
 
 \chapter{Introduction}
 
@@ -713,117 +721,22 @@ besoins spécifiques liés à ce contexte d’utilisation.
     \item \textbf{Deploiement facile} : Les utilisateurs doivent pouvoir déployer leurs code sans que la complexité technique ne soit un obstacle.
     \item \textbf{Gestion des comptes utilisateurs} : Il doit être possible de créer et gérer des comptes pour les étudiants.
     \item \textbf{Monitoring basique} : Les utilisateurs doivent pouvoir surveiller l’état de leurs applications (logs, ressources utilisées).
-    \item \textbf{Coût maîtrisé} : La solution doit être économique à mettre en place et à maintenir, en évitant les coûts récurrents élevés.
 \end{itemize}
 
 
 
-% \chapter{Pourquoi self-hosted ?}
+\chapter{Pourquoi self-hosted ?}
 
-% {\color{red} tu as répondu au dessus ?  sauf que tu as oublié le coût !!!}
+{\color{red} tu as répondu au dessus ?  sauf que tu as oublié le coût !!!}
 
 \chapter{Choix de la techno}
 
-Face aux besoins identifiés — déploiement simple, gestion d'utilisateurs, monitoring basique et coût maîtrisé —
-plusieurs solutions de cloud self-hosted ont été évaluées. L'objectif n'est pas de construire une infrastructure 
-de production industrielle, mais de fournir un environnement pédagogique fonctionnel, maintenable par une seule 
-personne et accessible à des étudiants sans expertise DevOps.
-
-\section{Solutions envisagées}
-
-\subsection{OpenStack}
-OpenStack est la référence du cloud privé open-source. Il reproduit fidèlement les primitives d'un cloud public 
-(instances de calcul, réseaux virtuels, stockage objet, etc.) et est utilisé par de nombreux opérateurs en production.
-
-Cependant, sa complexité d'installation et d'administration est incompatible avec notre contexte : 
-il nécessite typiquement plusieurs machines physiques dédiées, une équipe pour le maintenir, 
-et une courbe d'apprentissage très significative. Ce serait, pour reprendre l'analogie du chapitre précédent, 
-utiliser une infrastructure de datacenter pour remplacer un service de déploiement étudiant. 
-OpenStack a donc été écarté dès le début de l'évaluation.
-
-\subsection{Kubernetes (k3s)}
-Kubernetes est le standard de facto pour l'orchestration de conteneurs à grande échelle. 
-Sa version allégée, k3s, réduit les prérequis matériels tout en conservant l'essentiel de l'API Kubernetes.
-
-Le problème est similaire à OpenStack : Kubernetes est conçu pour gérer des centaines de services 
-sur des dizaines de nœuds, avec une gestion fine des ressources, de la haute disponibilité et du 
-réseau. Pour notre cas d'usage, cela représente une complexité accidentelle\footnote{On parle de 
-complexité accidentelle lorsque la complexité vient de l'outil choisi et non du problème à résoudre.} 
-importante. Par ailleurs, Kubernetes n'intègre pas nativement d'interface utilisateur pour 
-les déploiements applicatifs ni de gestion de comptes étudiants.
-
-\subsection{Dokku}
-Dokku se présente comme un Heroku self-hosted minimaliste. Il permet de déployer une application 
-via un simple \texttt{git push}, ce qui correspond bien au niveau de simplicité recherché. 
-
-Toutefois, Dokku reste un outil orienté ligne de commande, sans interface web native pour les utilisateurs finaux.
-La gestion multi-utilisateurs y est limitée et repose essentiellement sur des accès SSH.
-Pour des étudiants habitués à une interface web comme Render, la transition aurait été moins naturelle.
-
-\subsection{CapRover}
-CapRover propose une interface web et un déploiement par conteneurs Docker, avec une approche 
-plus accessible que Kubernetes. Il supporte le déploiement depuis un dépôt Git et propose une 
-gestion basique des applications.
-
-Cependant, la gestion des utilisateurs y est rudimentaire : CapRover fonctionne historiquement 
-avec un unique compte administrateur, et bien que des évolutions aient été apportées, 
-la séparation des droits entre projets reste peu granulaire. C'est un critère important pour 
-notre contexte, où chaque étudiant doit accéder uniquement à ses propres applications.
-
-\subsection{Coolify}
-Coolify est une solution récente et activement développée qui propose une interface moderne, 
-le déploiement depuis Git, la gestion de bases de données, et un système multi-utilisateurs. 
-Elle s'est révélée être un concurrent sérieux à Dokploy sur le papier.
-
-La raison de son élimination est cependant pragmatique : l'image Docker de Coolify dépasse 
-les 20 Go une fois déployée avec ses dépendances. Sur le VPS utilisé pour ce projet, 
-dont l'espace disque est limité, cela rendait l'installation tout simplement impossible sans 
-sacrifier la majeure partie des ressources disponibles pour les applications étudiantes elles-mêmes.
-
-C'est un exemple concret de contrainte d'infrastructure qui ne ressort pas des comparatifs 
-en ligne, mais qui s'impose dès qu'on passe à la pratique.
-
-\section{Tableau comparatif}
-
-\begin{table}[h!]
-\centering
-\begin{tabular}{|l|c|c|c|c|c|}
-\hline
-\textbf{Solution} & \textbf{Interface web} & \textbf{Multi-utilisateurs} & \textbf{Déploiement Git} & \textbf{Complexité} & \textbf{Adéquation} \\
-\hline
-OpenStack   & \checkmark & \checkmark & $\sim$ & Très élevée  & \texttimes \\
-Kubernetes (k3s) & $\sim$ & $\sim$ & $\sim$ & Élevée & \texttimes \\
-Dokku       & \texttimes & Limitée    & \checkmark & Faible  & $\sim$ \\
-CapRover    & \checkmark & Limitée    & \checkmark & Moyenne & $\sim$ \\
-Coolify     & \checkmark & \checkmark & \checkmark & Faible  & \checkmark \\
-Dokploy     & \checkmark & \checkmark & \checkmark & Faible  & \checkmark \\
-\hline
-\end{tabular}
-\caption{Comparaison des solutions de cloud self-hosted évaluées}
-\label{tab:comparaison}
-\end{table}
-
-\section{Justification du choix : Dokploy}
-
-Au terme de cette évaluation, Dokploy a été retenu pour plusieurs raisons convergentes.
-
-D'abord, il répond directement aux quatre besoins identifiés : déploiement depuis Git en quelques 
-clics, gestion de comptes utilisateurs avec des permissions par projet, monitoring des logs et 
-des ressources depuis le dashboard, et installation en une seule commande sur un serveur Linux standard.
-
-Ensuite, son niveau de complexité est cohérent avec les ressources disponibles pour ce projet : 
-une seule machine, un seul administrateur, et des utilisateurs qui ne doivent pas avoir à se 
-préoccuper de l'infrastructure sous-jacente.
-
-Enfin, contrairement à Kubernetes ou OpenStack, Dokploy ne cherche pas à être un cloud généraliste. 
-C'est précisément ce qui en fait un choix pertinent ici : il résout notre problème sans introduire 
-une complexité accidentelle disproportionnée.
 
 
 %%=========================================================
 \chapter{Mise en place de l'infrastructure}
 
-\section{Dokploy}
+\section{Première approche : Dokploy}
 Dokploy est une solution open-source de déploiement de service et base de donnée. %c'est le bon terme ? 
 Elle permet de déployer facilement des applications à partir d’un dépôt Git, en utilisant des conteneurs Docker.
 
@@ -846,7 +759,6 @@ les permissions (création d'application, accès aux logs, etc\dots).
 Et les utilisateurs peuvent se connecter pour déployer et monitorer leurs applications en gérant tout depuisde panel.
 \end{itemize}
 
-
 Pour les administrateurs, Dokploy offre des fonctionnalités de gestion avancées, telles que la configuration des domaines
 personnalisés, la gestion des certificats SSL, la possibilité de définir des règles de déploiement spécifiques pour chaque projet.
 Il permet également de configurer plusieurs machines sur lesquelles déployer les applications, offrant ainsi une certaine 
@@ -860,6 +772,154 @@ Cela permet de répondre rapidement aux besoins.
 \subsubsection{Inconvénients}
 Il peut être limité en termes de scalabilité et de personnalisation. La communauté est relativement petite, ce qui peut poser des problèmes de support et de développement à long terme.
 Bien qu'il offre la possibilité d'avoir plusieurs machines sur lesquelles déployer, il n'est pas conçu pour gérer une infrastructure complexe ou à grande échelle.
+
+\section{Approche approfondie : OpenStack}
+il faut que je test openStack et que je fasse des recherches dessus
+
+%%=========================================================
+
+{\color{red} 
+Moi je commencerais par coolify ou autre truc simple et apres openstack !?
+
+\begin{itemize}
+\item Gemini dit 2 minutes ! 
+\item Il devrait déjà y avoir un truc comme ca qui tourne !
+\end{itemize}
+}
+
+\subsection{Q: comment faire un cloud self hosted a la render avec openstack}
+Gemini a dit :
+\begin{minted}{tex}
+Créer un cloud "self-hosted" à la manière de **Render** ou **Heroku** (souvent appelé un **PaaS** - Platform as a Service) en utilisant **OpenStack** est un projet ambitieux.
+
+OpenStack est complexe car c'est un **IaaS** (Infrastructure as a Service). Pour obtenir l'expérience "cliquez et déployez" de Render, vous devez construire une couche d'abstraction par-dessus OpenStack.
+
+Voici la stratégie pour y parvenir :
+
+-----
+
+### 1\. La base : Déployer l'infrastructure (OpenStack)
+
+OpenStack va gérer vos ressources brutes (calcul, stockage, réseau).
+
+  * **La solution recommandée :** N'installez pas OpenStack "à la main". Utilisez **OpenStack-Ansible** ou **Kolla-Ansible**. Ces outils utilisent des conteneurs pour faire tourner les services Cloud, ce qui facilite grandement la maintenance.
+  * **Services indispensables :**
+      * *Keystone* (Identité)
+      * *Nova* (Calcul/VM)
+      * *Neutron* (Réseau)
+      * *Glance* (Images d'OS)
+      * *Cinder* (Stockage bloc)
+
+### 2\. Le moteur de déploiement : Kubernetes sur OpenStack
+
+Render ne déploie pas directement sur des machines virtuelles, il utilise des conteneurs. La manière la plus moderne de créer un PaaS sur OpenStack est d'utiliser OpenStack pour créer des clusters Kubernetes.
+
+  * **OpenStack Magnum :** C'est le service OpenStack dédié à la création de clusters de conteneurs (Kubernetes).
+  * **Pourquoi ?** Kubernetes gérera l'orchestration de vos applications, tandis qu'OpenStack gérera les serveurs physiques en dessous.
+
+### 3\. La couche "Render-like" (Le PaaS)
+
+Pour avoir l'expérience utilisateur de Render (Git Push → Déploiement), vous devez installer une plateforme de développement sur votre Kubernetes. Voici les meilleures options open-source :
+
+  * **Coolify :** Probablement l'alternative la plus proche de Render aujourd'hui. Très simple à auto-héberger.
+  * **Dokku :** Un "mini-Heroku" très puissant, parfait si vous n'avez qu'un seul gros serveur.
+  * **CapRover :** Très visuel, avec un "App Store" pour déployer des bases de données en un clic.
+
+### 4\. Automatiser le flux (CI/CD)
+
+Pour que cela ressemble à Render, le processus doit être automatique :
+
+1.  **Git :** Vous poussez votre code sur votre propre instance **GitLab** ou **Gitea**.
+2.  **Build :** Un outil comme **Cloud Native Buildpacks** (utilisé par Render) transforme votre code en image de conteneur sans que vous ayez à écrire de Dockerfile.
+3.  **Run :** L'image est poussée sur votre cluster géré par OpenStack.
+
+-----
+
+### Résumé de la pile technologique (Stack)
+
+| Couche | Technologie recommandée |
+| :--- | :--- |
+| **Matériel** | Vos serveurs physiques |
+| **Infrastructure (IaaS)** | **OpenStack** (via Kolla-Ansible) |
+| **Orchestration** | **Kubernetes** (via OpenStack Magnum) |
+| **Interface PaaS** | **Coolify** ou **Dokku** |
+| **Accès Public** | **Traefik** ou **Nginx Ingress** (pour les URL en [https://www.google.com/search?q=.votre-cloud.com](https://www.google.com/search?q=.votre-cloud.com)) |
+
+### Est-ce une bonne idée ?
+
+  * **Les avantages :** Contrôle total de vos données, aucun coût de bande passante caché, apprentissage immense.
+  * **Les inconvénients :** **Énorme charge de maintenance.** OpenStack est un "monstre" qui nécessite beaucoup de RAM (minimum 16-32 Go juste pour le plan de contrôle) et une surveillance constante.
+
+Si votre objectif est simplement d'avoir un "Render à la maison" sans la complexité d'OpenStack, installer **Coolify** directement sur un serveur Linux (Ubuntu) est 10 fois plus simple.
+
+Souhaitez-vous que je détaille l'installation d'OpenStack ou préférez-vous regarder comment configurer la partie PaaS (Coolify) ?
+\end{minted}
+
+\subsection{ et avec coolify ?}
+Gemini a dit
+\begin{minted}{tex}
+Si tu veux une expérience **"à la Render"** (Git Push, déploiement automatique, bases de données en un clic) sans t'arracher les cheveux sur OpenStack, **Coolify** est l'outil parfait. C'est ce qu'on appelle un "PaaS auto-hébergé".
+
+Voici comment transformer un simple serveur en ton propre Cloud privé avec Coolify.
+
+---
+
+### 1. La philosophie Coolify
+Contrairement à OpenStack qui gère des machines virtuelles, Coolify gère des **conteneurs (Docker)**. Il s'installe sur une machine Linux vierge et devient ton centre de contrôle.
+
+### 2. Installation (La minute magique)
+Il te suffit d'une machine sous Ubuntu (ou Debian/CentOS) avec au moins **2 Go de RAM**. Connecte-toi en SSH et lance cette commande :
+
+```bash
+curl -fsSL https://get.coollabs.io/coolify/install.sh | bash
+```
+
+Une fois terminé, tu accèdes à une interface web ultra-propre (généralement sur le port `8000`).
+
+### 3. Comment il reproduit l'expérience "Render"
+
+Coolify automatise tout ce qui est normalement pénible dans l'administration système :
+
+*   **Connexion Git :** Tu lies ton compte GitHub ou GitLab. Dès que tu pousses du code, Coolify le détecte, crée une nouvelle image de ton app et la déploie.
+*   **Reverse Proxy intégré :** Il installe automatiquement **Traefik**. Tu n'as pas à configurer de fichiers Nginx compliqués pour avoir tes noms de domaine.
+*   **SSL Automatique :** Il génère tes certificats **Let's Encrypt** (HTTPS) tout seul.
+*   **Bases de données :** Tu cliques sur "PostgreSQL" ou "Redis", et il te déploie une instance sécurisée avec une interface de gestion intégrée.
+
+---
+
+### 4. La configuration "Multi-Serveurs" (Le vrai Cloud)
+Si tu veux vraiment faire comme Render et ne pas tout mettre sur une seule machine :
+1.  Tu installes Coolify sur un serveur principal (le **Control Plane**).
+2.  Tu achètes d'autres serveurs vides (tes **Nodes**).
+3.  Dans l'interface Coolify, tu ajoutes l'IP de tes autres serveurs via SSH.
+4.  Désormais, quand tu déploies une application, tu peux choisir sur quel serveur elle doit tourner.
+
+### 5. Comparaison : Coolify vs OpenStack
+
+| Fonctionnalité | Coolify | OpenStack |
+| :--- | :--- | :--- |
+| **Difficulté** |  (Très facile) | (Expert) |
+| **Installation** | 2 minutes | 2 jours (minimum) |
+| **Ressources** | Très léger (quelques Mo de RAM) | Très lourd (besoin de 32 Go+ RAM) |
+| **Usage** | Déployer des Apps et des DB | Créer des Datacenters virtuels |
+
+---
+
+### Le conseil du "pro"
+Si tu veux un Cloud robuste à la maison ou en entreprise :
+1.  Prends un serveur chez un hébergeur (Hetzner, OVH, DigitalOcean) ou un vieux PC puissant.
+2.  Installe **Docker** et **Coolify**.
+3.  Utilise un service comme **Cloudflare** pour ton DNS.
+
+**C'est la solution la plus proche de l'esprit DevOps moderne :** tu ne perds pas de temps à "réparer" des serveurs, tu passes ton temps à "déployer" des applications.
+
+Est-ce que tu as déjà un serveur sous la main pour tester, ou tu veux que je t'explique comment lier ton GitHub à Coolify ?
+\end{minted}
+
+% \printbibliography
+\bibliographystyle{plain}
+\bibliography{refs}
+
 
 \section{Cas d'usage : déploiement d'un RNN de classification de texte}
 Afin d'illustrer les capacités et les limites de notre solution de cloud self-hosted, nous avons choisi de déployer un
@@ -895,38 +955,6 @@ Du côté de Dokploy, le projet est configuré pour se connecter au dépôt Git 
 automatiquement l’image à chaque nouvelle version poussée sur le dépôt. La commande de lancement du serveur est également définie, 
 à savoir : \texttt{gunicorn --bind 0.0.0.0:5000 RNN\_server:app}.
 
-Enfin il faut parametrer le donmaine sur lequel va répondre l'api, ici j'ai choisi \texttt{rnn.dokpoly.claveille.fr} et le port (ici : 5000).
-
 Une fois la configuration terminée, le déploiement peut être initié. Dokploy se charge alors de construire l’image Docker, 
 de la déployer sur le cluster, puis d’exposer le service via une URL accessible.
-
-\subsection{Tests de scalabilité et de performance}
-Une fois le serveur déployé, on utilise le script \texttt{RNN\_client.py} pour envoyer des requêtes de classification 
-afin de tester les performances de l’application. 
-
-On peut remarquer qu'en faisant des requettes en continu l'application utilise déja 40\% du CPU qui lui est alloué.
-Cela illustre les limites de notre infrastructure : avec une seule instance du serveur, la capacité de traitement est rapidement saturée.
-
-\section{Scalabilité avec Dokploy}
-Nous allons donc tester la scalabilité de notre solution en augmentant le nombre d'instances du serveur. 
-Dokploy permet de faire cela facilement depuis le dashboard, en ajustant le nombre de conteneurs déployés pour 
-l'application.
-
-Pour cela, Dokploy nécessite un \texttt{Docker Registry}, qui est un service de stockage et de distribution d'images Docker. 
-Il joue le rôle d'un dépôt centralisé depuis lequel chaque instance peut récupérer l'image de l'application à déployer. 
-Sans ce registry, les différents conteneurs ne pourraient pas accéder à une version commune et cohérente de l'image.
-
-Nous utilisons ici le \texttt{GitHub Container Registry (GHCR)}, qui s'intègre nativement avec notre dépôt GitHub et 
-ne nécessite pas d'infrastructure supplémentaire. Une fois le registry configuré dans Dokploy, il suffit d'ajuster 
-le nombre de réplicas depuis l'onglet \texttt{Advanced} de l'application. Traefik, le reverse proxy intégré à Dokploy, 
-se charge alors automatiquement de répartir le trafic entre les différentes instances.
-
-% \subsection{
-
-
-% \printbibliography
-\bibliographystyle{plain}
-\bibliography{refs}
-
-
 \end{document}
