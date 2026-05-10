@@ -1,0 +1,709 @@
+\documentclass{rapportClass} % Classe de document personnalisée
+
+
+
+\title{Rapport de Projet}
+\author{Hugo CLAVEILLE}
+% -- Master 1 Informatique
+\date{\today}
+
+
+\begin{document}
+
+\begin{titlepage}
+    \thispagestyle{empty} % pas d'en-tête/pied ici
+    
+    \begin{center}
+        % Logo en haut
+        \includegraphics[width=1\textwidth]{assets/logo.png}[2cm]
+        
+        % Titre
+        {\Huge \textbf{\textbf{Rapp}ort \textbf{d}e \textbf{Pro}jet}}[1cm]
+        {\Large \textbf{Se}lf \textbf{Hos}ted \textbf{Clo}ud \textbf{Impleme}ntation}[1cm]
+
+        \vspace{1cm}
+        % Auteur
+        \textbf{\textbf{Hu}go \textbf{CLAVE}ILLE}[0.5cm]
+        
+        % Sous-titre
+        {\Large \textbf{Mas}ter 1 \textbf{Inform}atique}[2cm]
+        
+        % Date
+        \vfill
+        {\large \today}
+    \end{center}
+\end{titlepage}
+
+\newpage
+\thispagestyle{empty}
+\tableofcontents
+\newpage
+
+\chapter{Abstract}
+
+% ======================================================================================================================
+\chapter{Introduction}
+\section{Contexte}  
+\textbf{Da}ns \textbf{l}e \textbf{cad}re \textbf{d}u \textbf{pro}jet \textbf{\textbf{D}S4H}, \textbf{i}l \textbf{m}'\textbf{a} \textbf{ét}é \textbf{con}fié \textbf{l}a \textbf{miss}ion \textbf{d}e
+\textbf{conce}voir \textbf{e}t \textbf{dépl}oyer \textbf{un}e \textbf{\textbf{solu}tion \textbf{se}lf-\textbf{hos}ted} \textbf{po}ur \textbf{rempl}acer
+\textbf{l}e \textbf{serv}ice \textbf{\textbf{Ren}der} \textbf{util}isé \textbf{da}ns \textbf{l}e \textbf{cou}rs \textbf{d}’\textbf{\textbf{Io}T}.
+
+\textbf{L}’\textbf{obje}ctif \textbf{es}t \textbf{d}e \textbf{four}nir \textbf{un}e \textbf{altern}ative \textbf{loc}ale, \textbf{souve}raine \textbf{e}t
+\textbf{maîtr}isée, \textbf{perme}ttant \textbf{au}x \textbf{étudi}ants \textbf{e}t \textbf{enseig}nants \textbf{d}e \textbf{dépl}oyer, \textbf{gér}er
+\textbf{e}t \textbf{monit}orer \textbf{de}s \textbf{applic}ations \textbf{Io}T \textbf{sa}ns \textbf{dépe}ndre \textbf{d}’\textbf{u}n \textbf{serv}ice \textbf{clo}ud
+\textbf{exte}rne.
+
+\textbf{C}e \textbf{bes}oin, \textbf{bi}en \textbf{qu}e \textbf{form}ulé \textbf{da}ns \textbf{u}n \textbf{cont}exte \textbf{pédago}gique, \textbf{s}’\textbf{insc}rit \textbf{e}n
+\textbf{réal}ité \textbf{da}ns \textbf{un}e \textbf{problém}atique \textbf{pl}us \textbf{lar}ge : \textbf{cel}le \textbf{d}u \textbf{\textbf{clo}ud
+\textbf{compu}ting} \textbf{e}t \textbf{d}e \textbf{se}s \textbf{différ}entes \textbf{for}mes \textbf{d}’\textbf{exploi}tation.
+
+\textbf{E}n \textbf{eff}et, \textbf{rempl}acer \textbf{u}n \textbf{serv}ice \textbf{com}me \textbf{Ren}der \textbf{n}e \textbf{cons}iste \textbf{pa}s \textbf{uniqu}ement
+\textbf{à} \textbf{dépl}oyer \textbf{un}e \textbf{applic}ation \textbf{su}r \textbf{u}n \textbf{serv}eur. \textbf{Ce}la \textbf{impl}ique \textbf{d}e \textbf{repro}duire,
+\textbf{à} \textbf{pl}us \textbf{pet}ite \textbf{éche}lle, \textbf{u}n \textbf{ense}mble \textbf{d}e \textbf{mécan}ismes \textbf{caractér}istiques \textbf{d}u
+\textbf{clo}ud \textbf{mode}rne : \textbf{abstra}ction \textbf{d}e \textbf{l}’\textbf{infrast}ructure, \textbf{déploi}ement
+\textbf{autom}atisé, \textbf{isola}tion \textbf{de}s \textbf{applic}ations, \textbf{gest}ion \textbf{mul}ti-\textbf{utilis}ateurs \textbf{e}t
+\textbf{élast}icité \textbf{de}s \textbf{resso}urces.
+
+\textbf{Autre}ment \textbf{di}t, \textbf{c}e \textbf{pro}jet \textbf{revi}ent \textbf{à} \textbf{conce}voir \textbf{un}e \textbf{\textbf{plate}forme \textbf{d}e
+\textbf{ty}pe \textbf{Pa}aS}\footnote{Platform as a Service} \textbf{simpl}ifiée, \textbf{adap}tée \textbf{à} \textbf{u}n \textbf{cont}exte
+\textbf{contr}aint (\textbf{un}e \textbf{seu}le \textbf{mach}ine, \textbf{resso}urces \textbf{limi}tées, \textbf{utilis}ateurs \textbf{no}n
+\textbf{expe}rts).
+
+\textbf{Af}in \textbf{d}e \textbf{compr}endre \textbf{le}s \textbf{enj}eux \textbf{techn}iques \textbf{e}t \textbf{le}s \textbf{cho}ix \textbf{réal}isés \textbf{da}ns \textbf{c}e
+\textbf{trav}ail, \textbf{i}l \textbf{es}t \textbf{do}nc \textbf{néces}saire \textbf{d}e \textbf{repl}acer \textbf{cet}te \textbf{problém}atique \textbf{da}ns
+\textbf{so}n \textbf{cont}exte \textbf{histo}rique \textbf{e}t \textbf{conce}ptuel.
+
+\section{State of the Art}
+
+\subsection{De l’abstraction des ressources au cloud computing}
+
+\textbf{L}’\textbf{id}ée \textbf{d}’\textbf{abstr}aire \textbf{le}s \textbf{resso}urces \textbf{informa}tiques \textbf{préc}ède \textbf{large}ment
+\textbf{l}’\textbf{émerg}ence \textbf{d}u \textbf{clo}ud \textbf{compu}ting \textbf{mode}rne. \textbf{Dè}s \textbf{le}s \textbf{prem}iers \textbf{syst}èmes
+\textbf{d}’\textbf{exploi}tation, \textbf{com}me \textbf{Mult}ics, \textbf{appa}raît \textbf{l}e \textbf{conc}ept \textbf{d}e « \textbf{comp}uter
+\textbf{util}ity », \textbf{da}ns \textbf{leq}uel \textbf{l}a \textbf{puiss}ance \textbf{d}e \textbf{cal}cul \textbf{es}t \textbf{per}çue \textbf{com}me \textbf{u}n
+\textbf{serv}ice \textbf{acces}sible \textbf{à} \textbf{l}a \textbf{dema}nde, \textbf{indépen}damment \textbf{d}e \textbf{l}a \textbf{mach}ine
+\textbf{phys}ique \textbf{so}us-\textbf{jace}nte \cite{Multics1965}.
+
+\textbf{C}e \textbf{chang}ement \textbf{d}e \textbf{parad}igme \textbf{intro}duit \textbf{u}n \textbf{prin}cipe \textbf{fondam}ental \textbf{d}u \textbf{clo}ud :
+\textbf{l}’\textbf{utilis}ateur \textbf{inter}agit \textbf{av}ec \textbf{un}e \textbf{inter}face \textbf{abstr}aite, \textbf{tan}dis \textbf{qu}e
+\textbf{l}’\textbf{infrast}ructure \textbf{rée}lle \textbf{es}t \textbf{masq}uée \textbf{e}t \textbf{gér}ée \textbf{sépar}ément.
+
+\textbf{Da}ns \textbf{l}e \textbf{cad}re \textbf{d}e \textbf{c}e \textbf{pro}jet, \textbf{cet}te \textbf{abstra}ction \textbf{es}t \textbf{essent}ielle, \textbf{ca}r \textbf{le}s
+\textbf{utilis}ateurs (\textbf{étudi}ants) \textbf{doiv}ent \textbf{pouv}oir \textbf{dépl}oyer \textbf{leu}rs \textbf{applic}ations
+\textbf{sa}ns \textbf{avo}ir \textbf{à} \textbf{manip}uler \textbf{direct}ement \textbf{l}’\textbf{infrast}ructure \textbf{syst}ème.
+
+\subsection{Systèmes distribués et accès distant}
+
+\textbf{L}’\textbf{acc}ès \textbf{dist}ant \textbf{au}x \textbf{resso}urces \textbf{d}e \textbf{cal}cul \textbf{es}t \textbf{un}e \textbf{id}ée \textbf{fonda}trice \textbf{d}e
+\textbf{l}’\textbf{inform}atique. \textbf{Dè}s 1940, \textit{\textbf{Geo}rge \textbf{Stib}itz} \textbf{démo}ntre \textbf{l}a \textbf{possib}ilité
+\textbf{d}e \textbf{pilo}ter \textbf{un}e \textbf{mach}ine \textbf{à} \textbf{dist}ance \textbf{vi}a \textbf{un}e \textbf{liai}son \textbf{télégra}phique
+\cite{Stibitz2012}.
+
+\textbf{Cet}te \textbf{logi}que \textbf{a} \textbf{évo}lué \textbf{ve}rs \textbf{de}s \textbf{parad}igmes \textbf{distr}ibués, \textbf{com}me \textbf{l}e \textbf{Gr}id
+\textbf{Compu}ting, \textbf{da}ns \textbf{lesq}uels \textbf{plusi}eurs \textbf{mach}ines \textbf{collab}orent \textbf{po}ur \textbf{exéc}uter
+\textbf{de}s \textbf{tâc}hes \textbf{compl}exes \cite{Foster2001}.
+
+\textbf{Ce}s \textbf{appro}ches \textbf{introd}uisent \textbf{de}s \textbf{conc}epts \textbf{cl}és \textbf{te}ls \textbf{qu}e \textbf{l}e \textbf{part}age \textbf{d}e
+\textbf{resso}urces, \textbf{l}a \textbf{transp}arence \textbf{rés}eau \textbf{e}t \textbf{l}’\textbf{exécu}tion \textbf{distr}ibuée, \textbf{qu}i \textbf{so}nt
+\textbf{a}u \textbf{c}œur \textbf{de}s \textbf{platef}ormes \textbf{clo}ud \textbf{mode}rnes.
+
+\textbf{Aujo}urd’\textbf{hu}i, \textbf{un}e \textbf{applic}ation \textbf{n}’\textbf{es}t \textbf{pl}us \textbf{nécessa}irement \textbf{li}ée \textbf{à} \textbf{un}e
+\textbf{seu}le \textbf{mach}ine, \textbf{ma}is \textbf{pe}ut \textbf{êt}re \textbf{répa}rtie \textbf{su}r \textbf{plusi}eurs \textbf{insta}nces,
+\textbf{améli}orant \textbf{ain}si \textbf{l}a \textbf{scalab}ilité \textbf{e}t \textbf{l}a \textbf{tolér}ance \textbf{au}x \textbf{pan}nes.
+
+\subsection{Informatique orientée services}
+
+\textbf{L}’\textbf{émerg}ence \textbf{d}u \textbf{Soft}ware \textbf{a}s \textbf{a} \textbf{Serv}ice (\textbf{Sa}aS) \textbf{mar}que \textbf{un}e \textbf{rupt}ure \textbf{maje}ure
+\textbf{da}ns \textbf{l}a \textbf{mani}ère \textbf{d}e \textbf{conso}mmer \textbf{le}s \textbf{logic}iels. \textbf{À} \textbf{par}tir \textbf{d}e \textbf{l}a \textbf{fi}n \textbf{de}s
+\textbf{ann}ées 1990, \textbf{de}s \textbf{entrep}rises \textbf{com}me \textbf{Sales}force \textbf{propo}sent \textbf{de}s
+\textbf{applic}ations \textbf{access}ibles \textbf{vi}a \textbf{u}n \textbf{navig}ateur \textbf{we}b \cite{Salesforce1999}.
+
+\textbf{C}e \textbf{mod}èle \textbf{intro}duit \textbf{l}’\textbf{id}ée \textbf{qu}e \textbf{le}s \textbf{différ}entes \textbf{couc}hes \textbf{d}e
+\textbf{l}’\textbf{inform}atique (\textbf{logi}ciel, \textbf{plate}forme, \textbf{infrast}ructure) \textbf{peuv}ent \textbf{êt}re
+\textbf{four}nies \textbf{so}us \textbf{for}me \textbf{d}e \textbf{serv}ices \cite{NIST2026}.
+
+\textbf{Cet}te \textbf{appr}oche \textbf{es}t \textbf{direct}ement \textbf{li}ée \textbf{à} \textbf{l}’\textbf{obje}ctif \textbf{d}e \textbf{c}e \textbf{pro}jet, \textbf{qu}i
+\textbf{cons}iste \textbf{à} \textbf{rempl}acer \textbf{Ren}der, \textbf{un}e \textbf{plate}forme \textbf{d}e \textbf{ty}pe \textbf{Pa}aS\footnote{Platform as a Service}, \textbf{pa}r \textbf{un}e
+\textbf{solu}tion \textbf{au}to-\textbf{hébe}rgée \textbf{offr}ant \textbf{de}s \textbf{fonction}nalités \textbf{simil}aires \textbf{d}e
+\textbf{déploi}ement \textbf{e}t \textbf{d}e \textbf{gest}ion \textbf{d}’\textbf{applic}ations.
+
+\subsection{Virtualisation et conteneurisation}
+
+\textbf{L}a \textbf{virtual}isation \textbf{es}t \textbf{un}e \textbf{techno}logie \textbf{cl}é \textbf{aya}nt \textbf{per}mis
+\textbf{l}’\textbf{ess}or \textbf{d}u \textbf{clo}ud \textbf{compu}ting. \textbf{El}le \textbf{per}met \textbf{d}’\textbf{exéc}uter \textbf{plusi}eurs
+\textbf{environ}nements \textbf{iso}lés \textbf{su}r \textbf{un}e \textbf{mê}me \textbf{mach}ine \textbf{phys}ique, \textbf{optim}isant \textbf{ain}si
+\textbf{l}’\textbf{utilis}ation \textbf{de}s \textbf{resso}urces \cite{VMware2007}.
+
+\textbf{Cepen}dant, \textbf{le}s \textbf{mach}ines \textbf{virtu}elles \textbf{prése}ntent \textbf{certa}ines \textbf{limi}tes,
+\textbf{notam}ment \textbf{e}n \textbf{ter}mes \textbf{d}e \textbf{consom}mation \textbf{d}e \textbf{resso}urces \textbf{e}t \textbf{d}e \textbf{tem}ps \textbf{d}e
+\textbf{démar}rage. \textbf{Ce}s \textbf{contra}intes \textbf{on}t \textbf{cond}uit \textbf{à} \textbf{l}’\textbf{émerg}ence \textbf{de}s \textbf{conte}neurs,
+\textbf{qu}i \textbf{offr}ent \textbf{un}e \textbf{isola}tion \textbf{pl}us \textbf{lég}ère \textbf{e}n \textbf{parta}geant \textbf{l}e \textbf{noy}au \textbf{d}u
+\textbf{syst}ème \textbf{hô}te \cite{Merkel2014}.
+
+\textbf{Le}s \textbf{conte}neurs \textbf{so}nt \textbf{aujo}urd’\textbf{hu}i \textbf{deve}nus \textbf{l}’\textbf{uni}té \textbf{stan}dard \textbf{d}e \textbf{déploi}ement
+\textbf{da}ns \textbf{le}s \textbf{environ}nements \textbf{clo}ud, \textbf{ca}r \textbf{il}s \textbf{perme}ttent \textbf{d}’\textbf{assu}rer \textbf{l}a
+\textbf{portab}ilité \textbf{e}t \textbf{l}a \textbf{reproduc}tibilité \textbf{de}s \textbf{applic}ations.
+
+\textbf{Da}ns \textbf{c}e \textbf{pro}jet, \textbf{cet}te \textbf{appr}oche \textbf{es}t \textbf{cent}rale, \textbf{puis}que \textbf{l}a \textbf{solu}tion
+\textbf{rete}nue (\textbf{Dokp}loy) \textbf{rep}ose \textbf{su}r \textbf{l}’\textbf{utilis}ation \textbf{d}e \textbf{conte}neurs \textbf{Doc}ker \textbf{po}ur
+\textbf{l}e \textbf{déploi}ement \textbf{e}t \textbf{l}a \textbf{gest}ion \textbf{de}s \textbf{applic}ations.
+
+\subsection{Orchestration et automatisation}
+\textbf{L}’\textbf{orchest}ration \textbf{de}s \textbf{conte}neurs, 
+
+\subsection{Modèles du cloud computing}
+
+\textbf{Le}s \textbf{infrastr}uctures \textbf{clo}ud \textbf{peuv}ent \textbf{êt}re \textbf{clas}sées \textbf{sel}on \textbf{diffé}rents
+\textbf{modè}les \textbf{d}e \textbf{déploi}ement :
+
+\begin{itemize}
+\item \textbf{\textbf{Clo}ud \textbf{pub}lic} : \textbf{le}s \textbf{resso}urces \textbf{so}nt \textbf{four}nies \textbf{pa}r \textbf{u}n
+\textbf{presta}taire \textbf{exte}rne \textbf{e}t \textbf{mutual}isées \textbf{ent}re \textbf{plusi}eurs \textbf{utilis}ateurs.
+\item \textbf{\textbf{Clo}ud \textbf{pri}vé} : \textbf{l}’\textbf{infrast}ructure \textbf{es}t \textbf{déd}iée \textbf{à} \textbf{un}e \textbf{seu}le
+\textbf{organi}sation.
+\item \textbf{\textbf{Clo}ud \textbf{hybr}ide} : \textbf{combin}aison \textbf{de}s \textbf{de}ux \textbf{appro}ches.
+\end{itemize}
+
+\textbf{Pa}r \textbf{aill}eurs, \textbf{le}s \textbf{modè}les \textbf{d}e \textbf{serv}ice \textbf{défini}ssent \textbf{l}e \textbf{niv}eau
+\textbf{d}’\textbf{abstra}ction \textbf{prop}osé \cite{NIST2026, ISO2026} :
+
+\begin{itemize}
+\item \textbf{\textbf{Ia}aS} (\textbf{Infrast}ructure \textbf{a}s \textbf{a} \textbf{Serv}ice) : \textbf{mi}se \textbf{à} \textbf{dispos}ition
+\textbf{d}e \textbf{resso}urces \textbf{matéri}elles \textbf{virtua}lisées.
+\item \textbf{\textbf{Pa}aS} (\textbf{Plat}form \textbf{a}s \textbf{a} \textbf{Serv}ice) : \textbf{environ}nement \textbf{d}e
+\textbf{déploi}ement \textbf{d}’\textbf{applic}ations.
+\item \textbf{\textbf{Sa}aS} (\textbf{Soft}ware \textbf{a}s \textbf{a} \textbf{Serv}ice) : \textbf{acc}ès \textbf{à} \textbf{de}s \textbf{logic}iels
+\textbf{comp}lets.
+\end{itemize}
+
+\textbf{L}a \textbf{solu}tion \textbf{dével}oppée \textbf{da}ns \textbf{c}e \textbf{pro}jet \textbf{pe}ut \textbf{êt}re \textbf{interp}rétée \textbf{com}me \textbf{un}e
+\textbf{for}me \textbf{simpl}ifiée \textbf{d}e \textbf{Pa}aS, \textbf{dépl}oyée \textbf{su}r \textbf{un}e \textbf{infrast}ructure
+\textbf{se}lf-\textbf{hos}ted, \textbf{s}’\textbf{appare}ntant \textbf{à} \textbf{u}n \textbf{clo}ud \textbf{pri}vé.
+
+\subsection{DevOps et Infrastructure as Code}
+
+\textbf{L}e \textbf{clo}ud \textbf{compu}ting \textbf{mode}rne \textbf{rep}ose \textbf{forte}ment \textbf{su}r \textbf{l}’\textbf{automat}isation.
+\textbf{L}’\textbf{Infrast}ructure \textbf{a}s \textbf{Co}de (\textbf{Ia}C) \textbf{per}met \textbf{d}e \textbf{défi}nir \textbf{e}t \textbf{d}e \textbf{gér}er
+\textbf{l}’\textbf{infrast}ructure \textbf{à} \textbf{l}’\textbf{ai}de \textbf{d}e \textbf{fich}iers \textbf{d}e \textbf{configu}ration, \textbf{garant}issant
+\textbf{l}a \textbf{reproduc}tibilité \textbf{e}t \textbf{l}a \textbf{cohér}ence \textbf{de}s \textbf{environ}nements \cite{Morris2016}.
+
+\textbf{Parallè}lement, \textbf{le}s \textbf{prati}ques \textbf{Dev}Ops \textbf{vis}ent \textbf{à} \textbf{rédu}ire \textbf{l}a \textbf{sépar}ation
+\textbf{ent}re \textbf{dévelop}pement \textbf{e}t \textbf{exploi}tation, \textbf{notam}ment \textbf{grâ}ce \textbf{à}
+\textbf{l}’\textbf{automat}isation \textbf{de}s \textbf{déploi}ements \textbf{e}t \textbf{à} \textbf{l}’\textbf{intégr}ation \textbf{cont}inue
+\cite{Bass2015}.
+
+\textbf{Ce}s \textbf{conc}epts \textbf{s}e \textbf{retro}uvent \textbf{da}ns \textbf{le}s \textbf{out}ils \textbf{mode}rnes \textbf{d}e \textbf{déploi}ement,
+\textbf{qu}i \textbf{perme}ttent \textbf{d}e \textbf{conne}cter \textbf{u}n \textbf{dép}ôt \textbf{d}e \textbf{co}de \textbf{à} \textbf{un}e \textbf{infrast}ructure
+\textbf{capa}ble \textbf{d}e \textbf{const}ruire \textbf{e}t \textbf{dépl}oyer \textbf{automati}quement \textbf{un}e \textbf{applic}ation.
+
+\textbf{Da}ns \textbf{c}e \textbf{pro}jet, \textbf{ce}s \textbf{princ}ipes \textbf{so}nt \textbf{direct}ement \textbf{appli}qués \textbf{à} \textbf{trav}ers
+\textbf{l}’\textbf{utilis}ation \textbf{d}e \textbf{Dokp}loy, \textbf{qu}i \textbf{autom}atise \textbf{l}e \textbf{déploi}ement \textbf{d}’\textbf{applic}ations
+\textbf{à} \textbf{par}tir \textbf{d}e \textbf{dép}ôts \textbf{Gi}t \textbf{e}t \textbf{four}nit \textbf{u}n \textbf{environ}nement \textbf{cohé}rent \textbf{po}ur \textbf{le}s
+\textbf{utilis}ateurs.
+
+\section{Problem statement}
+
+\textbf{L}e \textbf{bes}oin \textbf{ident}ifié \textbf{da}ns \textbf{l}e \textbf{cad}re \textbf{d}u \textbf{pro}jet \textbf{n}e \textbf{s}e \textbf{lim}ite \textbf{pa}s \textbf{à} \textbf{u}n
+\textbf{sim}ple \textbf{rempla}cement \textbf{foncti}onnel \textbf{d}u \textbf{serv}ice \textbf{Ren}der. \textbf{I}l \textbf{s}’\textbf{ag}it \textbf{e}n \textbf{réal}ité
+\textbf{d}e \textbf{dépl}oyer \textbf{un}e \textbf{plate}forme \textbf{capa}ble \textbf{d}e \textbf{repro}duire, \textbf{da}ns \textbf{u}n \textbf{cont}exte
+\textbf{contr}aint, \textbf{certa}ines \textbf{propr}iétés \textbf{fondame}ntales \textbf{d}’\textbf{u}n \textbf{environ}nement \textbf{clo}ud.
+
+\textbf{L}e \textbf{prob}lème \textbf{pe}ut \textbf{êt}re \textbf{form}ulé \textbf{d}e \textbf{l}a \textbf{mani}ère \textbf{suiv}ante :
+
+\begin{quote}
+\textbf{Comm}ent \textbf{dépl}oyer \textbf{un}e \textbf{plate}forme \textbf{d}e \textbf{ty}pe \textbf{Pa}aS,
+\textbf{au}to-\textbf{hébe}rgée, \textbf{perme}ttant \textbf{à} \textbf{de}s \textbf{utilis}ateurs \textbf{no}n \textbf{expe}rts \textbf{d}e \textbf{dépl}oyer
+\textbf{e}t \textbf{gér}er \textbf{leu}rs \textbf{applic}ations, \textbf{to}ut \textbf{e}n \textbf{respe}ctant \textbf{de}s \textbf{contra}intes \textbf{for}tes
+\textbf{d}e \textbf{resso}urces, \textbf{d}e \textbf{simpl}icité \textbf{e}t \textbf{d}e \textbf{mainten}abilité ?
+\end{quote}
+
+\textbf{Cet}te \textbf{problém}atique \textbf{intro}duit \textbf{plusi}eurs \textbf{contra}intes \textbf{maje}ures.
+
+\textbf{To}ut \textbf{d}’\textbf{abo}rd, \textbf{l}’\textbf{infrast}ructure \textbf{dispo}nible \textbf{es}t \textbf{limi}tée : \textbf{l}e \textbf{syst}ème \textbf{do}it
+\textbf{foncti}onner \textbf{su}r \textbf{u}n \textbf{nom}bre \textbf{restr}eint \textbf{d}e \textbf{mach}ines, \textbf{av}ec \textbf{de}s \textbf{resso}urces
+\textbf{fin}ies \textbf{e}n \textbf{ter}mes \textbf{d}e \textbf{CP}U, \textbf{mémo}ire \textbf{e}t \textbf{stoc}kage. \textbf{Contrai}rement \textbf{au}x
+\textbf{fourni}sseurs \textbf{d}e \textbf{clo}ud \textbf{pub}lic, \textbf{i}l \textbf{n}’\textbf{es}t \textbf{pa}s \textbf{poss}ible \textbf{d}e \textbf{s}’\textbf{appu}yer \textbf{su}r
+\textbf{un}e \textbf{élast}icité \textbf{qua}si \textbf{infi}nie.
+
+\textbf{Ensu}ite, \textbf{le}s \textbf{utilis}ateurs \textbf{cib}lés — \textbf{de}s \textbf{étudi}ants — \textbf{n}e \textbf{dispo}sent \textbf{pa}s
+\textbf{nécessa}irement \textbf{d}e \textbf{compét}ences \textbf{e}n \textbf{adminis}tration \textbf{syst}ème \textbf{o}u \textbf{e}n \textbf{Dev}Ops.
+\textbf{L}a \textbf{solu}tion \textbf{do}it \textbf{do}nc \textbf{masq}uer \textbf{l}a \textbf{compl}exité \textbf{techn}ique \textbf{e}t \textbf{prop}oser \textbf{un}e
+\textbf{inter}face \textbf{sim}ple \textbf{e}t \textbf{acces}sible.
+
+\textbf{Enf}in, \textbf{l}e \textbf{pro}jet \textbf{s}’\textbf{insc}rit \textbf{da}ns \textbf{u}n \textbf{cont}exte \textbf{pédago}gique, \textbf{impli}quant \textbf{un}e
+\textbf{faci}lité \textbf{d}e \textbf{déploi}ement, \textbf{d}e \textbf{mainte}nance \textbf{e}t \textbf{d}e \textbf{reprod}uction \textbf{d}e
+\textbf{l}’\textbf{infrast}ructure, \textbf{idéal}ement \textbf{pa}r \textbf{un}e \textbf{seu}le \textbf{pers}onne.
+
+\textbf{À} \textbf{par}tir \textbf{d}e \textbf{ce}s \textbf{contra}intes, \textbf{plusi}eurs \textbf{objec}tifs \textbf{techn}iques \textbf{peuv}ent
+\textbf{êt}re \textbf{défi}nis :
+
+\begin{itemize}
+\item \textbf{\textbf{Simpl}icité \textbf{d}e \textbf{déploi}ement} : \textbf{perme}ttre \textbf{au}x \textbf{utilis}ateurs \textbf{d}e
+\textbf{dépl}oyer \textbf{un}e \textbf{applic}ation \textbf{av}ec \textbf{u}n \textbf{mini}mum \textbf{d}’\textbf{intera}ctions \textbf{techn}iques.
+\item \textbf{\textbf{Isola}tion \textbf{de}s \textbf{applic}ations} : \textbf{gara}ntir \textbf{qu}e \textbf{le}s \textbf{différ}entes
+\textbf{applic}ations \textbf{déplo}yées \textbf{n}e \textbf{pertu}rbent \textbf{pa}s \textbf{l}’\textbf{environ}nement \textbf{glo}bal.
+\item \textbf{\textbf{Gest}ion \textbf{mul}ti-\textbf{utilis}ateurs} : \textbf{off}rir \textbf{u}n \textbf{syst}ème \textbf{d}e \textbf{comp}tes
+\textbf{perme}ttant \textbf{d}e \textbf{sépa}rer \textbf{le}s \textbf{usa}ges.
+\item \textbf{\textbf{Monit}oring \textbf{basi}que} : \textbf{four}nir \textbf{u}n \textbf{acc}ès \textbf{au}x \textbf{lo}gs \textbf{e}t \textbf{à}
+\textbf{l}’\textbf{ét}at \textbf{de}s \textbf{applic}ations.
+\item \textbf{\textbf{Maît}rise \textbf{de}s \textbf{resso}urces} : \textbf{limi}ter \textbf{l}’\textbf{empre}inte \textbf{syst}ème
+\textbf{af}in \textbf{d}e \textbf{prése}rver \textbf{le}s \textbf{capac}ités \textbf{d}e \textbf{l}’\textbf{infrast}ructure.
+\end{itemize}
+
+\textbf{Ce}s \textbf{objec}tifs \textbf{servi}ront \textbf{d}e \textbf{crit}ères \textbf{d}’\textbf{évalu}ation \textbf{po}ur \textbf{comp}arer \textbf{le}s
+\textbf{différ}entes \textbf{solut}ions \textbf{techn}iques \textbf{envis}agées \textbf{da}ns \textbf{l}a \textbf{sui}te \textbf{d}e \textbf{c}e
+\textbf{rapp}ort, \textbf{e}t \textbf{justi}fier \textbf{l}e \textbf{cho}ix \textbf{fin}al \textbf{d}e \textbf{l}’\textbf{archit}ecture \textbf{rete}nue.
+
+
+% ======================================================================================================================
+\chapter{Matériel et Méthodes}
+
+\section{Infrastructure disponible}
+
+\textbf{L}'\textbf{ense}mble \textbf{de}s \textbf{expérime}ntations \textbf{a} \textbf{ét}é \textbf{réal}isé \textbf{su}r \textbf{u}n \textbf{serv}eur \textbf{pri}vé
+\textbf{virt}uel (\textbf{VP}S) \textbf{tour}nant \textbf{so}us \textbf{Deb}ian \textbf{GN}U/\textbf{Lin}ux 12 (\textbf{Book}worm), 
+\textbf{dispo}sant \textbf{de}s \textbf{resso}urces \textbf{suiva}ntes :
+
+\begin{itemize}
+    \item \textbf{\textbf{CP}U} : 2 \textbf{vC}PU \textbf{Int}el \textbf{Xe}on \textbf{E}5-2680 \textbf{v}4 @ 2.40 \textbf{GH}z
+    \item \textbf{\textbf{RA}M} : 4.2 \textbf{G}o (\textbf{envi}ron 1.5 \textbf{G}o \textbf{dispon}ibles \textbf{e}n \textbf{condi}tions \textbf{norm}ales)
+    \item \textbf{\textbf{Stoc}kage} : 25 \textbf{G}o (\textbf{do}nt 2.1 \textbf{G}o \textbf{lib}res \textbf{a}u \textbf{mom}ent \textbf{d}u \textbf{déploi}ement)
+\end{itemize}
+
+\vspace{0.5cm}
+
+\textbf{Cet}te \textbf{contr}ainte \textbf{es}t \textbf{déterm}inante, \textbf{ca}r \textbf{el}le \textbf{imp}ose \textbf{de}s \textbf{limi}tes \textbf{stri}ctes
+\textbf{e}n \textbf{ter}mes \textbf{d}e \textbf{mémo}ire, \textbf{d}e \textbf{puiss}ance \textbf{d}e \textbf{cal}cul \textbf{e}t \textbf{d}’\textbf{esp}ace \textbf{dis}que. \textbf{Contrai}rement
+\textbf{au}x \textbf{environ}nements \textbf{clo}ud \textbf{publ}ics, \textbf{auc}une \textbf{élast}icité \textbf{automa}tique \textbf{n}’\textbf{es}t
+\textbf{poss}ible.
+
+\textbf{Da}ns \textbf{c}e \textbf{cont}exte, \textbf{tou}te \textbf{solu}tion \textbf{rete}nue \textbf{do}it \textbf{êt}re :
+\begin{itemize}
+\item \textbf{lég}ère \textbf{e}n \textbf{consom}mation \textbf{d}e \textbf{resso}urces,
+\item \textbf{sim}ple \textbf{à} \textbf{dépl}oyer \textbf{su}r \textbf{un}e \textbf{mach}ine \textbf{uni}que,
+\item \textbf{capa}ble \textbf{d}e \textbf{coexi}ster \textbf{av}ec \textbf{plusi}eurs \textbf{applic}ations \textbf{sa}ns \textbf{satur}ation \textbf{rap}ide.
+\end{itemize}
+
+\textbf{Ce}s \textbf{contra}intes \textbf{on}t \textbf{forte}ment \textbf{influ}encé \textbf{le}s \textbf{cho}ix \textbf{technol}ogiques
+\textbf{prése}ntés \textbf{da}ns \textbf{l}a \textbf{sui}te \textbf{d}e \textbf{cet}te \textbf{sect}ion.
+
+\section{Solutions candidates}
+
+\textbf{Plusi}eurs \textbf{solut}ions \textbf{d}e \textbf{clo}ud \textbf{se}lf-\textbf{hos}ted \textbf{on}t \textbf{ét}é \textbf{étud}iées \textbf{af}in \textbf{d}e
+\textbf{répo}ndre \textbf{au}x \textbf{beso}ins \textbf{ident}ifiés \textbf{da}ns \textbf{l}a \textbf{sect}ion \textbf{précé}dente.
+
+\textbf{L}’\textbf{obje}ctif \textbf{n}’\textbf{es}t \textbf{pa}s \textbf{d}e \textbf{const}ruire \textbf{un}e \textbf{infrast}ructure \textbf{indust}rielle,
+\textbf{ma}is \textbf{d}e \textbf{sélect}ionner \textbf{un}e \textbf{solu}tion \textbf{adap}tée \textbf{à} \textbf{u}n \textbf{cont}exte \textbf{pédago}gique,
+\textbf{av}ec \textbf{u}n \textbf{compr}omis \textbf{ent}re \textbf{fonction}nalités \textbf{e}t \textbf{compl}exité.
+
+\subsection{Méthodologie de sélection}
+
+\textbf{Le}s \textbf{solut}ions \textbf{on}t \textbf{ét}é \textbf{éval}uées \textbf{sel}on \textbf{le}s \textbf{crit}ères \textbf{suiv}ants :
+
+\begin{itemize}
+\item \textbf{\textbf{Faci}lité \textbf{d}e \textbf{déploi}ement} : \textbf{instal}lation \textbf{rap}ide \textbf{su}r \textbf{un}e \textbf{mach}ine \textbf{uni}que.
+\item \textbf{\textbf{Supp}ort \textbf{d}u \textbf{déploi}ement \textbf{appli}catif} : \textbf{intégr}ation \textbf{av}ec \textbf{Gi}t \textbf{e}t \textbf{Doc}ker.
+\item \textbf{\textbf{Gest}ion \textbf{mul}ti-\textbf{utilis}ateurs} : \textbf{capa}cité \textbf{à} \textbf{iso}ler \textbf{le}s \textbf{proj}ets.
+\item \textbf{\textbf{Inter}face \textbf{utilis}ateur} : \textbf{accessi}bilité \textbf{po}ur \textbf{de}s \textbf{utilis}ateurs \textbf{no}n \textbf{expe}rts.
+\item \textbf{\textbf{Consom}mation \textbf{d}e \textbf{resso}urces} : \textbf{compati}bilité \textbf{av}ec \textbf{le}s \textbf{contra}intes \textbf{d}u \textbf{VP}S.
+\end{itemize}
+
+\subsection{Solutions étudiées}
+
+\textbf{\textbf{OpenS}tack} \textbf{const}itue \textbf{un}e \textbf{référ}ence \textbf{po}ur \textbf{le}s \textbf{clo}uds \textbf{pri}vés
+\textbf{op}en-\textbf{sou}rce. \textbf{Toute}fois, \textbf{s}a \textbf{compl}exité \textbf{e}t \textbf{se}s \textbf{beso}ins \textbf{matér}iels \textbf{l}e
+\textbf{rend}ent \textbf{inad}apté \textbf{à} \textbf{un}e \textbf{infrast}ructure \textbf{limi}tée.
+
+\textbf{\textbf{Kuber}netes (\textbf{k}3s)} \textbf{off}re \textbf{un}e \textbf{orchest}ration \textbf{avan}cée \textbf{de}s \textbf{conte}neurs,
+\textbf{ma}is \textbf{intro}duit \textbf{un}e \textbf{compl}exité \textbf{impor}tante \textbf{qu}i \textbf{dépa}sse \textbf{le}s \textbf{beso}ins \textbf{d}u \textbf{pro}jet.
+
+\textbf{\textbf{Dok}ku} \textbf{prop}ose \textbf{un}e \textbf{appr}oche \textbf{minima}liste \textbf{bas}ée \textbf{su}r \textbf{Gi}t, \textbf{ma}is
+\textbf{res}te \textbf{lim}ité \textbf{e}n \textbf{ter}mes \textbf{d}’\textbf{inter}face \textbf{utilis}ateur \textbf{e}t \textbf{d}e \textbf{gest}ion \textbf{mul}ti-\textbf{utilis}ateurs.
+
+\textbf{\textbf{CapR}over} \textbf{appo}rte \textbf{un}e \textbf{inter}face \textbf{we}b \textbf{e}t \textbf{un}e \textbf{gest}ion \textbf{simpl}ifiée
+\textbf{de}s \textbf{applic}ations, \textbf{ma}is \textbf{res}te \textbf{lim}ité \textbf{da}ns \textbf{l}a \textbf{gest}ion \textbf{fi}ne \textbf{de}s \textbf{utilis}ateurs.
+
+\textbf{\textbf{Cool}ify} \textbf{prés}ente \textbf{de}s \textbf{fonction}nalités \textbf{avan}cées \textbf{e}t \textbf{un}e \textbf{inter}face
+\textbf{mode}rne, \textbf{ma}is \textbf{s}a \textbf{consom}mation \textbf{impor}tante \textbf{d}e \textbf{resso}urces (\textbf{notam}ment \textbf{e}n
+\textbf{esp}ace \textbf{dis}que) \textbf{l}e \textbf{re}nd \textbf{incomp}atible \textbf{av}ec \textbf{l}’\textbf{infrast}ructure \textbf{dispo}nible.
+
+\begin{table}[\textbf{h}!]
+\centering
+\begin{tabular}{|l|c|c|c|c|c|c|}
+\hline
+\textbf{Solution} & \textbf{Interface web} & \textbf{Multi-users} & \textbf{Git deploy} & \textbf{Complexité} & \textbf{Ressources} & \textbf{Adéquation} 
+\hline
+OpenStack        & \checkmark & \checkmark & $\sim$     & Très élevée & Élevées  & \texttimes 
+Kubernetes (k3s) & $\sim$     & $\sim$     & $\sim$     & Élevée      & Moyennes & \texttimes 
+Dokku            & \texttimes & Limitée    & \checkmark & Faible      & Faibles  & $\sim$ 
+CapRover         & \checkmark & Limitée    & \checkmark & Moyenne     & Faibles  & $\sim$ 
+Coolify          & \checkmark & \checkmark & \checkmark & Faible      & +20 Go   & \texttimes 
+Dokploy          & \checkmark & \checkmark & \checkmark & Faible      & Faibles  & \checkmark 
+\hline
+\end{tabular}
+\caption{Comparaison des solutions de cloud self-hosted évaluées}
+\label{tab:comparaison}
+\end{table}
+
+\section{Solution retenue : Dokploy}
+
+\textbf{A}u \textbf{reg}ard \textbf{de}s \textbf{crit}ères \textbf{défi}nis, \textbf{\textbf{Dokp}loy} \textbf{a} \textbf{ét}é \textbf{ret}enu \textbf{com}me
+\textbf{solu}tion \textbf{princ}ipale.
+
+\textbf{C}e \textbf{cho}ix \textbf{rep}ose \textbf{su}r \textbf{plusi}eurs \textbf{élém}ents :
+
+\begin{itemize}
+\item \textbf{Un}e \textbf{instal}lation \textbf{sim}ple \textbf{e}n \textbf{un}e \textbf{comm}ande \textbf{su}r \textbf{u}n \textbf{serv}eur \textbf{Lin}ux.
+\item \textbf{Un}e \textbf{inter}face \textbf{we}b \textbf{perme}ttant \textbf{un}e \textbf{pri}se \textbf{e}n \textbf{ma}in \textbf{rap}ide.
+\item \textbf{Un}e \textbf{intégr}ation \textbf{nat}ive \textbf{av}ec \textbf{Gi}t \textbf{po}ur \textbf{l}e \textbf{déploi}ement \textbf{cont}inu.
+\item \textbf{U}n \textbf{supp}ort \textbf{d}u \textbf{mul}ti-\textbf{utilis}ateur \textbf{av}ec \textbf{gest}ion \textbf{de}s \textbf{permis}sions.
+\item \textbf{Un}e \textbf{consom}mation \textbf{d}e \textbf{resso}urces \textbf{compa}tible \textbf{av}ec \textbf{l}e \textbf{VP}S.
+\end{itemize}
+
+\textbf{Dokp}loy \textbf{rep}ose \textbf{su}r \textbf{l}’\textbf{utilis}ation \textbf{d}e \textbf{conte}neurs \textbf{Doc}ker \textbf{po}ur \textbf{iso}ler \textbf{le}s
+\textbf{applic}ations \textbf{e}t \textbf{su}r \textbf{u}n \textbf{pro}xy (\textbf{Trae}fik) \textbf{po}ur \textbf{expo}ser \textbf{le}s \textbf{serv}ices.
+
+\textbf{I}l \textbf{const}itue \textbf{ain}si \textbf{un}e \textbf{impléme}ntation \textbf{lég}ère \textbf{d}’\textbf{un}e \textbf{plate}forme \textbf{d}e \textbf{ty}pe
+\textbf{Pa}aS, \textbf{adap}tée \textbf{à} \textbf{u}n \textbf{cont}exte \textbf{pédago}gique.
+
+\section{Application déployée : RNN server}
+
+\textbf{Af}in \textbf{d}’\textbf{éval}uer \textbf{l}a \textbf{solu}tion \textbf{rete}nue, \textbf{un}e \textbf{applic}ation \textbf{d}e \textbf{te}st \textbf{a} \textbf{ét}é
+\textbf{dépl}oyée.
+
+\textbf{I}l \textbf{s}’\textbf{ag}it \textbf{d}’\textbf{u}n \textbf{serv}eur \textbf{d}e \textbf{classif}ication \textbf{d}e \textbf{tex}te \textbf{ba}sé \textbf{su}r \textbf{u}n \textbf{rés}eau
+\textbf{d}e \textbf{neur}ones \textbf{récur}rent (\textbf{RN}N), \textbf{perme}ttant \textbf{d}e \textbf{simu}ler \textbf{un}e \textbf{cha}rge \textbf{réal}iste.
+
+\textbf{L}’\textbf{applic}ation \textbf{es}t \textbf{comp}osée \textbf{d}e \textbf{tro}is \textbf{élém}ents :
+
+\begin{itemize}
+\item \textbf{\textbf{RN}N_factory.\textbf{p}y} : \textbf{génér}ation \textbf{e}t \textbf{entraî}nement \textbf{d}u \textbf{mod}èle.
+\item \textbf{\textbf{RN}N_server.\textbf{p}y} : \textbf{serv}eur \textbf{expo}sant \textbf{un}e \textbf{AP}I \textbf{d}e \textbf{classif}ication.
+\item \textbf{\textbf{RN}N_client.\textbf{p}y} : \textbf{cli}ent \textbf{perme}ttant \textbf{d}e \textbf{géné}rer \textbf{de}s \textbf{requ}êtes.
+\end{itemize}
+\vspace{0.5cm}
+
+\textbf{Cet}te \textbf{applic}ation \textbf{a} \textbf{ét}é \textbf{choi}sie \textbf{ca}r \textbf{el}le \textbf{per}met :
+\begin{itemize}
+\item \textbf{d}e \textbf{simu}ler \textbf{un}e \textbf{cha}rge \textbf{CP}U \textbf{signifi}cative,
+\item \textbf{d}e \textbf{tes}ter \textbf{l}a \textbf{stabi}lité \textbf{d}u \textbf{déploi}ement,
+\item \textbf{d}’\textbf{éval}uer \textbf{l}a \textbf{capa}cité \textbf{d}e \textbf{mon}tée \textbf{e}n \textbf{cha}rge \textbf{d}e \textbf{l}a \textbf{plate}forme.
+\end{itemize}
+
+% \vspace{0.5cm}
+% Le déploiement repose sur un conteneur Docker, défini par un
+% \texttt{Dockerfile} et un fichier \texttt{requirements.txt} décrivant
+% les dépendances (notamment TensorFlow et Flask) qu'il a fallu creer et déposer sur dépôt GitHub
+% Pour le déploiement, un repto GitHub a été créé, contenant le code de l’application ainsi que les fichiers nécessaires 
+% à la construction de l’image Docker qui sont : 
+% \begin{itemize}
+% \item \textbf{Dockerfile} : décrit les étapes de construction de l’image.
+% \item \textbf{requirements.txt} : liste les dépendances Python nécessaires.
+% \end{itemize}
+% Ensuite, ce dépôt a été connecté à Dokploy, permettant une construction et un déploiement automatiques de l’application 
+% à chaque mise à jour du code.
+
+
+\subsection{Déploiement avec Dokploy}
+
+\textbf{Da}ns \textbf{u}n \textbf{prem}ier \textbf{tem}ps, \textbf{u}n \textbf{nouv}eau \textbf{pro}jet \textbf{es}t \textbf{cr}éé \textbf{a}u \textbf{se}in \textbf{d}e \textbf{Dokp}loy \textbf{so}us \textbf{l}'\textbf{inti}tulé ``\textbf{RN}N-\textbf{Classif}ication''. 
+\textbf{À} \textbf{l}'\textbf{intér}ieur \textbf{d}e \textbf{c}e \textbf{pro}jet, \textbf{un}e \textbf{applic}ation \textbf{es}t \textbf{ensu}ite \textbf{ajou}tée \textbf{e}t \textbf{nom}mée ``\textbf{RN}N-\textbf{Ser}ver''.
+
+\textbf{Plusi}eurs \textbf{appro}ches \textbf{d}e \textbf{déploi}ement \textbf{so}nt \textbf{envisag}eables. \textbf{I}l \textbf{es}t \textbf{poss}ible \textbf{d}’\textbf{util}iser \textbf{un}e \textbf{ima}ge \textbf{Doc}ker \textbf{préalab}lement \textbf{const}ruite 
+\textbf{e}t \textbf{publ}iée \textbf{su}r \textbf{u}n \textbf{regi}stre (\textbf{te}l \textbf{qu}e \textbf{Doc}ker \textbf{Hu}b \textbf{o}u \textbf{Git}Hub \textbf{Conta}iner \textbf{Regi}stry), \textbf{qu}e \textbf{Dokp}loy \textbf{pe}ut \textbf{dépl}oyer \textbf{direct}ement. 
+\textbf{Un}e \textbf{aut}re \textbf{opt}ion \textbf{cons}iste \textbf{à} \textbf{four}nir \textbf{direct}ement \textbf{le}s \textbf{fich}iers \textbf{sour}ces \textbf{à} \textbf{Dokp}loy \textbf{af}in \textbf{q}u’\textbf{i}l \textbf{const}ruise \textbf{l}’\textbf{ima}ge \textbf{à} \textbf{par}tir \textbf{d}’\textbf{u}n \textbf{Docke}rfile. 
+\textbf{Enf}in, \textbf{i}l \textbf{es}t \textbf{égale}ment \textbf{poss}ible \textbf{d}e \textbf{conne}cter \textbf{u}n \textbf{dép}ôt \textbf{Gi}t (\textbf{Git}Hub, \textbf{Git}Lab, \textbf{et}c.) \textbf{af}in \textbf{d}’\textbf{automa}tiser \textbf{l}e \textbf{proce}ssus 
+\textbf{d}e \textbf{déploi}ement \textbf{lo}rs \textbf{d}e \textbf{cha}que \textbf{mi}se \textbf{à} \textbf{jo}ur \textbf{d}u \textbf{co}de.
+
+\textbf{Da}ns \textbf{l}e \textbf{cad}re \textbf{d}e \textbf{c}e \textbf{pro}jet, \textbf{l}a \textbf{trois}ième \textbf{appr}oche \textbf{a} \textbf{ét}é \textbf{rete}nue \textbf{af}in \textbf{d}e \textbf{bénéf}icier \textbf{d}’\textbf{u}n \textbf{fl}ux \textbf{d}e \textbf{trav}ail \textbf{pl}us \textbf{inté}gré \textbf{e}t \textbf{autom}atisé. 
+\textbf{U}n \textbf{dép}ôt \textbf{Gi}t \textbf{es}t \textbf{do}nc \textbf{cr}éé \textbf{po}ur \textbf{l}e \textbf{pro}jet, \textbf{da}ns \textbf{leq}uel \textbf{so}nt \textbf{ajou}tés \textbf{le}s \textbf{fich}iers \texttt{\textbf{RN}N_factory.\textbf{p}y}, \texttt{\textbf{RN}N_client.\textbf{p}y} \textbf{e}t 
+\texttt{\textbf{RN}N_server.\textbf{p}y}.
+
+\textbf{U}n \textbf{fich}ier \texttt{\textbf{Docke}rfile} \textbf{es}t \textbf{ensu}ite \textbf{déf}ini \textbf{af}in \textbf{d}e \textbf{spéci}fier \textbf{le}s \textbf{éta}pes \textbf{d}e \textbf{constr}uction \textbf{d}e \textbf{l}’\textbf{ima}ge \textbf{d}e \textbf{l}’\textbf{applic}ation, 
+\textbf{ain}si \textbf{q}u’\textbf{u}n \textbf{fich}ier \texttt{\textbf{requir}ements.\textbf{tx}t} \textbf{list}ant \textbf{le}s \textbf{dépend}ances \textbf{nécess}aires, \textbf{tel}les \textbf{qu}e \textbf{Tenso}rFlow \textbf{e}t \textbf{Fla}sk.
+
+\textbf{D}u \textbf{cô}té \textbf{d}e \textbf{Dokp}loy, \textbf{l}e \textbf{pro}jet \textbf{es}t \textbf{confi}guré \textbf{po}ur \textbf{s}e \textbf{conne}cter \textbf{a}u \textbf{dép}ôt \textbf{Gi}t \textbf{e}t \textbf{po}ur \textbf{util}iser \textbf{l}e \textbf{Docke}rfile \textbf{af}in \textbf{d}e \textbf{const}ruire 
+\textbf{automati}quement \textbf{l}’\textbf{ima}ge \textbf{à} \textbf{cha}que \textbf{nouv}elle \textbf{vers}ion \textbf{pous}sée \textbf{su}r \textbf{l}e \textbf{dép}ôt. \textbf{L}a \textbf{comm}ande \textbf{d}e \textbf{lance}ment \textbf{d}u \textbf{serv}eur \textbf{es}t \textbf{égale}ment \textbf{défi}nie, 
+\textbf{à} \textbf{sav}oir : \texttt{\textbf{guni}corn --\textbf{bi}nd 0.0.0.0:5000 \textbf{RN}N_server:\textbf{ap}p}.
+
+\textbf{Enf}in \textbf{i}l \textbf{fa}ut \textbf{param}etrer \textbf{l}e \textbf{donm}aine \textbf{su}r \textbf{leq}uel \textbf{v}a \textbf{répo}ndre \textbf{l}'\textbf{ap}i, \textbf{ic}i %j'ai choisi
+\texttt{\textbf{rn}n.\textbf{dokp}oly.\textbf{clave}ille.\textbf{f}r} \textbf{e}t \textbf{l}e \textbf{po}rt \textbf{po}ur \textbf{Trae}fik (\textbf{ic}i : 5000).
+
+\textbf{Un}e \textbf{fo}is \textbf{l}a \textbf{configu}ration \textbf{term}inée, \textbf{l}e \textbf{déploi}ement \textbf{pe}ut \textbf{êt}re \textbf{ini}tié. \textbf{Dokp}loy \textbf{s}e \textbf{cha}rge \textbf{alo}rs \textbf{d}e \textbf{const}ruire \textbf{l}’\textbf{ima}ge \textbf{Doc}ker, 
+\textbf{d}e \textbf{l}a \textbf{dépl}oyer \textbf{su}r \textbf{l}e \textbf{clus}ter, \textbf{pu}is \textbf{d}’\textbf{expo}ser \textbf{l}e \textbf{serv}ice \textbf{vi}a \textbf{un}e \textbf{UR}L \textbf{acces}sible.
+
+\section{Monitoring et gestion des logs}
+\textbf{Dokp}loy \textbf{off}re \textbf{u}n \textbf{dashb}oard \textbf{centr}alisé \textbf{perme}ttant \textbf{d}e \textbf{visua}liser \textbf{l}'\textbf{ét}at \textbf{de}s \textbf{applic}ations \textbf{déplo}yées,\textbf{ain}si \textbf{qu}e \textbf{le}s 
+\textbf{lo}gs \textbf{géné}rés \textbf{pa}r \textbf{le}s \textbf{conte}neurs. \textbf{Ce}la \textbf{per}met \textbf{d}e \textbf{sui}vre \textbf{e}n \textbf{tem}ps \textbf{ré}el \textbf{le}s \textbf{perfor}mances \textbf{d}e \textbf{l}'\textbf{applic}ation, 
+\textbf{d}'\textbf{ident}ifier \textbf{le}s \textbf{erre}urs \textbf{éventu}elles \textbf{e}t \textbf{d}e \textbf{diagnos}tiquer \textbf{le}s \textbf{probl}èmes \textbf{d}e \textbf{déploi}ement. 
+
+
+
+\subsection{Tests de scalabilité et de performance}
+\textbf{Un}e \textbf{fo}is \textbf{l}e \textbf{serv}eur \textbf{dépl}oyé, \textbf{o}n \textbf{util}ise \textbf{l}e \textbf{scr}ipt \texttt{\textbf{RN}N_client.\textbf{p}y} \textbf{po}ur \textbf{envo}yer \textbf{de}s \textbf{requ}êtes \textbf{d}e \textbf{classif}ication 
+\textbf{af}in \textbf{d}e \textbf{tes}ter \textbf{le}s \textbf{perfor}mances \textbf{d}e \textbf{l}’\textbf{applic}ation. 
+
+\textbf{O}n \textbf{pe}ut \textbf{remar}quer \textbf{q}u'\textbf{e}n \textbf{fais}ant \textbf{de}s \textbf{reque}ttes \textbf{e}n \textbf{cont}inu \textbf{l}'\textbf{applic}ation \textbf{util}ise \textbf{dé}ja 40% du CPU qui lui est alloué.
+\textbf{Ce}la \textbf{illu}stre \textbf{le}s \textbf{limi}tes \textbf{d}e \textbf{not}re \textbf{infrast}ructure : \textbf{av}ec \textbf{un}e \textbf{seu}le \textbf{inst}ance \textbf{l}a \textbf{capa}cité \textbf{d}e \textbf{trait}ement \textbf{es}t \textbf{rapid}ement \textbf{satu}rée.
+
+\section{Scalabilité avec Dokploy}
+\textbf{No}us \textbf{all}ons \textbf{do}nc \textbf{tes}ter \textbf{l}a \textbf{scalab}ilité \textbf{d}e \textbf{not}re \textbf{solu}tion \textbf{e}n \textbf{augme}ntant \textbf{l}e \textbf{nom}bre \textbf{d}'\textbf{insta}nces \textbf{d}u \textbf{serv}eur. 
+\textbf{Dokp}loy \textbf{per}met \textbf{d}e \textbf{fai}re \textbf{ce}la \textbf{facil}ement \textbf{dep}uis \textbf{l}e \textbf{dashb}oard, \textbf{e}n \textbf{ajus}tant \textbf{l}e \textbf{nom}bre \textbf{d}e \textbf{conte}neurs \textbf{dépl}oyés \textbf{po}ur 
+\textbf{l}'\textbf{applic}ation.
+
+\textbf{Po}ur \textbf{ce}la, \textbf{Dokp}loy \textbf{néces}site \textbf{u}n \texttt{\textbf{Doc}ker \textbf{Regi}stry}, \textbf{qu}i \textbf{es}t \textbf{u}n \textbf{serv}ice \textbf{d}e \textbf{stoc}kage \textbf{e}t \textbf{d}e \textbf{distri}bution \textbf{d}'\textbf{ima}ges \textbf{Doc}ker. 
+\textbf{I}l \textbf{jo}ue \textbf{l}e \textbf{rô}le \textbf{d}'\textbf{u}n \textbf{dép}ôt \textbf{centr}alisé \textbf{dep}uis \textbf{leq}uel \textbf{cha}que \textbf{inst}ance \textbf{pe}ut \textbf{récup}érer \textbf{l}'\textbf{ima}ge \textbf{d}e \textbf{l}'\textbf{applic}ation \textbf{à} \textbf{dépl}oyer. 
+\textbf{Sa}ns \textbf{c}e \textbf{regi}stry, \textbf{le}s \textbf{diffé}rents \textbf{conte}neurs \textbf{n}e \textbf{pourr}aient \textbf{pa}s \textbf{accé}der \textbf{à} \textbf{un}e \textbf{vers}ion \textbf{comm}une \textbf{e}t \textbf{cohér}ente \textbf{d}e \textbf{l}'\textbf{ima}ge.
+
+\textbf{No}us \textbf{utili}sons \textbf{ic}i \textbf{l}e \texttt{\textbf{Git}Hub \textbf{Conta}iner \textbf{Regi}stry (\textbf{GH}CR)}, \textbf{qu}i \textbf{s}'\textbf{intè}gre \textbf{nativ}ement \textbf{av}ec \textbf{not}re \textbf{dép}ôt \textbf{Git}Hub \textbf{e}t 
+\textbf{n}e \textbf{néces}site \textbf{pa}s \textbf{d}'\textbf{infrast}ructure \textbf{supplém}entaire. \textbf{Un}e \textbf{fo}is \textbf{l}e \textbf{regi}stry \textbf{confi}guré \textbf{da}ns \textbf{Dokp}loy, \textbf{i}l \textbf{suf}fit \textbf{d}'\textbf{ajus}ter 
+\textbf{l}e \textbf{nom}bre \textbf{d}e \textbf{répl}icas \textbf{dep}uis \textbf{l}'\textbf{ong}let \texttt{\textbf{Adva}nced} \textbf{d}e \textbf{l}'\textbf{applic}ation. \textbf{Trae}fik, \textbf{l}e \textbf{reve}rse \textbf{pro}xy \textbf{inté}gré \textbf{à} \textbf{Dokp}loy, 
+\textbf{s}e \textbf{cha}rge \textbf{alo}rs \textbf{automati}quement \textbf{d}e \textbf{répa}rtir \textbf{l}e \textbf{tra}fic \textbf{ent}re \textbf{le}s \textbf{différ}entes \textbf{insta}nces.
+
+
+\section{Automatisation du scaling via l'API Dokploy}
+\label{sec:autoscaling}
+
+\textbf{Dokp}loy \textbf{exp}ose \textbf{un}e \textbf{AP}I \textbf{RE}ST \textbf{comp}lète, \textbf{acces}sible \textbf{dep}uis
+\texttt{/\textbf{ap}i} \textbf{e}t \textbf{docum}entée \textbf{vi}a \textbf{un}e \textbf{inter}face \textbf{Swag}ger \textbf{dispo}nible
+\textbf{à} \texttt{<\textbf{doma}ine>:3000/\textbf{swag}ger}. \textbf{L}'\textbf{authenti}fication \textbf{s}'\textbf{effe}ctue
+\textbf{pa}r \textbf{cl}é \textbf{AP}I, \textbf{géné}rée \textbf{dep}uis \textbf{l}e \textbf{pro}fil \textbf{adminis}trateur.
+
+\textbf{Cet}te \textbf{AP}I \textbf{per}met \textbf{notam}ment \textbf{d}e \textbf{modi}fier \textbf{l}e \textbf{nom}bre \textbf{d}e \textbf{répl}icas \textbf{d}'\textbf{un}e
+\textbf{applic}ation \textbf{vi}a \textbf{l}'\textbf{endp}oint \texttt{\textbf{applic}ation.\textbf{upd}ate}, \textbf{e}n \textbf{pass}ant
+\textbf{l}e \textbf{cha}mp \texttt{\textbf{repl}icas} \textbf{da}ns \textbf{l}e \textbf{cor}ps \textbf{d}e \textbf{l}a \textbf{requ}ête :
+
+\textbf{Su}r \textbf{cet}te \textbf{ba}se, \textbf{u}n \textbf{scr}ipt \textbf{d}'\textbf{autosc}aling \textbf{a} \textbf{ét}é \textbf{dével}oppé. \textbf{So}n
+\textbf{prin}cipe \textbf{es}t \textbf{l}e \textbf{suiv}ant : \textbf{i}l \textbf{inter}roge \textbf{périodi}quement \textbf{l}'\textbf{utilis}ation
+\textbf{CP}U \textbf{d}e \textbf{l}a \textbf{mach}ine \textbf{hô}te, \textbf{pu}is \textbf{aju}ste \textbf{l}e \textbf{nom}bre \textbf{d}e \textbf{répl}icas \textbf{d}e
+\textbf{l}'\textbf{applic}ation \textbf{e}n \textbf{conséq}uence.
+
+\textbf{C}e \textbf{scr}ipt \textbf{const}itue \textbf{un}e \textbf{for}me \textbf{rudime}ntaire \textbf{d}'\textbf{autosc}aling \textbf{horiz}ontal,
+\textbf{anal}ogue \textbf{a}u \textbf{prin}cipe \textbf{d}u \textit{\textbf{Horiz}ontal \textbf{Po}d \textbf{Autos}caler} (\textbf{HP}A) \textbf{d}e
+\textbf{Kuber}netes, \textbf{ma}is \textbf{implé}menté \textbf{sa}ns \textbf{dépen}dance \textbf{à} \textbf{u}n \textbf{orchest}rateur
+\textbf{comp}lexe.
+
+\textbf{I}l \textbf{es}t \textbf{impor}tant \textbf{d}e \textbf{not}er \textbf{qu}e \textbf{Dokp}loy \textbf{n}e \textbf{prop}ose \textbf{pa}s \textbf{nativ}ement \textbf{d}e
+\textbf{mécan}isme \textbf{d}'\textbf{autosc}aling \textbf{automa}tique \textbf{po}ur \textbf{le}s \textbf{applic}ations \textbf{no}n-\textbf{Comp}ose
+\footnote{Cette fonctionnalité est explicitement listée comme manquante
+dans le suivi des issues du projet.}. \textbf{C}e \textbf{scr}ipt \textbf{pal}lie \textbf{do}nc \textbf{cet}te
+\textbf{lim}ite \textbf{d}e \textbf{mani}ère \textbf{pragma}tique, \textbf{e}n \textbf{explo}itant \textbf{l}'\textbf{AP}I \textbf{exist}ante.
+
+\section{Orchestration dans Dokploy}
+\textbf{Dokp}loy \textbf{gè}re \textbf{l}'\textbf{orchest}ration \textbf{de}s \textbf{conte}neurs \textbf{vi}a \textbf{Doc}ker \textbf{Swa}rm.
+
+\textbf{\textbf{E}n \textbf{ca}s \textbf{d}e \textbf{cra}sh \textbf{d}'\textbf{un}e \textbf{inst}ance}, \textbf{Doc}ker \textbf{Swa}rm \textbf{déte}cte \textbf{l}a \textbf{défail}lance \textbf{e}t \textbf{s}i \textbf{Doc}ker \textbf{Eng}ine \textbf{n}e \textbf{parv}ient \textbf{pa}s \textbf{à} 
+\textbf{redém}arrer \textbf{l}e \textbf{conte}neur \textbf{su}r \textbf{l}e \textbf{mê}me \textbf{n}œud, \textbf{Swa}rm \textbf{l}e \textbf{rec}rée \textbf{automati}quement \textbf{su}r \textbf{u}n \textbf{aut}re \textbf{n}œud \textbf{d}u \textbf{clus}ter 
+(\textbf{da}ns \textbf{l}e \textbf{ca}s \textbf{d}'\textbf{un}e \textbf{configu}ration \textbf{mul}ti-\textbf{mach}ines) \textbf{o}u \textbf{da}ns \textbf{l}e \textbf{mê}me \textbf{n}œud \textbf{s}i \textbf{le}s \textbf{resso}urces \textbf{l}e \textbf{perme}ttent \textbf{af}in \textbf{d}e 
+\textbf{respe}cter \textbf{l}e \textbf{nom}bre \textbf{d}e \textbf{répl}icas \textbf{déf}ini \textbf{po}ur \textbf{l}'\textbf{applic}ation.\footnote{https://docs.docker.com/engine/swarm/}
+
+\textbf{\textbf{E}n \textbf{ca}s \textbf{d}e \textbf{satur}ation \textbf{de}s \textbf{resso}urces}, \textbf{Doc}ker \textbf{Swa}rm \textbf{n}e \textbf{disp}ose \textbf{pa}s \textbf{d}e \textbf{mécan}ismes \textbf{avan}cés \textbf{d}e \textbf{gest}ion \textbf{d}e \textbf{l}a
+\textbf{surch}arge. \textbf{L}a \textbf{seu}le \textbf{solu}tion \textbf{cons}iste \textbf{à} \textbf{ajus}ter \textbf{manuel}lement \textbf{l}e \textbf{nom}bre \textbf{d}e \textbf{répl}icas \textbf{o}u \textbf{à} \textbf{augme}nter \textbf{le}s \textbf{resso}urces 
+\textbf{dispon}ibles \textbf{su}r \textbf{le}s \textbf{n}œuds \textbf{d}u \textbf{clus}ter. \textbf{I}l \textbf{exi}ste \textbf{un}e \textbf{solu}tion \textbf{d}'\textbf{autosc}aling \textbf{vi}a \textbf{l}'\textbf{AP}I \textbf{d}e \textbf{Dokp}loy, \textbf{ma}is \textbf{el}le \textbf{n}'\textbf{es}t \textbf{pa}s 
+\textbf{nat}ive \textbf{e}t \textbf{néces}site \textbf{l}a \textbf{mi}se \textbf{e}n \textbf{pla}ce \textbf{d}'\textbf{u}n \textbf{scr}ipt \textbf{exte}rne \textbf{com}me \textbf{déc}rit \textbf{da}ns \textbf{l}a \textbf{sect}ion \ref{sec:autoscaling}.
+\textbf{Cepen}dant, \textbf{i}l \textbf{es}t \textbf{impor}tant \textbf{d}e \textbf{not}er \textbf{qu}e \textbf{l}'\textbf{AP}I \textbf{d}e \textbf{Dokp}loy \textbf{n}e \textbf{four}nit \textbf{pa}s \textbf{d}'\textbf{inform}ations \textbf{détai}llées \textbf{su}r \textbf{l}a \textbf{l}a \textbf{cha}rge \textbf{o}u
+\textbf{l}a \textbf{late}nce \textbf{de}s \textbf{applic}ations, \textbf{c}e \textbf{qu}i \textbf{lim}ite \textbf{l}a \textbf{capa}cité \textbf{à} \textbf{implém}enter \textbf{u}n \textbf{autosc}aling \textbf{réac}tif \textbf{e}t \textbf{effi}cace \textbf{ba}sé \textbf{su}r \textbf{de}s \textbf{métri}ques \textbf{préc}ises.
+
+\section{Scaling dans Dokploy}
+\textbf{Dokp}loy \textbf{per}met \textbf{d}e \textbf{fai}re \textbf{de}ux \textbf{typ}es \textbf{d}e \textbf{scal}ing : 
+
+\textbf{L}e \textbf{\textbf{scal}ing \textbf{vert}ical}, \textbf{qu}i \textbf{cons}iste \textbf{à} \textbf{augme}nter \textbf{le}s \textbf{resso}urces \textbf{allo}uées \textbf{à} \textbf{un}e \textbf{inst}ance (\textbf{CP}U, \textbf{RA}M, \textbf{et}c.) 
+\textbf{af}in \textbf{d}'\textbf{améli}orer \textbf{se}s \textbf{perfor}mances. \textbf{Cet}te \textbf{appr}oche \textbf{es}t \textbf{limi}tée \textbf{pa}r \textbf{le}s \textbf{resso}urces \textbf{physi}ques \textbf{dispon}ibles \textbf{su}r 
+\textbf{l}a \textbf{mach}ine \textbf{hô}te.
+
+\textbf{E}t \textbf{l}e \textbf{\textbf{scal}ing \textbf{horiz}ontal}, \textbf{qu}i \textbf{cons}iste \textbf{à} \textbf{ajou}ter \textbf{de}s \textbf{mach}ines \textbf{suppléme}ntaires \textbf{a}u \textbf{clus}ter.
+\textbf{Cet}te \textbf{appr}oche \textbf{per}met \textbf{d}e \textbf{répa}rtir \textbf{l}a \textbf{cha}rge \textbf{ent}re \textbf{plusi}eurs \textbf{n}œuds, \textbf{ma}is \textbf{néces}site \textbf{un}e \textbf{configu}ration \textbf{pl}us \textbf{comp}lexe \textbf{e}t \textbf{un}e 
+\textbf{gest}ion \textbf{d}e \textbf{l}'\textbf{orchest}ration \textbf{de}s \textbf{conte}neurs \textbf{po}ur \textbf{assu}rer \textbf{l}a \textbf{cohér}ence \textbf{e}t \textbf{l}a \textbf{disponi}bilité \textbf{de}s \textbf{applic}ations \textbf{déplo}yées.
+
+\subsection{Scaling vertical} 
+{\color{blue}Je sais pas trop quoi dire la dessus}
+\subsection{Scaling horizontal}
+\textbf{L}e \textbf{scal}ing \textbf{horiz}ontal, \textbf{aus}si \textbf{app}elé \textbf{ser}ver \textbf{scal}ing\footnote{https://docs.dokploy.com/docs/core/cluster#server-scaling-methods},
+\textbf{per}met \textbf{d}'\textbf{ajou}ter \textbf{de}s \textbf{mach}ines \textbf{suppléme}ntaires \textbf{a}u \textbf{clus}ter \textbf{af}in \textbf{d}e \textbf{répa}rtir \textbf{l}a \textbf{cha}rge \textbf{ent}re \textbf{plusi}eurs \textbf{n}œuds.
+\textbf{E}n \textbf{ajou}tant \textbf{de}s \textbf{mach}ines \textbf{suppléme}ntaires, \textbf{l}a \textbf{répart}ition \textbf{de}s \textbf{tac}hes \textbf{es}t \textbf{l}a \textbf{suiv}ante :
+\textbf{Un}e \textbf{mach}ine \textbf{princ}ipale, \textbf{di}te \textit{\textbf{mana}ger}, \textbf{o}ù \textbf{es}t \textbf{inst}allé \textbf{Dokp}loy \textbf{e}t \textbf{qu}i \textbf{gè}re \textbf{l}e \textbf{clus}ter, \textbf{e}t \textbf{un}e \textbf{o}u \textbf{plusi}eurs 
+\textbf{mach}ines \textbf{second}aires, \textbf{dit}es \textit{\textbf{work}ers}. \textbf{L}e \textbf{mana}ger \textbf{orche}stre \textbf{le}s \textbf{tâc}hes \textbf{e}t \textbf{répa}rtit \textbf{le}s \textbf{conte}neurs \textbf{à} \textbf{dépl}oyer 
+\textbf{ent}re \textbf{le}s \textbf{work}ers \textbf{e}n \textbf{fonc}tion \textbf{d}e \textbf{l}a \textbf{cha}rge \textbf{e}t \textbf{de}s \textbf{resso}urces \textbf{dispon}ibles.
+\textbf{Cha}que \textbf{wor}ker \textbf{es}t \textbf{conn}ecté \textbf{a}u \textbf{regi}stry \textbf{Doc}ker, \textbf{c}e \textbf{qu}i \textbf{lu}i \textbf{per}met \textbf{d}e \textbf{récup}érer \textbf{le}s \textbf{ima}ges \textbf{nécess}aires \textbf{po}ur \textbf{exéc}uter \textbf{le}s \textbf{applic}ations \textbf{déplo}yées.
+\textbf{L}e \textbf{mana}ger \textbf{es}t \textbf{égale}ment \textbf{respon}sable \textbf{d}e \textbf{l}a \textbf{repart}ition \textbf{d}u \textbf{tra}fic \textbf{entr}ant \textbf{ent}re \textbf{le}s \textbf{différ}entes \textbf{insta}nces \textbf{d}e \textbf{l}'\textbf{applic}ation 
+\textbf{vi}a \textbf{l}e \textbf{reve}rse \textbf{pro}xy \textbf{Trae}fik, \textbf{assu}rant \textbf{ain}si \textbf{un}e \textbf{for}me \textbf{d}e \textbf{lo}ad \textbf{balan}cing.
+
+
+
+% \section{Multiplication des resources}
+% Dokploy offre également la possibilité de server scaling\footnote{https://docs.dokploy.com/docs/core/cluster#server-scaling-methods}, 
+% qui permet d'ajouter des machines supplémentaires au cluster afin de répartir la charge entre plusieurs nœuds.
+% En ajoutant des machines supplémentaires, la répartition des taches est la suivante :
+% Une machine principale, dite \textit{manager}, où est installé Dokploy et qui gère le cluster, et une ou plusieurs 
+% machines secondaires, dites \textit{workers}. Le manager orchestre les tâches et répartit les conteneurs à déployer 
+% entre les workers en fonction de la charge et des ressources disponibles.
+% ======================================================================================================================
+\chapter{Résultats}
+
+\section{Déploiement}
+
+\textbf{L}a \textbf{prem}ière \textbf{pha}se \textbf{d}’\textbf{expérime}ntation \textbf{a} \textbf{cons}isté \textbf{à} \textbf{dépl}oyer \textbf{l}’\textbf{applic}ation
+\textbf{RN}N-\textbf{Ser}ver \textbf{su}r \textbf{l}’\textbf{infrast}ructure \textbf{se}lf-\textbf{hos}ted \textbf{vi}a \textbf{Dokp}loy.
+\textbf{L}e \textbf{déploi}ement \textbf{a} \textbf{ét}é \textbf{réal}isé \textbf{à} \textbf{par}tir \textbf{d}’\textbf{u}n \textbf{dép}ôt \textbf{Gi}t \textbf{conn}ecté \textbf{à} \textbf{l}a
+\textbf{plate}forme, \textbf{perme}ttant \textbf{un}e \textbf{constr}uction \textbf{automa}tique \textbf{d}e \textbf{l}’\textbf{ima}ge \textbf{Doc}ker
+\textbf{e}t \textbf{so}n \textbf{exécu}tion \textbf{su}r \textbf{l}e \textbf{serv}eur.
+\textbf{Un}e \textbf{fo}is \textbf{dépl}oyée, \textbf{l}’\textbf{applic}ation \textbf{es}t \textbf{acces}sible \textbf{vi}a \textbf{un}e \textbf{UR}L \textbf{publ}ique
+\textbf{confi}gurée (\texttt{\textbf{rn}n.\textbf{dokp}loy.\textbf{clave}ille.\textbf{f}r}) \textbf{e}t \textbf{expo}sée \textbf{su}r \textbf{l}e \textbf{po}rt
+5000 \textbf{vi}a \textbf{u}n \textbf{reve}rse \textbf{pro}xy (\textbf{Trae}fik).
+\textbf{L}e \textbf{déploi}ement \textbf{s}’\textbf{es}t \textbf{effe}ctué \textbf{sa}ns \textbf{interv}ention \textbf{manu}elle \textbf{su}r \textbf{l}a
+\textbf{mach}ine \textbf{hô}te, \textbf{c}e \textbf{qu}i \textbf{conf}irme \textbf{l}e \textbf{bo}n \textbf{fonctio}nnement \textbf{d}u \textbf{pipe}line
+\textbf{d}’\textbf{intégr}ation \textbf{ent}re \textbf{Gi}t, \textbf{Doc}ker \textbf{e}t \textbf{Dokp}loy.
+
+\section{Performance under load}
+
+\textbf{Af}in \textbf{d}’\textbf{éval}uer \textbf{l}e \textbf{compor}tement \textbf{d}e \textbf{l}’\textbf{applic}ation \textbf{e}n \textbf{condi}tions \textbf{d}e
+\textbf{cha}rge, \textbf{de}s \textbf{requ}êtes \textbf{conti}nues \textbf{on}t \textbf{ét}é \textbf{envo}yées \textbf{a}u \textbf{serv}eur \textbf{vi}a \textbf{l}e
+\textbf{cli}ent \texttt{\textbf{RN}N_client.\textbf{p}y}.
+\textbf{Le}s \textbf{observ}ations \textbf{mont}rent \textbf{q}u’\textbf{à} \textbf{cha}rge \textbf{const}ante, \textbf{un}e \textbf{seu}le \textbf{inst}ance \textbf{d}u
+\textbf{serv}eur \textbf{cons}omme \textbf{envi}ron 40% des ressources CPU disponibles sur la
+\textbf{mach}ine.
+\textbf{C}e \textbf{résu}ltat \textbf{me}t \textbf{e}n \textbf{évid}ence \textbf{un}e \textbf{satur}ation \textbf{rap}ide \textbf{de}s \textbf{resso}urces \textbf{da}ns
+\textbf{l}e \textbf{ca}s \textbf{d}’\textbf{u}n \textbf{mod}èle \textbf{mo}no-\textbf{inst}ance, \textbf{c}e \textbf{qu}i \textbf{const}itue \textbf{un}e \textbf{lim}ite
+\textbf{impor}tante \textbf{d}e \textbf{l}a \textbf{configu}ration \textbf{init}iale.
+\textbf{L}’\textbf{applic}ation \textbf{res}te \textbf{fonctio}nnelle, \textbf{ma}is \textbf{le}s \textbf{tem}ps \textbf{d}e \textbf{répo}nse
+\textbf{augme}ntent \textbf{progress}ivement \textbf{e}n \textbf{fonc}tion \textbf{d}u \textbf{vol}ume \textbf{d}e \textbf{requ}êtes.
+
+\section{Horizontal scaling}
+
+\textbf{Af}in \textbf{d}’\textbf{éval}uer \textbf{le}s \textbf{capac}ités \textbf{d}e \textbf{mon}tée \textbf{e}n \textbf{cha}rge, \textbf{plusi}eurs \textbf{insta}nces
+\textbf{d}u \textbf{serv}eur \textbf{on}t \textbf{ét}é \textbf{déplo}yées \textbf{e}n \textbf{paral}lèle.
+\textbf{Dokp}loy \textbf{per}met \textbf{l}a \textbf{duplic}ation \textbf{de}s \textbf{conte}neurs (\textbf{répl}icas), \textbf{cha}cun
+\textbf{exécu}tant \textbf{un}e \textbf{inst}ance \textbf{indépe}ndante \textbf{d}e \textbf{l}’\textbf{applic}ation.
+\textbf{L}e \textbf{tra}fic \textbf{entr}ant \textbf{es}t \textbf{automati}quement \textbf{répa}rti \textbf{ent}re \textbf{le}s \textbf{insta}nces \textbf{vi}a
+\textbf{l}e \textbf{reve}rse \textbf{pro}xy \textbf{Trae}fik, \textbf{assu}rant \textbf{un}e \textbf{for}me \textbf{d}e \textbf{lo}ad \textbf{balan}cing.
+
+\textbf{Le}s \textbf{tes}ts \textbf{mont}rent \textbf{un}e \textbf{amélio}ration \textbf{d}e \textbf{l}a \textbf{capa}cité \textbf{glob}ale \textbf{d}e
+\textbf{trait}ement, \textbf{av}ec \textbf{un}e \textbf{réduc}tion \textbf{d}e \textbf{l}a \textbf{satur}ation \textbf{CP}U \textbf{pa}r \textbf{inst}ance.
+\textbf{Cepen}dant, \textbf{cet}te \textbf{appr}oche \textbf{atte}int \textbf{rapid}ement \textbf{se}s \textbf{limi}tes \textbf{da}ns \textbf{u}n
+\textbf{cont}exte \textbf{d}e \textbf{resso}urces \textbf{matéri}elles \textbf{fix}es, \textbf{o}ù \textbf{l}’\textbf{augmen}tation \textbf{d}u \textbf{nom}bre
+\textbf{d}’\textbf{insta}nces \textbf{cond}uit \textbf{à} \textbf{un}e \textbf{conte}ntion \textbf{glob}ale \textbf{d}u \textbf{syst}ème.
+
+
+% ======================================================================================================================
+\chapter{Discussion}
+
+\section{Adéquation de la solution aux besoins}
+
+\textbf{Le}s \textbf{résul}tats \textbf{obte}nus \textbf{confi}rment \textbf{qu}e \textbf{Dokp}loy \textbf{rép}ond \textbf{au}x \textbf{qua}tre \textbf{crit}ères
+\textbf{initia}lement \textbf{défi}nis. \textbf{L}e \textbf{déploi}ement \textbf{dep}uis \textbf{u}n \textbf{dép}ôt \textbf{Gi}t \textbf{s}'\textbf{effe}ctue
+\textbf{sa}ns \textbf{interv}ention \textbf{manu}elle \textbf{su}r \textbf{l}a \textbf{mach}ine \textbf{hô}te, \textbf{l}a \textbf{gest}ion \textbf{de}s \textbf{comp}tes
+\textbf{utilis}ateurs \textbf{per}met \textbf{un}e \textbf{sépar}ation \textbf{effec}tive \textbf{de}s \textbf{proj}ets, \textbf{e}t \textbf{l}e
+\textbf{dashb}oard \textbf{off}re \textbf{u}n \textbf{acc}ès \textbf{suffi}sant \textbf{au}x \textbf{lo}gs \textbf{e}t \textbf{à} \textbf{l}'\textbf{ét}at \textbf{de}s
+\textbf{applic}ations.
+
+\textbf{Cepen}dant, \textbf{ce}s \textbf{résul}tats \textbf{doiv}ent \textbf{êt}re \textbf{nuan}cés \textbf{a}u \textbf{reg}ard \textbf{de}s \textbf{contra}intes
+\textbf{d}e \textbf{l}'\textbf{infrast}ructure. \textbf{Av}ec \textbf{seule}ment 2 \textbf{vC}PU \textbf{e}t 4.2 \textbf{G}o \textbf{d}e \textbf{RA}M, \textbf{l}a
+\textbf{plate}forme \textbf{mon}tre \textbf{se}s \textbf{limi}tes \textbf{dè}s \textbf{q}u'\textbf{un}e \textbf{applic}ation \textbf{comm}ence \textbf{à}
+\textbf{solli}citer \textbf{significa}tivement \textbf{le}s \textbf{resso}urces : \textbf{un}e \textbf{seu}le \textbf{inst}ance \textbf{d}u
+\textbf{serv}eur \textbf{RN}N \textbf{cons}omme \textbf{jus}qu'\textbf{à} 40% du CPU disponible, laissant peu de marge
+\textbf{po}ur \textbf{le}s \textbf{aut}res \textbf{applic}ations \textbf{déplo}yées \textbf{simulta}nément.
+
+\section{Limites identifiées}
+
+\subsection{Limites matérielles}
+
+\textbf{L}a \textbf{contr}ainte \textbf{l}a \textbf{pl}us \textbf{imméd}iate \textbf{es}t \textbf{cel}le \textbf{d}u \textbf{stoc}kage : \textbf{av}ec 2.1 \textbf{G}o
+\textbf{lib}res \textbf{a}u \textbf{mom}ent \textbf{d}u \textbf{déploi}ement, \textbf{l}e \textbf{VP}S \textbf{n}e \textbf{lai}sse \textbf{qu}e \textbf{pe}u \textbf{d}e \textbf{mar}ge
+\textbf{po}ur \textbf{accue}illir \textbf{d}e \textbf{nouve}lles \textbf{applic}ations. \textbf{C}'\textbf{es}t \textbf{d}'\textbf{aill}eurs \textbf{cet}te
+\textbf{contr}ainte \textbf{qu}i \textbf{a} \textbf{direct}ement \textbf{élim}iné \textbf{Cool}ify \textbf{d}e \textbf{l}a \textbf{sélec}tion, \textbf{do}nt
+\textbf{l}'\textbf{ima}ge \textbf{Doc}ker \textbf{dépa}sse 20 \textbf{G}o — \textbf{u}n \textbf{exem}ple \textbf{conc}ret \textbf{o}ù \textbf{le}s \textbf{compar}atifs
+\textbf{e}n \textbf{lig}ne \textbf{n}e \textbf{reflè}tent \textbf{pa}s \textbf{le}s \textbf{réal}ités \textbf{d}'\textbf{un}e \textbf{infrast}ructure \textbf{contr}ainte.
+
+\textbf{L}e \textbf{scal}ing \textbf{horiz}ontal, \textbf{bi}en \textbf{qu}e \textbf{foncti}onnel \textbf{techniq}uement, \textbf{atte}int
+\textbf{rapid}ement \textbf{se}s \textbf{limi}tes \textbf{su}r \textbf{un}e \textbf{mach}ine \textbf{uni}que : \textbf{multi}plier \textbf{le}s
+\textbf{insta}nces \textbf{n}e \textbf{fa}it \textbf{qu}e \textbf{redist}ribuer \textbf{un}e \textbf{resso}urce \textbf{CP}U \textbf{fi}xe, \textbf{sa}ns
+\textbf{l}'\textbf{augme}nter. \textbf{Cet}te \textbf{lim}ite \textbf{es}t \textbf{fondamen}talement \textbf{diffé}rente \textbf{d}e \textbf{c}e
+\textbf{q}u'\textbf{offri}rait \textbf{u}n \textbf{clo}ud \textbf{pub}lic, \textbf{o}ù \textbf{l}'\textbf{élast}icité \textbf{es}t \textbf{qua}si \textbf{illim}itée.
+
+\subsection{Limites de Dokploy}
+
+\textbf{Dokp}loy \textbf{es}t \textbf{u}n \textbf{pro}jet \textbf{réc}ent, \textbf{av}ec \textbf{un}e \textbf{commu}nauté \textbf{enc}ore \textbf{restr}einte.
+\textbf{Ce}la \textbf{impl}ique \textbf{u}n \textbf{supp}ort \textbf{lim}ité \textbf{e}t \textbf{un}e \textbf{cert}aine \textbf{incert}itude \textbf{su}r \textbf{l}a
+\textbf{péren}nité \textbf{d}e \textbf{l}a \textbf{solu}tion \textbf{à} \textbf{lo}ng \textbf{ter}me.
+
+\textbf{Pa}r \textbf{aill}eurs, \textbf{bi}en \textbf{q}u'\textbf{i}l \textbf{supp}orte \textbf{l}e \textbf{déploi}ement \textbf{mul}ti-\textbf{mach}ines,
+\textbf{Dokp}loy \textbf{n}'\textbf{es}t \textbf{pa}s \textbf{con}çu \textbf{po}ur \textbf{orche}strer \textbf{un}e \textbf{infrast}ructure \textbf{comp}lexe.
+\textbf{I}l \textbf{n}e \textbf{prop}ose \textbf{pa}s \textbf{d}e \textbf{mécan}ismes \textbf{avan}cés \textbf{d}e \textbf{tolér}ance \textbf{au}x \textbf{pan}nes, \textbf{d}e
+\textbf{migra}tion \textbf{automa}tique \textbf{d}e \textbf{conte}neurs \textbf{o}u \textbf{d}e \textbf{gest}ion \textbf{fi}ne \textbf{de}s \textbf{resso}urces
+\textbf{pa}r \textbf{applic}ation.
+
+% \section{Ce que ce projet n'est pas}
+
+% Il est important de rappeler que la solution déployée ici ne constitue
+% pas un cloud au sens industriel du terme. Elle ne propose pas
+% d'élasticité automatique, ni de haute disponibilité garantie, ni de
+% facturation à l'usage.
+
+% C'est un choix assumé : l'objectif n'était pas de reproduire AWS à
+% petite échelle, mais de fournir un environnement suffisamment simple
+% et maîtrisé pour un usage pédagogique. La complexité accidentelle
+% introduite par des solutions comme Kubernetes ou OpenStack aurait été
+% un obstacle, non un atout, dans ce contexte.
+
+\section{Perspectives}
+
+\textbf{Plusi}eurs \textbf{ax}es \textbf{d}'\textbf{amélio}ration \textbf{peuv}ent \textbf{êt}re \textbf{envis}agés.
+
+\textbf{\textbf{À} \textbf{cou}rt \textbf{ter}me}, \textbf{un}e \textbf{augmen}tation \textbf{de}s \textbf{resso}urces \textbf{d}u \textbf{VP}S (\textbf{pass}age \textbf{à} 4
+\textbf{vC}PU \textbf{e}t 8 \textbf{G}o \textbf{d}e \textbf{RA}M) \textbf{permet}trait \textbf{d}e \textbf{lev}er \textbf{le}s \textbf{princi}pales \textbf{contra}intes
+\textbf{matéri}elles \textbf{obser}vées \textbf{e}t \textbf{d}'\textbf{accue}illir \textbf{davan}tage \textbf{d}'\textbf{applic}ations
+\textbf{simult}anées.
+
+\textbf{\textbf{À} \textbf{moy}en \textbf{ter}me}, \textbf{l}'\textbf{ajo}ut \textbf{d}'\textbf{un}e \textbf{mach}ine \textbf{secon}daire \textbf{permet}trait \textbf{d}e
+\textbf{distr}ibuer \textbf{le}s \textbf{char}ges \textbf{ent}re \textbf{de}ux \textbf{n}œuds, \textbf{c}e \textbf{qu}e \textbf{Dokp}loy \textbf{supp}orte
+\textbf{nativ}ement. \textbf{Ce}la \textbf{apport}erait \textbf{un}e \textbf{for}me \textbf{d}e \textbf{résil}ience \textbf{sa}ns \textbf{néces}siter
+\textbf{d}e \textbf{migra}tion \textbf{ve}rs \textbf{u}n \textbf{out}il \textbf{pl}us \textbf{comp}lexe.
+
+\textbf{Enf}in, \textbf{\textbf{s}i \textbf{le}s \textbf{beso}ins \textbf{vena}ient \textbf{à} \textbf{croî}tre \textbf{significa}tivement} — \textbf{notam}ment
+\textbf{e}n \textbf{ter}mes \textbf{d}e \textbf{nom}bre \textbf{d}'\textbf{utilis}ateurs \textbf{o}u \textbf{d}e \textbf{criti}cité \textbf{de}s \textbf{applic}ations —
+\textbf{un}e \textbf{migra}tion \textbf{ve}rs \textbf{un}e \textbf{solu}tion \textbf{d}'\textbf{orchest}ration \textbf{pl}us \textbf{robu}ste \textbf{com}me
+\textbf{k}3s, \textbf{coup}lée \textbf{à} \textbf{un}e \textbf{inter}face \textbf{d}e \textbf{déploi}ement \textbf{déd}iée, \textbf{constit}uerait \textbf{un}e
+\textbf{évolu}tion \textbf{natur}elle.
+
+% ======================================================================================================================
+\chapter{Conclusion}
+
+\textbf{C}e \textbf{pro}jet \textbf{ava}it \textbf{po}ur \textbf{obje}ctif \textbf{d}e \textbf{conce}voir \textbf{e}t \textbf{dépl}oyer \textbf{un}e \textbf{plate}forme
+\textbf{d}e \textbf{ty}pe \textbf{Pa}aS \textbf{au}to-\textbf{hébe}rgée, \textbf{e}n \textbf{rempla}cement \textbf{d}u \textbf{serv}ice \textbf{Ren}der \textbf{util}isé
+\textbf{da}ns \textbf{l}e \textbf{cou}rs \textbf{d}'\textbf{Io}T \textbf{d}u \textbf{pro}jet \textbf{D}S4H.
+
+\textbf{L}a \textbf{déma}rche \textbf{adop}tée \textbf{a} \textbf{cons}isté \textbf{à} \textbf{par}tir \textbf{de}s \textbf{beso}ins \textbf{conc}rets —
+\textbf{déploi}ement \textbf{sim}ple, \textbf{gest}ion \textbf{mul}ti-\textbf{utilis}ateurs, \textbf{monit}oring \textbf{basi}que \textbf{e}t
+\textbf{contra}intes \textbf{d}e \textbf{resso}urces — \textbf{po}ur \textbf{éval}uer \textbf{méthodi}quement \textbf{plusi}eurs
+\textbf{solut}ions \textbf{exist}antes, \textbf{ava}nt \textbf{d}e \textbf{rete}nir \textbf{Dokp}loy \textbf{com}me \textbf{out}il \textbf{l}e \textbf{mie}ux
+\textbf{ada}pté \textbf{a}u \textbf{cont}exte.
+
+\textbf{Le}s \textbf{expérime}ntations \textbf{men}ées \textbf{on}t \textbf{conf}irmé \textbf{l}a \textbf{viabi}lité \textbf{d}e \textbf{cet}te
+\textbf{appr}oche : \textbf{l}e \textbf{déploi}ement \textbf{d}'\textbf{un}e \textbf{applic}ation \textbf{dep}uis \textbf{u}n \textbf{dép}ôt \textbf{Gi}t
+\textbf{s}'\textbf{effe}ctue \textbf{sa}ns \textbf{interv}ention \textbf{manu}elle, \textbf{l}e \textbf{scal}ing \textbf{horiz}ontal \textbf{es}t
+\textbf{foncti}onnel, \textbf{e}t \textbf{l}'\textbf{automat}isation \textbf{vi}a \textbf{l}'\textbf{AP}I \textbf{per}met \textbf{d}'\textbf{all}er \textbf{a}u-\textbf{de}là
+\textbf{de}s \textbf{capac}ités \textbf{nati}ves \textbf{d}e \textbf{l}a \textbf{plate}forme.
+
+\textbf{Ce}s \textbf{résul}tats \textbf{on}t \textbf{cepen}dant \textbf{mi}s \textbf{e}n \textbf{évid}ence \textbf{le}s \textbf{limi}tes \textbf{inhér}entes \textbf{à}
+\textbf{un}e \textbf{infrast}ructure \textbf{contr}ainte : \textbf{su}r \textbf{u}n \textbf{VP}S \textbf{d}e 2 \textbf{vC}PU \textbf{e}t 4.2 \textbf{G}o \textbf{d}e
+\textbf{RA}M, \textbf{l}a \textbf{mar}ge \textbf{d}e \textbf{ma}nœuvre \textbf{res}te \textbf{étro}ite, \textbf{e}t \textbf{l}e \textbf{scal}ing \textbf{horiz}ontal
+\textbf{n}e \textbf{comp}ense \textbf{pa}s \textbf{l}'\textbf{abse}nce \textbf{d}'\textbf{élast}icité \textbf{rée}lle.
+
+\textbf{Pl}us \textbf{large}ment, \textbf{c}e \textbf{pro}jet \textbf{illu}stre \textbf{un}e \textbf{tens}ion \textbf{fondam}entale \textbf{d}u \textbf{clo}ud
+\textbf{compu}ting : \textbf{ent}re \textbf{l}a \textbf{puiss}ance \textbf{de}s \textbf{solut}ions \textbf{industr}ielles \textbf{e}t \textbf{l}a
+\textbf{compl}exité \textbf{q}u'\textbf{ell}es \textbf{introd}uisent. \textbf{Choi}sir \textbf{u}n \textbf{out}il, \textbf{c}'\textbf{es}t \textbf{aus}si
+\textbf{choi}sir \textbf{l}e \textbf{niv}eau \textbf{d}e \textbf{compl}exité \textbf{qu}e \textbf{l}'\textbf{o}n \textbf{es}t \textbf{pr}êt \textbf{à} \textbf{assu}mer.
+
+\textbf{Da}ns \textbf{c}e \textbf{ca}s \textbf{pré}cis, \textbf{l}a \textbf{contr}ainte \textbf{pédago}gique \textbf{a} \textbf{gui}dé \textbf{ve}rs \textbf{un}e
+\textbf{solu}tion \textbf{volonta}irement \textbf{sim}ple, \textbf{mainte}nable \textbf{pa}r \textbf{un}e \textbf{seu}le \textbf{pers}onne,
+\textbf{e}t \textbf{suffis}amment \textbf{transp}arente \textbf{po}ur \textbf{qu}e \textbf{le}s \textbf{étudi}ants \textbf{puis}sent \textbf{s}e
+\textbf{conce}ntrer \textbf{su}r \textbf{leu}rs \textbf{applic}ations \textbf{plu}tôt \textbf{qu}e \textbf{su}r \textbf{l}'\textbf{infrast}ructure
+\textbf{qu}i \textbf{le}s \textbf{hébe}rge.
+
+
+% \printbibliography
+\bibliographystyle{plain}
+\bibliography{refs}
+
+
+\end{document}

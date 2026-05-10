@@ -1,11 +1,6 @@
-% \documentclass{report} % Classe de document (rapport)
-% \usepackage{xcolor}
-% \usepackage{graphicx}
-% \usepackage{hyperref}
-% \usepackage{minted}
-% \usepackage[hybrid]{markdown}
-
 \documentclass{rapportClass} % Classe de document personnalisée
+
+
 
 \title{Rapport de Projet}
 \author{Hugo CLAVEILLE}
@@ -44,11 +39,18 @@
 \tableofcontents
 \newpage
 
-\chapter{Abstract}
+% ======================================================================================================================
+\begin{abstract}
+Ce rapport présente la conception, le déploiement et l’évaluation d’une solution de cloud self-hosted, basée sur la plateforme Dokploy, dans le cadre du projet DS4H.
+L’objectif principal était de fournir une alternative locale au service Render utilisé dans le cours d’IoT, permettant aux étudiants de déployer et gérer des applications IoT sans dépendre d’un service cloud externe.
+Le rapport détaille les choix technologiques, les étapes de mise en œuvre, ainsi que les résultats obtenus en termes de performance et de scalabilité.
+
+\end{abstract}
+% {\color{blue} j'arrive pas a coller le prochains chapitre ici, je verrai ca demain}
 
 % ======================================================================================================================
 \chapter{Introduction}
-\section{Contexte}
+\section{Contexte}  
 Dans le cadre du projet \textbf{DS4H}, il m'a été confié la mission de
 concevoir et déployer une \textbf{solution self-hosted} pour remplacer
 le service \textbf{Render} utilisé dans le cours d’\textbf{IoT}.
@@ -70,7 +72,7 @@ automatisé, isolation des applications, gestion multi-utilisateurs et
 élasticité des ressources.
 
 Autrement dit, ce projet revient à concevoir une \textbf{plateforme de
-type PaaS (Platform as a Service)} simplifiée, adaptée à un contexte
+type PaaS}\footnote{Platform as a Service} simplifiée, adaptée à un contexte
 contraint (une seule machine, ressources limitées, utilisateurs non
 experts).
 
@@ -128,13 +130,13 @@ l’informatique (logiciel, plateforme, infrastructure) peuvent être
 fournies sous forme de services \cite{NIST2026}.
 
 Cette approche est directement liée à l’objectif de ce projet, qui
-consiste à remplacer Render — une plateforme de type PaaS (Platform as a Service) — par une
+consiste à remplacer Render, une plateforme de type PaaS\footnote{Platform as a Service}, par une
 solution auto-hébergée offrant des fonctionnalités similaires de
 déploiement et de gestion d’applications.
 
 \subsection{Virtualisation et conteneurisation}
 
-La virtualisation constitue une technologie clé ayant permis
+La virtualisation est une technologie clé ayant permis
 l’essor du cloud computing. Elle permet d’exécuter plusieurs
 environnements isolés sur une même machine physique, optimisant ainsi
 l’utilisation des ressources \cite{VMware2007}.
@@ -152,6 +154,9 @@ portabilité et la reproductibilité des applications.
 Dans ce projet, cette approche est centrale, puisque la solution
 retenue (Dokploy) repose sur l’utilisation de conteneurs Docker pour
 le déploiement et la gestion des applications.
+
+\subsection{Orchestration et automatisation}
+L’orchestration des conteneurs, 
 
 \subsection{Modèles du cloud computing}
 
@@ -374,8 +379,7 @@ Afin d’évaluer la solution retenue, une application de test a été
 déployée.
 
 Il s’agit d’un serveur de classification de texte basé sur un réseau
-de neurones récurrent (RNN), permettant de simuler une charge
-applicative réaliste.
+de neurones récurrent (RNN), permettant de simuler une charge réaliste.
 
 L’application est composée de trois éléments :
 
@@ -384,10 +388,7 @@ L’application est composée de trois éléments :
 \item \textbf{RNN\_server.py} : serveur exposant une API de classification.
 \item \textbf{RNN\_client.py} : client permettant de générer des requêtes.
 \end{itemize}
-
-Le déploiement repose sur un conteneur Docker, défini par un
-\texttt{Dockerfile} et un fichier \texttt{requirements.txt} décrivant
-les dépendances (notamment TensorFlow et Flask).
+\vspace{0.5cm}
 
 Cette application a été choisie car elle permet :
 \begin{itemize}
@@ -396,6 +397,153 @@ Cette application a été choisie car elle permet :
 \item d’évaluer la capacité de montée en charge de la plateforme.
 \end{itemize}
 
+% \vspace{0.5cm}
+% Le déploiement repose sur un conteneur Docker, défini par un
+% \texttt{Dockerfile} et un fichier \texttt{requirements.txt} décrivant
+% les dépendances (notamment TensorFlow et Flask) qu'il a fallu creer et déposer sur dépôt GitHub
+% Pour le déploiement, un repto GitHub a été créé, contenant le code de l’application ainsi que les fichiers nécessaires 
+% à la construction de l’image Docker qui sont : 
+% \begin{itemize}
+% \item \textbf{Dockerfile} : décrit les étapes de construction de l’image.
+% \item \textbf{requirements.txt} : liste les dépendances Python nécessaires.
+% \end{itemize}
+% Ensuite, ce dépôt a été connecté à Dokploy, permettant une construction et un déploiement automatiques de l’application 
+% à chaque mise à jour du code.
+
+
+\subsection{Déploiement avec Dokploy}
+
+Dans un premier temps, un nouveau projet est créé au sein de Dokploy sous l'intitulé ``RNN-Classification''. 
+À l'intérieur de ce projet, une application est ensuite ajoutée et nommée ``RNN-Server''.
+
+Plusieurs approches de déploiement sont envisageables. Il est possible d’utiliser une image Docker préalablement construite 
+et publiée sur un registre (tel que Docker Hub ou GitHub Container Registry), que Dokploy peut déployer directement. 
+Une autre option consiste à fournir directement les fichiers sources à Dokploy afin qu’il construise l’image à partir d’un Dockerfile. 
+Enfin, il est également possible de connecter un dépôt Git (GitHub, GitLab, etc.) afin d’automatiser le processus 
+de déploiement lors de chaque mise à jour du code.
+
+Dans le cadre de ce projet, la troisième approche a été retenue afin de bénéficier d’un flux de travail plus intégré et automatisé. 
+Un dépôt Git est donc créé pour le projet, dans lequel sont ajoutés les fichiers \texttt{RNN\_factory.py}, \texttt{RNN\_client.py} et 
+\texttt{RNN\_server.py}.
+
+Un fichier \texttt{Dockerfile} est ensuite défini afin de spécifier les étapes de construction de l’image de l’application, 
+ainsi qu’un fichier \texttt{requirements.txt} listant les dépendances nécessaires, telles que TensorFlow et Flask.
+
+Du côté de Dokploy, le projet est configuré pour se connecter au dépôt Git et pour utiliser le Dockerfile afin de construire 
+automatiquement l’image à chaque nouvelle version poussée sur le dépôt. La commande de lancement du serveur est également définie, 
+à savoir : \texttt{gunicorn --bind 0.0.0.0:5000 RNN\_server:app}.
+
+Enfin il faut parametrer le donmaine sur lequel va répondre l'api, ici %j'ai choisi
+\texttt{rnn.dokpoly.claveille.fr} et le port pour Traefik (ici : 5000).
+
+Une fois la configuration terminée, le déploiement peut être initié. Dokploy se charge alors de construire l’image Docker, 
+de la déployer sur le cluster, puis d’exposer le service via une URL accessible.
+
+\section{Monitoring et gestion des logs}
+Dokploy offre un dashboard centralisé permettant de visualiser l'état des applications déployées,ainsi que les 
+logs générés par les conteneurs. Cela permet de suivre en temps réel les performances de l'application, 
+d'identifier les erreurs éventuelles et de diagnostiquer les problèmes de déploiement. 
+
+
+
+\subsection{Tests de performance}
+Une fois le serveur déployé, on utilise le script \texttt{RNN\_client.py} pour envoyer des requêtes de classification 
+afin de tester les performances de l’application. 
+
+On peut remarquer qu'en faisant des requettes en continu l'application utilise déja 40\% du CPU qui lui est alloué.
+Cela illustre les limites de notre infrastructure : avec une seule instance la capacité de traitement est rapidement saturée.
+
+\section{Scalabilité avec Dokploy}
+Dokploy permet de faire deux types de scaling : 
+
+Le \textbf{scaling vertical}, qui consiste à augmenter les ressources allouées à une instance (CPU, RAM, etc.) 
+afin d'améliorer ses performances. Cette approche est limitée par les ressources physiques disponibles sur 
+la machine hôte.
+
+Et le \textbf{scaling horizontal}, qui consiste à ajouter des machines supplémentaires au cluster.
+Cette approche permet de répartir la charge entre plusieurs nœuds, mais nécessite une configuration plus complexe et une 
+gestion de l'orchestration des conteneurs pour assurer la cohérence et la disponibilité des applications déployées.
+
+\subsection{Scaling vertical} 
+{\color{blue}Je sais pas trop quoi dire la dessus}
+\subsection{Scaling horizontal}
+Le scaling horizontal, aussi appelé server scaling\footnote{https://docs.dokploy.com/docs/core/cluster\#server-scaling-methods},
+permet d'ajouter des machines supplémentaires au cluster afin de répartir la charge entre plusieurs nœuds.
+En ajoutant des machines supplémentaires, la répartition des taches est la suivante :
+Une machine principale, dite \textit{manager}, où est installé Dokploy et qui gère le cluster, et une ou plusieurs 
+machines secondaires, dites \textit{workers}. Le manager orchestre les tâches et répartit les conteneurs à déployer 
+entre les workers en fonction de la charge et des ressources disponibles.
+Chaque worker est connecté au registry Docker, ce qui lui permet de récupérer les images nécessaires pour exécuter les applications déployées.
+Le manager est également responsable de la repartition du trafic entrant entre les différentes instances de l'application 
+via le reverse proxy Traefik, assurant ainsi une forme de load balancing.
+
+\subsection{Scaling horizontal via les réplicas}
+Nous allons donc tester la scalabilité de notre solution en augmentant le nombre d'instances du serveur. 
+Dokploy permet de faire cela facilement depuis le dashboard, en ajustant le nombre de conteneurs déployés pour 
+l'application.
+
+Pour cela, Dokploy nécessite un \texttt{Docker Registry}, qui est un service de stockage et de distribution d'images Docker. 
+Il joue le rôle d'un dépôt centralisé depuis lequel chaque instance peut récupérer l'image de l'application à déployer. 
+Sans ce registry, les différents conteneurs ne pourraient pas accéder à une version commune et cohérente de l'image.
+
+Nous utilisons ici le \texttt{GitHub Container Registry (GHCR)}, qui s'intègre nativement avec notre dépôt GitHub et 
+ne nécessite pas d'infrastructure supplémentaire. Une fois le registry configuré dans Dokploy, il suffit d'ajuster 
+le nombre de réplicas depuis l'onglet \texttt{Advanced} de l'application. Traefik, le reverse proxy intégré à Dokploy, 
+se charge alors automatiquement de répartir le trafic entre les différentes instances.
+
+\subsection{Autoscaling via l'API de Dokploy}
+\label{sec:autoscaling}
+
+Dokploy expose une API REST complète, accessible depuis
+\texttt{/api} et documentée via une interface Swagger disponible
+à \texttt{<domaine>:3000/swagger}. L'authentification s'effectue
+par clé API, générée depuis le profil administrateur.
+
+Cette API permet notamment de modifier le nombre de réplicas d'une
+application via l'endpoint \texttt{application.update}, en passant
+le champ \texttt{replicas} dans le corps de la requête :
+
+Sur cette base, un script d'autoscaling a été développé. Son
+principe est le suivant : il interroge périodiquement l'utilisation
+CPU de la machine hôte, puis ajuste le nombre de réplicas de
+l'application en conséquence.
+
+Ce script constitue une forme rudimentaire d'autoscaling horizontal,
+analogue au principe du \textit{Horizontal Pod Autoscaler} (HPA) de
+Kubernetes, mais implémenté sans dépendance à un orchestrateur
+complexe.
+
+Il est important de noter que Dokploy ne propose pas nativement de
+mécanisme d'autoscaling automatique pour les applications non-Compose
+\footnote{Cette fonctionnalité est explicitement listée comme manquante
+dans le suivi des issues du projet.}. Ce script pallie donc cette
+limite de manière pragmatique, en exploitant l'API existante.
+{\color{blue} verif que je dis ca a la fin (le footenote)}
+
+\section{Orchestration dans Dokploy}
+Dokploy gère l'orchestration des conteneurs via Docker Swarm.
+
+\textbf{En cas de crash d'une instance}, Docker Swarm détecte la défaillance et si Docker Engine ne parvient pas à 
+redémarrer le conteneur sur le même nœud, Swarm le recrée automatiquement sur un autre nœud du cluster 
+(dans le cas d'une configuration multi-machines) ou dans le même nœud si les ressources le permettent afin de 
+respecter le nombre de réplicas défini pour l'application.\footnote{https://docs.docker.com/engine/swarm/}
+
+\textbf{En cas de saturation des ressources}, Docker Swarm ne dispose pas de mécanismes avancés de gestion de la
+surcharge. La seule solution consiste à ajuster manuellement le nombre de réplicas ou à augmenter les ressources 
+disponibles sur les nœuds du cluster. Il existe une solution d'autoscaling via l'API de Dokploy, mais elle n'est pas 
+native et nécessite la mise en place d'un script externe comme décrit dans la section \ref{sec:autoscaling}.
+Cependant, il est important de noter que l'API de Dokploy ne fournit pas d'informations détaillées sur la la charge ou
+la latence des applications, ce qui limite la capacité à implémenter un autoscaling réactif et efficace basé sur des métriques précises.
+
+
+
+% \section{Multiplication des resources}
+% Dokploy offre également la possibilité de server scaling\footnote{https://docs.dokploy.com/docs/core/cluster#server-scaling-methods}, 
+% qui permet d'ajouter des machines supplémentaires au cluster afin de répartir la charge entre plusieurs nœuds.
+% En ajoutant des machines supplémentaires, la répartition des taches est la suivante :
+% Une machine principale, dite \textit{manager}, où est installé Dokploy et qui gère le cluster, et une ou plusieurs 
+% machines secondaires, dites \textit{workers}. Le manager orchestre les tâches et répartit les conteneurs à déployer 
+% entre les workers en fonction de la charge et des ressources disponibles.
 % ======================================================================================================================
 \chapter{Résultats}
 
@@ -436,40 +584,12 @@ exécutant une instance indépendante de l’application.
 Le trafic entrant est automatiquement réparti entre les instances via
 le reverse proxy Traefik, assurant une forme de load balancing.
 
-L’utilisation d’un registry Docker (GitHub Container Registry) garantit
-que toutes les instances utilisent une image identique et cohérente.
 Les tests montrent une amélioration de la capacité globale de
 traitement, avec une réduction de la saturation CPU par instance.
 Cependant, cette approche atteint rapidement ses limites dans un
 contexte de ressources matérielles fixes, où l’augmentation du nombre
 d’instances conduit à une contention globale du système.
 
-\section{Automatisation du scaling via l'API Dokploy}
-
-Dokploy expose une API REST complète, accessible depuis
-\texttt{/api} et documentée via une interface Swagger disponible
-à \texttt{<domaine>:3000/swagger}. L'authentification s'effectue
-par clé API, générée depuis le profil administrateur.
-
-Cette API permet notamment de modifier le nombre de réplicas d'une
-application via l'endpoint \texttt{application.update}, en passant
-le champ \texttt{replicas} dans le corps de la requête :
-
-Sur cette base, un script d'autoscaling a été développé. Son
-principe est le suivant : il interroge périodiquement l'utilisation
-CPU de la machine hôte, puis ajuste le nombre de réplicas de
-l'application en conséquence.
-
-Ce script constitue une forme rudimentaire d'autoscaling horizontal,
-analogue au principe du \textit{Horizontal Pod Autoscaler} (HPA) de
-Kubernetes, mais implémenté sans dépendance à un orchestrateur
-complexe.
-
-Il est important de noter que Dokploy ne propose pas nativement de
-mécanisme d'autoscaling automatique pour les applications non-Compose
-\footnote{Cette fonctionnalité est explicitement listée comme manquante
-dans le suivi des issues du projet.}. Ce script pallie donc cette
-limite de manière pragmatique, en exploitant l'API existante.
 
 % ======================================================================================================================
 \chapter{Discussion}
@@ -487,7 +607,7 @@ Cependant, ces résultats doivent être nuancés au regard des contraintes
 de l'infrastructure. Avec seulement 2 vCPU et 4.2 Go de RAM, la
 plateforme montre ses limites dès qu'une application commence à
 solliciter significativement les ressources : une seule instance du
-serveur RNN consomme 40\% du CPU disponible, laissant peu de marge
+serveur RNN consomme jusqu'à 40\% du CPU disponible, laissant peu de marge
 pour les autres applications déployées simultanément.
 
 \section{Limites identifiées}
@@ -519,18 +639,18 @@ Il ne propose pas de mécanismes avancés de tolérance aux pannes, de
 migration automatique de conteneurs ou de gestion fine des ressources
 par application.
 
-\section{Ce que ce projet n'est pas}
+% \section{Ce que ce projet n'est pas}
 
-Il est important de rappeler que la solution déployée ici ne constitue
-pas un cloud au sens industriel du terme. Elle ne propose pas
-d'élasticité automatique, ni de haute disponibilité garantie, ni de
-facturation à l'usage.
+% Il est important de rappeler que la solution déployée ici ne constitue
+% pas un cloud au sens industriel du terme. Elle ne propose pas
+% d'élasticité automatique, ni de haute disponibilité garantie, ni de
+% facturation à l'usage.
 
-C'est un choix assumé : l'objectif n'était pas de reproduire AWS à
-petite échelle, mais de fournir un environnement suffisamment simple
-et maîtrisé pour un usage pédagogique. La complexité accidentelle
-introduite par des solutions comme Kubernetes ou OpenStack aurait été
-un obstacle, non un atout, dans ce contexte.
+% C'est un choix assumé : l'objectif n'était pas de reproduire AWS à
+% petite échelle, mais de fournir un environnement suffisamment simple
+% et maîtrisé pour un usage pédagogique. La complexité accidentelle
+% introduite par des solutions comme Kubernetes ou OpenStack aurait été
+% un obstacle, non un atout, dans ce contexte.
 
 \section{Perspectives}
 

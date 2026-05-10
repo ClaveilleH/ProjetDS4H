@@ -15,6 +15,7 @@
 \usepackage{pgfplotstable}               % Pour les tableaux
 \pgfplotsset{compat=1.18}                % Compatibilité pgfplots
 \usepackage{float}                       % Pour forcer la position des figures
+\RequirePackage{etoolbox}                % Pour les patchs de commandes
 
 \RequirePackage{lipsum}                  % Générer du texte factice
 
@@ -73,6 +74,7 @@
 \renewcommand{\chaptermark}[1]{%
   \markboth{#1}{}%
 }
+\titlespacing*{\chapter}{0pt}{-50pt}{20pt}
 
 
 \setlength{\parskip}{0em} % espace entre les paragraphes
