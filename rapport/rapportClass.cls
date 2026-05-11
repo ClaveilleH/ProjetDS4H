@@ -20,6 +20,9 @@
 \RequirePackage{lipsum}                  % Générer du texte factice
 
 
+\usepackage{enumitem}
+\usepackage{pifont}
+
 % Packages supplémentaires pour les tableaux
 \usepackage{multirow}
 \usepackage{array}

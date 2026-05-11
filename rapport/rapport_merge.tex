@@ -1,12 +1,15 @@
 \documentclass{rapportClass} % Classe de document personnalisée
-
-
+\usepackage{enumitem}
+\usepackage{pifont}
+\usepackage{xcolor}
+\usepackage{graphicx}
 
 \title{Rapport de Projet}
 \author{Hugo CLAVEILLE}
 % -- Master 1 Informatique
 \date{\today}
 
+\setlength{\parindent}{0cm}
 
 \begin{document}
 
@@ -19,14 +22,14 @@
         
         % Titre
         {\Huge \textbf{Rapport de Projet}}\\[1cm]
-        {\Large Self Hosted Cloud Implementation}\\[1cm]
+        {\Large A Self Hosted Cloud Implementation}\\[1cm]
 
         \vspace{1cm}
         % Auteur
         \textbf{Hugo CLAVEILLE}\\[0.5cm]
         
         % Sous-titre
-        {\Large Master 1 Informatique}\\[2cm]
+        {\Large Master 1 Informatique - Mineure Projet DS4H}\\[2cm]
         
         % Date
         \vfill
@@ -37,9 +40,8 @@
 \newpage
 \thispagestyle{empty}
 \tableofcontents
-\thispagestyle{empty}
-\newpage
 
+\newpage
 % ======================================================================================================================
 \begin{abstract}
   Ce rapport présente la conception, le déploiement et l’évaluation
@@ -63,14 +65,16 @@
   les étapes de mise en œuvre, ainsi que les résultats obtenus en
   termes de performance et de scalabilité.
 \end{abstract}
-% {\color{blue} j'arrive pas a coller le prochains chapitre ici, je verrai ca demain}
+{\color{blue} j'arrive pas a coller le prochains chapitre ici, je verrai ca demain}
 
+\newpage
 % ======================================================================================================================
 \chapter{Introduction}
 \section{Contexte}  
 Dans le cadre du projet \textbf{DS4H}, il m'a été confié la mission de
 concevoir et déployer une \textbf{solution self-hosted} pour remplacer
 le service \textbf{Render} utilisé dans le cours d’\textbf{IoT}.
+
 
 L’objectif est de fournir une alternative locale, souveraine et
 maîtrisée, permettant aux étudiants et enseignants de déployer, gérer
@@ -82,7 +86,7 @@ réalité dans une problématique plus large : celle du \textbf{cloud
 computing} et de ses différentes formes d’exploitation.
 
 En effet, remplacer un service comme Render ne consiste pas uniquement
-à déployer une application sur un serveur. 
+à déployer une application sur un serveur.
 
 Cela implique de reproduire, à plus petite échelle, un ensemble de
 mécanismes caractéristiques du cloud moderne :
@@ -95,9 +99,9 @@ mécanismes caractéristiques du cloud moderne :
 \end{itemize}
 
 Autrement dit, ce projet revient à concevoir une \textbf{plateforme de
-type PaaS}\footnote{Platform as a Service} simplifiée, adaptée à un contexte
-contraint (une seule machine, ressources limitées, utilisateurs non
-experts).
+  type PaaS}\footnote{Platform as a Service} simplifiée, adaptée à un
+contexte contraint (une seule machine, ressources limitées,
+utilisateurs non experts).
 
 Afin de comprendre les enjeux techniques et les choix réalisés dans ce
 travail, il est donc nécessaire de replacer cette problématique dans
@@ -186,7 +190,7 @@ L’orchestration des conteneurs,
 Les infrastructures cloud peuvent être classées selon différents
 modèles de déploiement :
 
-\begin{itemize}
+\begin{itemize}[label=$\bullet$] 
 \item \textbf{Cloud public} : les ressources sont fournies par un
 prestataire externe et mutualisées entre plusieurs utilisateurs.
 \item \textbf{Cloud privé} : l’infrastructure est dédiée à une seule
@@ -197,7 +201,7 @@ organisation.
 Par ailleurs, les modèles de service définissent le niveau
 d’abstraction proposé \cite{NIST2026, ISO2026} :
 
-\begin{itemize}
+\begin{itemize}[label=$\bullet$] 
 \item \textbf{IaaS} (Infrastructure as a Service) : mise à disposition
 de ressources matérielles virtualisées.
 \item \textbf{PaaS} (Platform as a Service) : environnement de
@@ -234,17 +238,18 @@ utilisateurs.
 \section{Problem statement}
 
 Le besoin identifié dans le cadre du projet ne se limite pas à un
-simple remplacement fonctionnel du service Render. 
+simple remplacement fonctionnel du service Render.
 
 \smallskip
-Il s’agit en réalitéde déployer une plateforme capable de reproduire, dans un contexte
-contraint, certaines propriétés fondamentales d’un environnement cloud.
+Il s’agit de déployer une plateforme capable de reproduire, dans un
+contexte contraint, certaines propriétés fondamentales d’un
+environnement cloud.
 
 \smallskip
 Le problème peut être formulé de la manière suivante :
 
 \begin{quote}
-Comment déployer une plateforme de type PaaS,
+Comment proposer une plateforme de type PaaS,
 auto-hébergée, permettant à des utilisateurs non experts de déployer
 et gérer leurs applications, tout en respectant des contraintes fortes
 de ressources, de simplicité et de maintenabilité ?
@@ -253,13 +258,13 @@ de ressources, de simplicité et de maintenabilité ?
 Cette problématique introduit plusieurs contraintes majeures.
 
 \smallskip
-Tout d’abord, l’infrastructure disponible est limitée : le système doit
-fonctionner sur un nombre restreint de machines, avec des ressources
-finies en termes de CPU, mémoire et stockage. 
+Tout d’abord, l’infrastructure disponible est limitée : le
+système doit fonctionner sur un nombre restreint de machines, avec des
+ressources finies en termes de CPU, mémoire et stockage.
 
 \smallskip
-Contrairement auxfournisseurs de cloud public, il n’est pas possible de s’appuyer sur
-une élasticité quasi infinie.
+Contrairement aux fournisseurs de cloud public, il n’est pas possible
+de s’appuyer sur une élasticité quasi infinie.
 
 \smallskip
 Ensuite, les utilisateurs ciblés — des étudiants — ne disposent pas
@@ -278,7 +283,7 @@ l’infrastructure, idéalement par une seule personne.
 À partir de ces contraintes, plusieurs objectifs techniques peuvent
 être définis :
 
-\begin{itemize}
+\begin{itemize}[label=$\bullet$] 
 \item \textbf{Simplicité de déploiement} : permettre aux utilisateurs de
 déployer une application avec un minimum d’interactions techniques.
 \item \textbf{Isolation des applications} : garantir que les différentes
@@ -305,7 +310,7 @@ L'ensemble des expérimentations a été réalisé sur un serveur privé
 virtuel (VPS) tournant sous Debian GNU/Linux 12 (Bookworm), 
 disposant des ressources suivantes :
 
-\begin{itemize}
+\begin{itemize}[label=$\bullet$] 
     \item \textbf{CPU} : 2 vCPU Intel Xeon E5-2680 v4 @ 2.40 GHz
     \item \textbf{RAM} : 4.2 Go (environ 1.5 Go disponibles en conditions normales)
     \item \textbf{Stockage} : 25 Go (dont 2.1 Go libres au moment du déploiement)
@@ -314,18 +319,15 @@ disposant des ressources suivantes :
 \vspace{0.5cm}
 
 Cette contrainte est déterminante, car elle impose des limites strictes
-en termes de mémoire, de puissance de calcul et d’espace disque. 
+en termes de mémoire, de puissance de calcul et d’espace disque.
 
 \smallskip
-Contrairementaux environnements cloud publics, aucune élasticité automatique n’est
-possible.
-{\color{red} POURQUOI ?? ... seulement des capacités mémoires  ?
-
-\color{blue} Meme pas mémoire, le vps n'est pas sous forme d'abonement, impossible de faire du scaling automatique, il faut aller dans le panel de gestion du vps et faire une demande de changement de plan pour augmenter les ressources
-Et dans le cas d'une machine physique, c'est la même chose, il faut acheter du matériel supplémentaire pour faire du scaling vertical}
+Contrairement aux environnements cloud publics, aucune élasticité
+automatique n’est possible.
+{\color{red} POURQUOI ?? ... seulement des capacités mémoires  ?}
 
 \smallskip
-Dans ce contexte, toute solution retenue doit être :
+Dans ce contexte, on favorisera une solution :
 \begin{itemize}
 \item légère en consommation de ressources,
 \item simple à déployer sur une machine unique,
@@ -350,7 +352,7 @@ avec un compromis entre fonctionnalités et complexité.
 
 Les solutions ont été évaluées selon les critères suivants :
 
-\begin{itemize}
+\begin{itemize}[label=$\bullet$] 
 \item \textbf{Facilité de déploiement} : installation rapide sur une machine unique.
 \item \textbf{Support du déploiement applicatif} : intégration avec Git et Docker.
 \item \textbf{Gestion multi-utilisateurs} : capacité à isoler les projets.
@@ -407,14 +409,16 @@ Dokploy          & \checkmark & \checkmark & \checkmark & Faible      & Faibles 
 Au regard des critères définis, \textbf{Dokploy} a été retenu comme
 solution principale.
 
+\smallskip
 Ce choix repose sur plusieurs éléments :
 
-\begin{itemize}
+\begin{itemize}[label=$\bullet$] 
 \item Une installation simple en une commande sur un serveur Linux.
 \item Une interface web permettant une prise en main rapide.
 \item Une intégration native avec Git pour le déploiement continu.
 \item Un support du multi-utilisateur avec gestion des permissions.
 \item Une consommation de ressources compatible avec le VPS.
+\item {\color{red} TU m'as vendu des POSSIBILITES complètes ! \ldots mets au moins un référence.}
 \end{itemize}
 
 Dokploy repose sur l’utilisation de conteneurs Docker pour isoler les
@@ -424,43 +428,36 @@ applications et sur un proxy (Traefik) pour exposer les services.
 Il constitue ainsi une implémentation légère d’une plateforme de type
 PaaS, adaptée à un contexte pédagogique.
 
-% \newpage
-\section{Application déployée : MNIST cloud classification}
+\newpage
+\section{Un cas d'utilisation : MNIST cloud classification}
+%\section{Application déployée : RNN server}
 
 Afin d’évaluer la solution retenue, une application de test a été
 déployée.
 
 \begin{center}
-    \includegraphics[scale=0.3]{assets/classif_mnist_cloud}
+  \includegraphics[scale=0.8]{classif_mnist_cloud}  
 \end{center}
 
+
 Il s’agit d’un serveur de classification de texte basé sur un réseau
-de neurones récurrent (RNN), permettant de simuler une charge réaliste.
+de neurones récurrent (RNN), permettant de simuler un service réaliste.
 
 \smallskip
-L’application est composée de trois éléments :
+L’application globale est composée de trois éléments :
 
 \begin{itemize}
-    \item \textbf{RNN\_factory.py} : génération et entraînement du modèle.
-    \item \textbf{RNN\_server.py} : serveur exposant une API de classification.
-    L'API est définie de la manière suivante :
-    \begin{itemize}
-        \item \texttt{POST /predict} : reçoit une image encodée en base64 et retourne le chiffre prédit ainsi que les probabilités associées.
-        \item \texttt{POST /upload} : permet de téléverser un nouveau modèle au format \texttt{.keras} qui est immédiatement activé.
-        \item \texttt{GET /models} : liste les modèles disponibles en base de données.
-        \item \texttt{POST /models/<id>/activate} : active un modèle existant par son identifiant.
-        \item \texttt{DELETE /models/<id>} : supprime un modèle non actif.
-        \item \texttt{GET /metrics} : retourne les métriques système en temps réel (CPU, RAM, charge).
-    \end{itemize}
-    \item \textbf{RNN\_client.py} : client permettant de générer des requêtes vers \texttt{/predict} et de mesurer les performances (latence, débit, taux d'erreur).
+\item \textbf{RNN\_factory.py} : génération et entraînement du modèle.
+\item \textbf{RNN\_server.py} : serveur exposant une API de classification.
+\item \textbf{RNN\_client.py} : client permettant de générer des requêtes.
 \end{itemize}
-% \vspace{0.5cm}
 
 {\color{red} MIEUX EXPLIQUER ce QUE CA FAIT !}
-
 \smallskip
+
+
 Cette application a été choisie car elle permet :
-\begin{itemize}
+\begin{itemize}[label=$\bullet$] 
 \item de simuler une charge CPU significative,
 \item de tester la stabilité du déploiement,
 \item d’évaluer la capacité de montée en charge de la plateforme.
@@ -552,102 +549,23 @@ d'identifier les erreurs éventuelles et de diagnostiquer les problèmes de dép
 
 {\color{red} Capture d'ecran ?!}
 \subsection{Tests de performance}
-Une fois le serveur déployé, un script de stress test a été créé à partir de \texttt{RNN\_client.py} pour envoyer des requêtes
-de classification et mesurer les performances du serveur en termes de latence, de débit et de taux d'erreur.
-Le script \texttt{RNN\_stress\_test.py} possède plusieurs paramètres configurables :
-\begin{itemize}
-\item \textbf{Nombre de requêtes} : le nombre total de requêtes à envoyer au serveur.
-\item \textbf{Nombre de workers} : le nombre de processus parallèles à utiliser pour envoyer les requêtes.
-\item \textbf{Nom du fichier de sortie} : le nom du fichier CSV dans lequel les résultats seront enregistrés.
-\end{itemize}
+Une fois le serveur déployé, on utilise le script \texttt{RNN\_client.py} pour envoyer des requêtes de classification 
+afin de tester les performances de l’application. 
 
 \smallskip
-Dans les figures suivantes, nous présentons les résultats obtenus en termes de latence et d’utilisation des ressources 
-(CPU et RAM) en fonction du nombre de workers utilisés pour le stress test.
+On peut remarquer qu'en faisant des requettes en continu l'application
+utilise déja 40\% du CPU qui lui est alloué.
 
-
-% %%%%%%%%%%%%%%%%%% Latence %%%%%%%%%%%%%%%%%%
-\pgfplotstableread[
-    col sep=comma,
-    ignore chars={\%}
-]{assets/resume.csv}\csvfile
-
-\begin{figure}[h!]
-  \centering
-
-  \begin{minipage}{0.48\textwidth}
-  \centering
-  \begin{tikzpicture}
-  \begin{axis}[
-      width=\textwidth,
-      height=7cm,
-      xlabel={Workers},
-      ylabel={Latence (ms)},
-      title={Latence},
-      grid=major,
-      legend pos=north west
-  ]
-
-  \addplot table[x=Workers,y=Latence_moy_ms]{\csvfile};
-  \addlegendentry{Moyenne}
-
-  \addplot table[x=Workers,y=Latence_p95_ms]{\csvfile};
-  \addlegendentry{P95}
-
-  \addplot[dashed] table[x=Workers,y=Latence_max_ms]{\csvfile};
-  \addlegendentry{Max}
-
-  \end{axis}
-  \end{tikzpicture}
-  \caption{Latence}
-  \end{minipage}
-  \hfill
-  \begin{minipage}{0.48\textwidth}
-  \centering
-  \begin{tikzpicture}
-  \begin{axis}[
-      width=\textwidth,
-      height=7cm,
-      xlabel={Workers},
-      ylabel={Utilisation (\%)},
-      title={CPU / RAM},
-      ymin=0, ymax=100,
-      grid=major,
-      legend pos=south east
-  ]
-
-  \addplot[blue] table[x=Workers,y=CPU_moy_pct]{\csvfile};
-  \addlegendentry{CPU moy}
-
-  \addplot[dashed, blue] table[x=Workers,y=CPU_max_pct]{\csvfile};
-  \addlegendentry{CPU max}
-
-  \addplot[green] table[x=Workers,y=RAM_moy_pct]{\csvfile};
-  \addlegendentry{RAM moy}
-
-  \addplot[dashed, green] table[x=Workers,y=RAM_max_pct]{\csvfile};
-  \addlegendentry{RAM max}
-
-  \end{axis}
-  \end{tikzpicture}
-  \caption{CPU / RAM}
-  \end{minipage}
-
-\end{figure}
-
-% {\color{red} remarquer ???? visuellement, ? mais moi je veux faire une reaction programmée!!}
+{\color{red} remarquer ???? visuellement, ? mais moi je veux faire une reaction programmée!!}
 
 {\color{red} Tu as fait un truc pour montrer l'impact de l'augmentation du nombre de requetes?}
-
-On peut voir que plus le nombre de workers augmente, plus la latence augmente, et que ca n'a pas d'impact significatif 
-sur l'utilisation de la RAM, et du CPU.
 
 \smallskip
 Cela illustre les limites de notre infrastructure : avec une seule
 instance la capacité de traitement est rapidement saturée.
 
-{\color{red} c'est un coeur qui est saturé ? mais tu as plein de coeur ?
-\color{blue} J'en ai 2 (: }
+{\color{red} c'est un coeur qui est saturé ? mais tu as plein de coeur ?}
+
 
 
 \section{Scalabilité avec Dokploy}
@@ -680,23 +598,21 @@ et si tu vois que ca ne suffit pas tu lances un autre avec plus de memoire qui r
 Le scaling horizontal, aussi appelé server scaling\footnote{https://docs.dokploy.com/docs/core/cluster\#server-scaling-methods},
 permet d'ajouter des machines supplémentaires au cluster afin de répartir la charge entre plusieurs nœuds.
 
-\smallskip
 En ajoutant des machines supplémentaires, la répartition des taches est la suivante :
 Une machine principale, dite \textit{manager}, où est installé Dokploy et qui gère le cluster, et une ou plusieurs 
-machines secondaires, dites \textit{workers}. 
+machines secondaires, dites \textit{workers}.
 
-\smallskip
-Le manager orchestre les tâches et répartit les conteneurs à déployer 
-entre les workers en fonction de la charge et des ressources disponibles.
+Le manager orchestre les tâches et répartit les conteneurs à déployer
+entre les workers en fonction de la charge et des ressources
+disponibles.
 
-\smallskip
-Chaque worker est connecté au registry Docker, ce qui lui permet de récupérer 
-les images nécessaires pour exécuter les applications déployées.
+Chaque worker est connecté au registry Docker, ce qui lui permet de
+récupérer les images nécessaires pour exécuter les applications
+déployées.
 
-\smallskip
-Le manager est également responsable de la repartition du trafic entrant entre
-les différentes instances de l'application via le reverse proxy Traefik, 
-assurant ainsi une forme de load balancing.
+Le manager est également responsable de la repartition du trafic
+entrant entre les différentes instances de l'application via le
+reverse proxy Traefik, assurant ainsi une forme de load balancing.
 
 {\color{red} Est ce que le "manager" est programmable ?}
 {\color{red} Des références ? quels algos ?}
@@ -710,210 +626,26 @@ l'application.
 
 {\color{red} Non ppas depuis le dashboard .. il faut que ca se programme !}
 
+\smallskip
 Pour cela, Dokploy nécessite un \texttt{Docker Registry}, qui est un service de stockage et de distribution d'images Docker. 
 Il joue le rôle d'un dépôt centralisé depuis lequel chaque instance peut récupérer l'image de l'application à déployer. 
 Sans ce registry, les différents conteneurs ne pourraient pas accéder à une version commune et cohérente de l'image.
 
+\smallskip
 Nous utilisons ici le \texttt{GitHub Container Registry (GHCR)}, qui s'intègre nativement avec notre dépôt GitHub et 
 ne nécessite pas d'infrastructure supplémentaire. Une fois le registry configuré dans Dokploy, il suffit d'ajuster 
 le nombre de réplicas depuis l'onglet \texttt{Advanced} de l'application. Traefik, le reverse proxy intégré à Dokploy, 
 se charge alors automatiquement de répartir le trafic entre les différentes instances.
-
-Pour les évaluations suivantes, les paramètres utilisés pour le stress test sont les suivants :
-\begin{itemize}
-\item \textbf{Nombre de requêtes} : 100
-\item \textbf{Nombre de workers} : 10
-\end{itemize}
-Le nombre de réplicas est ensuite ajusté de 1 à 3, afin d'observer l'impact sur la latence et l'utilisation des ressources.
-
-% =====================================================================
-% Fichier CSV à modifier UNE SEULE FOIS
-% =====================================================================
-\pgfplotstableread[
-    col sep=comma,
-    ignore chars={\%}
-]{assets/resume2.csv}\csvfile
-\begin{figure}[h!]
-  \centering
-
-  % =========================================================
-  % GRAPHE LATENCE
-  % =========================================================
-  \begin{minipage}{0.49\textwidth}
-  \centering
-
-  \begin{tikzpicture}
-  \begin{axis}[
-      width=\textwidth,
-      height=6cm,
-      xlabel={Replicas},
-      ylabel={Latence (ms)},
-      title={Latence},
-      grid=major,
-      legend style={
-          at={(0.5,-0.25)},
-          anchor=north,
-          legend columns=1,
-          font=\small
-      }
-  ]
-
-  \addplot[
-      thick,
-      blue,
-      mark=*
-  ]
-  table[
-      col sep=comma,
-      x=Replicas,
-      y=Latence_moy_ms
-  ]{\csvfile};
-  \addlegendentry{Moyenne}
-
-  \addplot[
-      thick,
-      orange,
-      mark=square*
-  ]
-  table[
-      col sep=comma,
-      x=Replicas,
-      y=Latence_p95_ms
-  ]{\csvfile};
-  \addlegendentry{P95}
-
-  \addplot[
-      thick,
-      dashed,
-      black,
-      mark=triangle*
-  ]
-  table[
-      col sep=comma,
-      x=Replicas,
-      y=Latence_max_ms
-  ]{\csvfile};
-  \addlegendentry{Max}
-
-  \end{axis}
-  \end{tikzpicture}
-
-  \end{minipage}
-  \hfill
-  % =========================================================
-  % GRAPHE CPU / RAM
-  % =========================================================
-  \begin{minipage}{0.49\textwidth}
-  \centering
-
-  \begin{tikzpicture}
-  \begin{axis}[
-      width=\textwidth,
-      height=6cm,
-      xlabel={Replicas},
-      ylabel={Utilisation (\%)},
-      title={CPU / RAM},
-      grid=major,
-      ymin=0,
-      ymax=100,
-      legend style={
-          at={(0.5,-0.25)},
-          anchor=north,
-          legend columns=1,
-          font=\small
-      }
-  ]
-
-  % CPU moyen
-  \addplot[
-      thick,
-      red,
-      mark=*
-  ]
-  table[
-      col sep=comma,
-      x=Replicas,
-      y=CPU_moy_pct
-  ]{\csvfile};
-  \addlegendentry{CPU moy}
-
-  % CPU max
-  \addplot[
-      thick,
-      dashed,
-      red,
-      mark=square*
-  ]
-  table[
-      col sep=comma,
-      x=Replicas,
-      y=CPU_max_pct
-  ]{\csvfile};
-  \addlegendentry{CPU max}
-
-  % RAM moyenne
-  \addplot[
-      thick,
-      green!60!black,
-      mark=diamond*
-  ]
-  table[
-      col sep=comma,
-      x=Replicas,
-      y=RAM_moy_pct
-  ]{\csvfile};
-  \addlegendentry{RAM moy}
-
-  % RAM max
-  \addplot[
-      thick,
-      dashed,
-      green!60!black,
-      mark=triangle*
-  ]
-  table[
-      col sep=comma,
-      x=Replicas,
-      y=RAM_max_pct
-  ]{\csvfile};
-  \addlegendentry{RAM max}
-
-  \end{axis}
-  \end{tikzpicture}
-
-  \end{minipage}
-
-  \caption{Impact du nombre de replicas sur la latence et les ressources}
-\end{figure}
-
-Comme nous pouvons l'observer, le passage de 1 à 2 replicas améliore significativement les performances : 
-la latence moyenne est réduite de moitié (de 1458 ms à 899 ms), les deux vCPU disponibles étant alors pleinement exploités. 
-
-\smallskip
-En revanche, l'ajout d'un troisième replica provoque une dégradation sévère : le CPU atteint 96\% de charge, 
-la RAM 93.6\%, et la latence p95 bondit de 1309 ms à 8257 ms. 
-
-{ \color{blue} pas sur, ca reste quand meme interessant ?
-\smallskip
-Cette saturation des ressources entraîne vraisemblablement un recours au swap disque, 
-ce qui explique ces temps de réponse extrêmes. 
-
-% (le serveur a encore crash -_- c'est peut etre l'hébergeur)
-}
-\smallskip
-Sur cette machine, 2 replicas constituent donc le point d'équilibre optimal, 
-au-delà duquel la contention des ressources dégrade fortement les latences.
-
-Dorénavant les tests de performance seront réalisés avec 2 replicas, 
-afin de bénéficier d'une capacité de traitement maximale sans saturer la machine.
 
 \subsection{Autoscaling via l'API de Dokploy}
 \label{sec:autoscaling}
 
 Dokploy expose une API REST complète, accessible depuis
 \texttt{/api} et documentée via une interface Swagger disponible
-à \texttt{<domaine>:3000/swagger}. L'authentification s'effectue
-par clé API, générée depuis le profil administrateur.
+à \texttt{<domaine>:3000/swagger}.
+
+L'authentification s'effectue par clé API, générée depuis le profil
+administrateur.
 
 \smallskip
 Cette API permet notamment de modifier le nombre de réplicas d'une
@@ -922,119 +654,38 @@ le champ \texttt{replicas} dans le corps de la requête :
 
 \smallskip
 Sur cette base, un script d'autoscaling a été développé. Son
-principe est le suivant : il interroge périodiquement (ici toutes les 30 secondes) l'utilisation
-CPU de la machine hôte, et ajuste dynamiquement le nombre de réplicas de la manière suivante :
-\begin{itemize}
-\item Si l'utilisation CPU dépasse 80\%, le script augmente le nombre de réplicas de 1, 
-jusqu'à un maximum de 2, car au-delà la machine est saturée.
-\item Si l'utilisation CPU descend en dessous de 30\%, le script réduit le nombre de réplicas de 1, 
-jusqu'à un minimum de 1.
-\item Si l'utilisation CPU est comprise entre 30\% et 80\%, le nombre de réplicas reste inchangé.
-\end{itemize}
+principe est le suivant : il interroge périodiquement l'utilisation
+CPU de la machine hôte, puis ajuste le nombre de réplicas de
+l'application en conséquence.
 
-% {\color{red} Parle plus de ce script, montre des courbes !}
+{\color{red} Parle plus de ce script, montre des courbes !}
 
+\smallskip
 Ce script constitue une forme rudimentaire d'autoscaling horizontal,
-analogue au principe du \textit{Horizontal Pod Autoscaler} (HPA)\cite{Kubernetes2025} de
+analogue au principe du \textit{Horizontal Pod Autoscaler} (HPA) de
 Kubernetes, mais implémenté sans dépendance à un orchestrateur
 complexe.
 
-% {\color{red} une référence sur HPA ? }
+{\color{red} une référence sur HPA ? }
+
 \smallskip
+
 Il est important de noter que Dokploy ne propose pas nativement de
 mécanisme d'autoscaling automatique pour les applications non-Compose
 \footnote{Cette fonctionnalité est explicitement listée comme manquante
-dans le suivi des issues du projet.}. 
-Ce script pallie donc cette limite de manière pragmatique, en exploitant l'API existante.
-{\color{blue} verif que je dis ca a la fin (le footenote)}
+  dans le suivi des issues du projet.}.
+\begin{itemize}
+\item Ce script pallie donc cette limite de manière pragmatique, en
+  exploitant l'API existante.  {\color{blue} verif que je dis ca a la
+    fin (le footenote)}
+\end{itemize}
 
-% =========================================================
-% =========================================================
-% \def\csvfile{assets/autoscaling.csv}
-\pgfplotstableread[
-    col sep=comma,
-    ignore chars={\%}
-]{assets/autoscaling.csv}\csvfile
-
-\begin{figure}[h!]
-  \centering
-
-  \begin{tikzpicture}
-  \begin{axis}[
-      width=0.95\textwidth,
-      height=8cm,
-      xlabel={Temps},
-      ylabel={Latence (ms)},
-      title={Évolution de la latence au cours du temps},
-      grid=major,
-      legend style={
-          at={(0.5,-0.15)},
-          anchor=north,
-          legend columns=3
-      },
-      ymin=0
-  ]
-
-  % =========================================================
-  % LATENCE MOYENNE
-  % =========================================================
-  \addplot[
-      thick,
-      blue
-  ]
-  table[
-      col sep=comma,
-      x expr=\coordindex,
-      y=rtt_ms_mean
-  ]{\csvfile};
-
-  \addlegendentry{Latence moyenne}
-
-  % =========================================================
-  % LATENCE MIN
-  % =========================================================
-  \addplot[
-      thick,
-      green!60!black,
-      dashed
-  ]
-  table[
-      col sep=comma,
-      x expr=\coordindex,
-      y=rtt_ms_min
-  ]{\csvfile};
-
-  \addlegendentry{Latence min}
-
-  % =========================================================
-  % LATENCE MAX
-  % =========================================================
-  \addplot[
-      thick,
-      red,
-      dashed
-  ]
-  table[
-      col sep=comma,
-      x expr=\coordindex,
-      y=rtt_ms_max
-  ]{\csvfile};
-
-  \addlegendentry{Latence max}
-
-  \end{axis}
-  \end{tikzpicture}
-
-  \caption{Évolution des latences min, moyenne et max}
-  \label{fig:autoscaling}
-\end{figure}
-
-Comme illustré dans la figure \ref{fig:autoscaling}, nous pouvons observer qu'a partir de la 40ème seconde, 
-{\color{blue} l'autoscaler demande un nouveau réplicas, il est cree jusqu'a la 50eme sec et aprés la latence réduit
-ATTENTION deplacer légende \& faire fig pour le CPU}
 
 \section{Orchestration dans Dokploy}
-Dokploy gère l'orchestration des conteneurs via Docker Swarm\cite{DockerSwarm2026}.
+Dokploy gère l'orchestration des conteneurs via Docker Swarm.
+
+{\color{red} une référence sur Swarm .. pas un footnote !}
+\footnote{https://docs.docker.com/engine/swarm/}
 
 \begin{enumerate}
 \item \textbf{En cas de crash d'une instance}, Docker Swarm détecte la
@@ -1065,30 +716,6 @@ Dokploy gère l'orchestration des conteneurs via Docker Swarm\cite{DockerSwarm20
 
   {\color{red} Qui le fait autre que dokploy ? et si l'app mesurait ca ?}
 \end{enumerate}
-
-\section{Amélioration du RNN server}
-Afin de mieux 
-J'ai amélioré le code du RNN server afin qu'il puisse sauvegarder le modèle entraîné dans une base de données, 
-et mettre a jour le modèle a chaud pour éviter de devoir réentraîner à chaque changement.
-\subsubsection{Sauvegarde du modèle dans une base de données}
-Premièrement, il a fallu deployer un service PostgreSQL dans le projet Dokploy et creer une table \texttt{models} 
-qui stocke les modèles sérialisés en binaire (BYTEA) avec les champs \texttt{id}, \texttt{name}, \texttt{data}, 
-\texttt{created\_at} et \texttt{is\_active}.
-Ensuite, il a fallu modifier le code du RNN server pour qu'il puisse se connecter à la base de données,
-sauvegarder le modèle entraîné dans la table \texttt{models} via la route \texttt{/upload} et selectionner le modèle
-actif via \texttt{/models/<id>/activate}.
-
-\subsubsection{Problème lié aux réplicas}
-Comme mentionné précédement, le RNN server est déployé sur plusieurs replicas, et traefik se charge de répartir le 
-trafic entre les différentes instances. Cependant, cela pose un problème : quand on formule la requete \texttt{/upload} 
-ou \texttt{/models/<id>/activate} afin de mettre à jour le modèle actif, la requete n'est traitée que par une seule
-instance. Cela signifie que les autres instances ne sont pas informées du changement de modèle, 
-et continuent à utiliser l'ancien modèle.
-
-Pour résoudre ce problème une solution a été mise en place : avant chaque prédiction, chaque replica consulte la BDD 
-pour vérifier si le modèle actif a changé (active\_model\_id), et recharge uniquement si nécessaire. 
-Tous les replicas restent ainsi synchronisés sans communication directe entre eux.
-% {\color{blue} déployer ce fix a fait tomber le serveur, et ca m'a fait perdre l'accès SSH !!!}
 
 
 % \section{Multiplication des resources}
@@ -1141,6 +768,7 @@ augmentent progressivement en fonction du volume de requêtes.
 MAIS on ne voit rien }
 
 \section{Horizontal scaling}
+
 Afin d’évaluer les capacités de montée en charge, plusieurs instances
 du serveur ont été déployées en parallèle.
 Dokploy permet la duplication des conteneurs (réplicas), chacun
@@ -1152,13 +780,11 @@ Les tests montrent une amélioration de la capacité globale de
 traitement, avec une réduction de la saturation CPU par instance.
 {\color{red} "montrent'' ? à qui ..pourquoi ce n'est pas dans le rapport ?}
 
-Pour une même charge testée, l’exploitation processeur moyenne est ainsi passée d'environ 40 \% à
-20 \% après la mise en place des réplicas et de la répartition de charge.
-
 
 Cependant, cette approche atteint rapidement ses limites dans un
 contexte de ressources matérielles fixes, où l’augmentation du nombre
 d’instances conduit à une contention globale du système.
+
 
 % ======================================================================================================================
 \chapter{Discussion}
@@ -1176,7 +802,7 @@ Cependant, ces résultats doivent être nuancés au regard des contraintes
 de l'infrastructure. Avec seulement 2 vCPU et 4.2 Go de RAM, la
 plateforme montre ses limites dès qu'une application commence à
 solliciter significativement les ressources : une seule instance du
-serveur RNN consomme jusqu'à 40\% du CPU disponible, ne laissant que peu de ressources
+serveur RNN consomme jusqu'à 40\% du CPU disponible, laissant peu de marge
 pour les autres applications déployées simultanément.
 
 \section{Limites identifiées}
@@ -1184,7 +810,7 @@ pour les autres applications déployées simultanément.
 \subsection{Limites matérielles}
 
 La contrainte la plus immédiate est celle du stockage : avec 2.1 Go
-libres au moment du déploiement, le VPS n'a plus beaucoups d'espace
+libres au moment du déploiement, le VPS ne laisse que peu de marge
 pour accueillir de nouvelles applications. C'est d'ailleurs cette
 contrainte qui a directement éliminé Coolify de la sélection, dont
 l'image Docker dépasse 20 Go — un exemple concret où les comparatifs
@@ -1288,6 +914,7 @@ qui les héberge.
   La simplicité ne m'intéresse pas ...la preuve je voulais te faire faire du openstack 
 \end{Large}
 }
+
 % \printbibliography
 \bibliographystyle{plain}
 \bibliography{refs}
