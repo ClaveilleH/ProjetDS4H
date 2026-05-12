@@ -344,11 +344,11 @@ présentés dans la suite de cette section.
 Plusieurs solutions de cloud self-hosted ont été étudiées afin de
 répondre aux besoins identifiés dans la section précédente.
 
-L’objectif n’est pas de construire une infrastructure industrielle,
-mais de sélectionner une solution adaptée à un contexte pédagogique,
-avec un compromis entre fonctionnalités et complexité.
+% L’objectif n’est pas de construire une infrastructure industrielle,
+% mais de sélectionner une solution adaptée à un contexte pédagogique,
+% avec un compromis entre fonctionnalités et complexité.
 
-{\color{red} POURQUOI manquer d'ambitions ? alors que tu n'es pas encore tombé sur une seule restriction ...}
+% {\color{red} POURQUOI manquer d'ambitions ? alors que tu n'es pas encore tombé sur une seule restriction ...}
 
 \subsection{Méthodologie de sélection}
 
@@ -769,7 +769,7 @@ Dokploy gère l'orchestration des conteneurs via Docker Swarm\cite{DockerSwarm20
   applications, ce qui limite la capacité à implémenter un autoscaling
   réactif et efficace basé sur des métriques précises.
 
-  {\color{red} Qui le fait autre que dokploy ? et si l'app mesurait ca ?}
+%   {\color{red} Qui le fait autre que dokploy ? et si l'app mesurait ca ?}
 \end{enumerate}
 
 \section{Amélioration du RNN server}
@@ -811,7 +811,24 @@ si le nombre de réplicas atteint le maximum autorisé (2 dans notre cas) et que
 le script fais une requete à l'endpoint \texttt{/models/<id>/activate} pour activer un modèle plus léger 
 (moins de neurones, moins de couches) qui consomme moins de ressources.
 
-{\color{red} PAS ENCORE FAIT A FAIRE}
+La logique est donc la suivante :
+\begin{itemize}
+    \item \textbf{Modèle actuel : cnn\_v2\_dropout} (le plus lourd, meilleure précision)
+    \item Si CPU > 80\% et replicas < MAX → scale up, on reste sur le modèle actuel
+    \item Si CPU > 80\% et replicas == MAX → fallback sur cnn\_v1 (intermédiaire)
+    \item Si CPU > 80\% et replicas == MAX + déjà sur cnn\_v1 → fallback sur mlp\_v0\_fallback (le plus léger)
+    \item Si CPU redescend sous 30\% → scale down + on remonte progressivement vers cnn\_v2\_dropout
+\end{itemize}
+
+Comme précédemment, la donnée collectée est agrégée par fenêtre de 2 secondes afin d'augmenter la lisibilité des 
+courbes(\ref{fig:autoscalingV2}, et sera analysée dans la section \ref{sec:results}).
+
+
+% CPU normal → cnn_v2_dropout (le plus lourd, meilleure précision)
+% CPU > 80% + replicas < MAX → scale up, on reste sur le modèle courant
+% CPU > 80% + replicas == MAX → fallback sur cnn_v1 (intermédiaire)
+% CPU > 80% + replicas == MAX + déjà sur cnn_v1 → fallback sur mlp_v0_fallback (le plus léger)
+% CPU redescend sous 30% → scale down + on remonte progressivement vers cnn_v2_dropout
 
 % \section{Multiplication des resources}
 % Dokploy offre également la possibilité de server scaling\footnote{https://docs.dokploy.com/docs/core/cluster#server-scaling-methods}, 
@@ -887,6 +904,50 @@ lorsque l'utilisation CPU dépasse 80\%, le script augmente le nombre de réplic
 n pic de latence dû à la création du nouveau conteneur a partir de 40 secondes, mais qui permet ensuite, 
 une fois le replica déployé, de réduire la latence à des valeurs similaires à celles observées avec 2 replicas.
 
+A noter que le script a été testé sur le model le plus lourd afin de provoquer des variations d'utilisation CPU 
+suffisamment rapides pour observer l'effet de l'autoscaling. 
+Ce qui explique la plus grande utilisation CPU.
+
+\subsection{Autoscaling avec changement de modèle}
+Comme décrit dans la section \ref{sec:autoscaling}, une nouvelle fonctionnalité a été ajoutée au script d'autoscaling.
+Nous allons maintenant analyser les résultats obtenus avec cette nouvelle version du script, 
+qui ajuste non seulement le nombre de réplicas, mais aussi le modèle utilisé en fonction de l'utilisation CPU.
+
+Comme nous pouvons l'observer dans la figure \ref{fig:autoscalingV2}, le script réagit correctement 
+aux variations de charge, nous pouvons encore observer les pics de latence liés à la création de nouveaux conteneurs, 
+mais aussi les changements de modèle.
+
+Avec une latence moyenne de 1500 ms, la solution pourrait parraitre intéressante, mais en regardant la latence p95 qui 
+atteint 16 secondes, on se rend compte que les performances sont très variables (un pic de latence max de 20 secondes a été observé).
+
+D'autant plus que le temps de traitement globale est plus long que dans le cas d'un scaling horizontal seul, 
+ce qui suggère que les changements de modèle introduisent une latence supplémentaire significative,
+sans pour autant résoudre le problème de saturation des ressources.
+
+En prenant en compte le taux d'erreur qui jusqu'à présent frolait les 0\%, et qui atteint ici 58\%, 
+on peut conclure que cette solution d'autoscaling est contre-productive dans notre contexte.
+
+
+%   RÉSULTATS FINAUX
+% ═════════════════════════════════════════════════════════════════
+%   Workers           : 10
+%   Requêtes totales  : 1000
+%   Durée totale      : 179.38 s
+%   Débit moyen       : 5.57 req/s
+%   Erreurs           : 582 (58.2%)
+%   Latence min       : 33.08 ms
+%   Latence moy       : 1775.82 ms
+%   Latence médiane   : 1380.38 ms
+%   Latence p95       : 5324.90 ms
+%   Latence p99       : 16607.48 ms
+%   Latence max       : 20314.54 ms
+%   CPU moy (serveur) : 60.6%
+%   CPU max (serveur) : 97.4%
+%   RAM moy (serveur) : 81.5%
+%   RAM max (serveur) : 89.4%
+% ═════════════════════════════════════════════════════════════════
+
+
 % ======================================================================================================================
 \section{Discussion}
 \label{sec:discussion}
@@ -934,6 +995,10 @@ de modèle.
 \smallskip
 Cette solution fonctionne, mais introduit une latence supplémentaire et 
 une dépendance à la base de données sur le chemin critique de chaque requête.
+
+Enfin, la tentative d'autoscaling combinant changement de modèle et ajustement du nombre de réplicas s'est révélée contre-productive,
+provoquant une explosion de la latence et un taux d'erreur élevé, ce qui souligne les limites d'une approche réactive 
+basée sur des métriques globales dans un environnement contraint en ressources.
 
 % Perspectives
 % À court terme, un doublement des ressources du VPS (4 vCPU, 8 Go de RAM) lèverait les principales contraintes observées et permettrait d'héberger plusieurs applications simultanément sans saturation immédiate.
@@ -1371,27 +1436,168 @@ mériterait d'être plus explorée.
 
     \addlegendentry{RAM}
 
+    \end{axis}
+    \end{tikzpicture}
+
+    \caption{Évolution de l'utilisation CPU, RAM}
+\end{figure}
+
+
+% AUTOSCALING V2
+
+\vspace{10cm}
+\newpage
+
+% =========================================================
+% =========================================================
+% \def\csvfile{assets/autoscaling.csv}
+\pgfplotstableread[
+    col sep=comma,
+    ignore chars={\%}
+]{assets/autoscalingV2.csv}\csvfile
+
+\begin{figure}[h!]
+  \centering
+
+  \begin{tikzpicture}
+  \begin{axis}[
+      width=0.95\textwidth,
+      height=8cm,
+      xlabel={Temps},
+      ylabel={Latence (ms)},
+      title={Évolution de la latence au cours du temps},
+      grid=major,
+      legend style={
+          at={(0.5,-0.20)},
+          anchor=north,
+          legend columns=3
+      },
+      ymin=0,
+      scaled y ticks=false,
+  ]
+
+  % =========================================================
+  % LATENCE MOYENNE
+  % =========================================================
+  \addplot[
+      thick,
+      blue
+  ]
+  table[
+      col sep=comma,
+      x expr=\coordindex,
+      y=rtt_ms_mean
+  ]{\csvfile};
+
+  \addlegendentry{Latence moyenne}
+
+  % =========================================================
+  % LATENCE MIN
+  % =========================================================
+  \addplot[
+      thick,
+      green!60!black,
+      dashed
+  ]
+  table[
+      col sep=comma,
+      x expr=\coordindex,
+      y=rtt_ms_min
+  ]{\csvfile};
+
+  \addlegendentry{Latence min}
+
+  % =========================================================
+  % LATENCE MAX
+  % =========================================================
+  \addplot[
+      thick,
+      red,
+      dashed
+  ]
+  table[
+      col sep=comma,
+      x expr=\coordindex,
+      y=rtt_ms_max
+  ]{\csvfile};
+
+  \addlegendentry{Latence max}
+
+  \end{axis}
+  \end{tikzpicture}
+
+  \caption{Évolution des latences min, moyenne et max}
+  \label{fig:autoscalingV2}
+\end{figure}
+
+% =========================================================
+% FICHIER CSV
+% =========================================================
+% \def\csvfile{assets/system_metrics.csv}
+\pgfplotstableread[
+    col sep=comma,
+    ignore chars={\%}
+]{assets/autoscalingV2_server.csv}\csvfile
+
+\begin{figure}[h!]
+    \centering
+
+    \begin{tikzpicture}
+    \begin{axis}[
+        width=0.95\textwidth,
+        height=8cm,
+        xlabel={Temps},
+        ylabel={Utilisation (\%)},
+        title={Évolution des ressources système},
+        grid=major,
+        legend style={
+            at={(0.5,-0.20)},
+            anchor=north,
+            legend columns=3
+        },
+        ymin=0,
+        ymax=100
+    ]
+
     % =========================================================
-    % SWAP
+    % CPU
     % =========================================================
     \addplot[
         thick,
-        dashed,
-        black
+        red
     ]
     table[
         col sep=comma,
         x expr=\coordindex,
-        y=swap_percent
+        y=cpu_percent
     ]{\csvfile};
 
-    \addlegendentry{SWAP}
+    \addlegendentry{CPU}
+
+    % =========================================================
+    % RAM
+    % =========================================================
+    \addplot[
+        thick,
+        blue
+    ]
+    table[
+        col sep=comma,
+        x expr=\coordindex,
+        y=mem_percent
+    ]{\csvfile};
+
+    \addlegendentry{RAM}
+
+
 
     \end{axis}
     \end{tikzpicture}
 
-    \caption{Évolution de l'utilisation CPU, RAM et SWAP}
+    \caption{Évolution de l'utilisation CPU, RAM}
 \end{figure}
+
+
 
 
 % \printbibliography

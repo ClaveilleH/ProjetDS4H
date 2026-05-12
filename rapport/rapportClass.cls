@@ -77,7 +77,7 @@
 \renewcommand{\chaptermark}[1]{%
   \markboth{#1}{}%
 }
-\titlespacing*{\chapter}{0pt}{-50pt}{20pt}
+\titlespacing*{\chapter}{0pt}{-50pt}{0pt}
 
 
 \setlength{\parskip}{0em} % espace entre les paragraphes
