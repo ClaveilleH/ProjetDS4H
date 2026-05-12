@@ -24,6 +24,8 @@
         \vspace{1cm}
         % Auteur
         \textbf{Hugo CLAVEILLE}\\[0.5cm]
+        % Tutelle
+        {\large Encadré par Gilles MENEZ}\\[0.5cm]
         
         % Sous-titre
         {\Large Master 1 Informatique}\\[2cm]
@@ -262,7 +264,7 @@ Contrairement auxfournisseurs de cloud public, il n’est pas possible de s’ap
 une élasticité quasi infinie.
 
 \smallskip
-Ensuite, les utilisateurs ciblés — des étudiants — ne disposent pas
+Ensuite, les utilisateurs ciblés (les étudiants) ne disposent pas
 nécessairement de compétences en administration système ou en DevOps.
 
 \smallskip
@@ -308,7 +310,7 @@ disposant des ressources suivantes :
 \begin{itemize}
     \item \textbf{CPU} : 2 vCPU Intel Xeon E5-2680 v4 @ 2.40 GHz
     \item \textbf{RAM} : 4.2 Go (environ 1.5 Go disponibles en conditions normales)
-    \item \textbf{Stockage} : 25 Go (dont 2.1 Go libres au moment du déploiement)
+    \item \textbf{Stockage} : 25 Go 
 \end{itemize}
 
 \vspace{0.5cm}
@@ -318,11 +320,13 @@ en termes de mémoire, de puissance de calcul et d’espace disque.
 
 \smallskip
 Contrairementaux environnements cloud publics, aucune élasticité automatique n’est
-possible.
-{\color{red} POURQUOI ?? ... seulement des capacités mémoires  ?
+possible automatiquement, dans le cadre d'un VPS, il faut faire une demande de changement 
+de plan pour augmenter les ressources, et dans le cas d'une machine physique, 
+il faut acheter du matériel supplémentaire pour faire du scaling vertical.
+% {\color{red} POURQUOI ?? ... seulement des capacités mémoires  ?
 
-\color{blue} Meme pas mémoire, le vps n'est pas sous forme d'abonement, impossible de faire du scaling automatique, il faut aller dans le panel de gestion du vps et faire une demande de changement de plan pour augmenter les ressources
-Et dans le cas d'une machine physique, c'est la même chose, il faut acheter du matériel supplémentaire pour faire du scaling vertical}
+% \color{blue} Meme pas mémoire, le vps n'est pas sous forme d'abonement, impossible de faire du scaling automatique, il faut aller dans le panel de gestion du vps et faire une demande de changement de plan pour augmenter les ressources
+% Et dans le cas d'une machine physique, c'est la même chose, il faut acheter du matériel supplémentaire pour faire du scaling vertical}
 
 \smallskip
 Dans ce contexte, toute solution retenue doit être :
@@ -357,30 +361,43 @@ Les solutions ont été évaluées selon les critères suivants :
 \item \textbf{Interface utilisateur} : accessibilité pour des utilisateurs non experts.
 \item \textbf{Consommation de ressources} : compatibilité avec les contraintes du VPS.
 \end{itemize}
-
 \subsection{Solutions étudiées}
-{\color{red} Mets les sites Web en références et met là leur citation}
 
-\textbf{OpenStack} constitue une référence pour les clouds privés
-open-source. Toutefois, sa complexité et ses besoins matériels le
-rendent inadapté à une infrastructure limitée.
-
+\textbf{OpenStack}~\cite{openstack} se définit comme un système d'exploitation
+cloud qui contrôle de larges pools de ressources de calcul, de stockage et de
+réseau à travers un datacenter, gérées via des APIs ou un tableau de bord~\cite{openstack}.
+Sa complexité et ses besoins matériels le rendent toutefois inadapté à une
+infrastructure limitée.
 \smallskip
-\textbf{Kubernetes (k3s)} offre une orchestration avancée des conteneurs,
-mais introduit une complexité importante qui dépasse les besoins du projet.
 
+\textbf{Kubernetes (k3s)}~\cite{k3s} est une distribution Kubernetes certifiée,
+hautement disponible, conçue pour des charges de production dans des environnements
+contraints en ressources. Il se conditionne en un unique binaire de moins de 70 Mo,
+réduisant les dépendances nécessaires à son installation et son exécution~\cite{k3s}.
+Malgré sa légèreté, il introduit une complexité d'orchestration qui dépasse les
+besoins du projet.
 \smallskip
-\textbf{Dokku} propose une approche minimaliste basée sur Git, mais
-reste limité en termes d’interface utilisateur et de gestion multi-utilisateurs.
 
+\textbf{Dokku}~\cite{dokku} est une plateforme PaaS open-source extensible
+qui s'exécute sur un serveur unique. Il permet de construire des applications
+à la volée depuis un \texttt{git push}, via un Dockerfile ou en détectant
+automatiquement le langage avec des Buildpacks~\cite{dokku}. Cette approche
+reste cependant limitée en termes d'interface utilisateur et de gestion
+multi-utilisateurs.
 \smallskip
-\textbf{CapRover} apporte une interface web et une gestion simplifiée
-des applications, mais reste limité dans la gestion fine des utilisateurs.
 
+\textbf{CapRover}~\cite{caprover} se présente comme un gestionnaire de déploiement
+d'applications et de serveur web, extrêmement simple d'utilisation, s'appuyant
+sur Docker, nginx, Let's Encrypt et NetData derrière une interface
+épurée~\cite{caprover}. Il reste néanmoins limité dans la gestion fine des
+utilisateurs.
 \smallskip
-\textbf{Coolify} présente des fonctionnalités avancées et une interface
-moderne, mais sa consommation importante de ressources (notamment en
-espace disque) le rend incompatible avec l’infrastructure disponible.
+
+\textbf{Coolify}~\cite{coolify} est une plateforme PaaS open-source qui simplifie
+l'auto-hébergement d'applications, de bases de données et de services sur son
+propre serveur, compatible avec un large éventail de langages et de
+frameworks~\cite{coolify}. Sa consommation importante de ressources le rend
+incompatible avec l'infrastructure disponible.
 
 \begin{table}[h!]
   \centering
@@ -418,7 +435,7 @@ Ce choix repose sur plusieurs éléments :
 \end{itemize}
 
 Dokploy repose sur l’utilisation de conteneurs Docker pour isoler les
-applications et sur un proxy (Traefik) pour exposer les services.
+applications et sur un reverse proxy \footnote{Reverse proxy : Traefik décrit plus en détail plus tard} pour exposer les services.
 
 \smallskip
 Il constitue ainsi une implémentation légère d’une plateforme de type
@@ -438,6 +455,10 @@ Il s’agit d’un serveur de classification de texte basé sur un réseau
 de neurones récurrent (RNN), permettant de simuler une charge réaliste.
 
 \smallskip
+Le RNN a été entraîné sur le dataset MNIST, qui contient des images de chiffres manuscrits, 
+afin de pouvoir classer des images envoyées par les clients.
+
+\smallskip
 L’application est composée de trois éléments :
 
 \begin{itemize}
@@ -452,11 +473,13 @@ L’application est composée de trois éléments :
         \item \texttt{DELETE /models/<id>} : supprime un modèle non actif.
         \item \texttt{GET /metrics} : retourne les métriques système en temps réel (CPU, RAM, charge).
     \end{itemize}
-    \item \textbf{RNN\_client.py} : client permettant de générer des requêtes vers \texttt{/predict} et de mesurer les performances (latence, débit, taux d'erreur).
+    \item \textbf{RNN\_client.py} : client permettant de charger des images et de soumettre des requêtes à l'API.
+    Ce client sera également utilisé pour réaliser des tests de charge et mesurer les performances du 
+    serveur en fonction du nombre de requêtes simultanées.
 \end{itemize}
 % \vspace{0.5cm}
 
-{\color{red} MIEUX EXPLIQUER ce QUE CA FAIT !}
+% {\color{red} MIEUX EXPLIQUER ce QUE CA FAIT !}
 
 \smallskip
 Cette application a été choisie car elle permet :
@@ -532,8 +555,8 @@ La commande de lancement du serveur est également définie, à savoir :
 \texttt{gunicorn --bind 0.0.0.0:5000 RNN\_server:app}.
 
 \smallskip
-Enfin il faut parametrer le domaine sur lequel va répondre l'api, ici %j'ai choisi
-\texttt{rnn.dokpoly.claveille.fr} et le port pour Traefik (ici : 5000).
+Enfin il faut parametrer le domaine sur lequel va répondre l'api, (ici %j'ai choisi
+\texttt{rnn.dokpoly.claveille.fr}) et le port pour Traefik (ici : 5000).
 
 \smallskip
 Une fois la configuration terminée, le déploiement peut être
@@ -546,11 +569,13 @@ accessible.
 
 \section{Monitoring et gestion des logs}
 Dokploy offre un dashboard centralisé permettant de visualiser l'état des applications déployées,ainsi que les 
-logs générés par les conteneurs. Cela permet de suivre en temps réel les performances de l'application, 
+logs générés par les conteneurs (voir Figure \ref{fig:monitoring}).
+
+\smallskip
+Cela permet de suivre en temps réel les performances de l'application, 
 d'identifier les erreurs éventuelles et de diagnostiquer les problèmes de déploiement. 
 
 
-{\color{red} Capture d'ecran ?!}
 \subsection{Tests de performance}
 Une fois le serveur déployé, un script de stress test a été créé à partir de \texttt{RNN\_client.py} pour envoyer des requêtes
 de classification et mesurer les performances du serveur en termes de latence, de débit et de taux d'erreur.
@@ -561,9 +586,407 @@ Le script \texttt{RNN\_stress\_test.py} possède plusieurs paramètres configura
 \item \textbf{Nom du fichier de sortie} : le nom du fichier CSV dans lequel les résultats seront enregistrés.
 \end{itemize}
 
+% \smallskip
+% Dans les figures suivantes, nous présentons les résultats obtenus en termes de latence et d’utilisation des ressources 
+% (CPU et RAM) en fonction du nombre de workers utilisés pour le stress test.
 \smallskip
-Dans les figures suivantes, nous présentons les résultats obtenus en termes de latence et d’utilisation des ressources 
-(CPU et RAM) en fonction du nombre de workers utilisés pour le stress test.
+Les résultats sont présentés dans les figures \ref{fig:latency} et \ref{fig:resources}, et seront discutés plus en 
+détail dans la section \ref{sec:results-perf}.
+
+
+% {\color{red} remarquer ???? visuellement, ? mais moi je veux faire une reaction programmée!!}
+
+% {\color{red} Tu as fait un truc pour montrer l'impact de l'augmentation du nombre de requetes?}
+
+
+% {\color{red} c'est un coeur qui est saturé ? mais tu as plein de coeur ?
+% \color{blue} J'en ai 2 (: }
+
+
+\section{Scalabilité avec Dokploy}
+Dokploy permet de faire deux types de scaling : 
+\begin{enumerate}
+\item Le \textbf{scaling vertical}, qui consiste à augmenter les
+  ressources allouées à une instance (CPU, RAM, etc.)  afin
+  d'améliorer ses performances.
+
+  Cette approche est limitée par les ressources physiques disponibles
+  sur la machine hôte.
+
+\item Et le \textbf{scaling horizontal}, qui consiste à ajouter des
+  machines supplémentaires au cluster.
+
+  Cette approche permet de répartir la charge entre plusieurs nœuds,
+  mais nécessite une configuration plus complexe et une gestion de
+  l'orchestration des conteneurs pour assurer la cohérence et la
+  disponibilité des applications déployées.
+\end{enumerate}
+
+% \subsection{Scaling vertical} 
+% {\color{blue}Je sais pas trop quoi dire la dessus}
+
+% {\color{red} Est ce que tu as un moyen de regler ca dynamiquement ? 
+% oui en lancant un docker-run avec une autre taille de memory .... le use case  =>  tu lances un premier container avec pas beaucoup de memoire pour en pas saturer ta machine
+% et si tu vois que ca ne suffit pas tu lances un autre avec plus de memoire qui remplace le premier}
+
+\subsection{Scaling horizontal}
+Le scaling horizontal, aussi appelé server scaling\footnote{https://docs.dokploy.com/docs/core/cluster\#server-scaling-methods},
+permet d'ajouter des machines supplémentaires au cluster afin de répartir la charge entre plusieurs nœuds.
+
+\smallskip
+\textbf{Architecture du cluster.}
+En ajoutant des machines supplémentaires, la répartition des taches est la suivante :
+\begin{itemize}
+\item Une machine principale, dite \textit{manager}, où est installé Dokploy et qui gère le cluster, et une ou plusieurs 
+machines secondaires, dites \textit{workers}. 
+Le manager orchestre les tâches et répartit les conteneurs à déployer 
+entre les workers en fonction de la charge et des ressources disponibles.
+
+\item Chaque worker est connecté au registry Docker, ce qui lui permet de récupérer 
+les images nécessaires pour exécuter les applications déployées.
+
+\item Le manager est également responsable de la repartition du trafic entrant entre
+les différentes instances de l'application via le reverse proxy Traefik, 
+assurant ainsi une forme de load balancing.
+\end{itemize}   
+
+\smallskip
+\textbf{Ordonnancement des tâches.}
+Dokploy s'appuie sur Docker Swarm~\cite{dockerswarm} pour l'orchestration
+du cluster. Le manager utilise l'algorithme \textit{Spread}~\cite{dockerscheduler}
+pour distribuer les tâches entre les workers : il place chaque nouveau conteneur
+sur le nœud disposant du plus grand nombre de ressources disponibles (CPU, mémoire),
+en privilégiant le nœud ayant le moins de conteneurs en cours d'exécution en cas
+d'égalité~\cite{dockerscheduler}.
+
+\smallskip
+\textbf{Contraintes de placement.}
+Il est possible de personnaliser ce comportement via des contraintes de placement
+(\textit{placement constraints}), qui sont des règles strictes forçant l'exécution
+d'un service sur des nœuds portant certaines étiquettes (\textit{labels}), par exemple
+pour réserver certains workers à des charges de travail spécifiques~\cite{dockerservices}.
+Des préférences de placement (\textit{placement preferences}) permettent en
+complément une répartition souple, par exemple entre zones de disponibilité~\cite{dockerservices}.
+
+\subsection{Scaling horizontal via les réplicas}
+Nous allons donc tester la scalabilité de notre solution en augmentant le nombre d'instances du serveur. 
+
+\smallskip
+Dokploy permet de faire cela facilement depuis le dashboard, en ajustant le nombre de conteneurs déployés pour 
+l'application.
+
+% {\color{red} Non ppas depuis le dashboard .. il faut que ca se programme !}
+
+Pour cela, Dokploy nécessite un \texttt{Docker Registry}, qui est un service de stockage et de distribution d'images Docker. 
+Il joue le rôle d'un dépôt centralisé depuis lequel chaque instance peut récupérer l'image de l'application à déployer. 
+Sans ce registry, les différents conteneurs ne pourraient pas accéder à une version commune et cohérente de l'image.
+
+Nous utilisons ici le \texttt{GitHub Container Registry (GHCR)}, qui s'intègre nativement avec notre dépôt GitHub et 
+ne nécessite pas d'infrastructure supplémentaire. Une fois le registry configuré dans Dokploy, il suffit d'ajuster 
+le nombre de réplicas depuis l'onglet \texttt{Advanced} de l'application. Traefik, le reverse proxy intégré à Dokploy, 
+se charge alors automatiquement de répartir le trafic entre les différentes instances.
+
+Pour les évaluations suivantes, les paramètres utilisés pour le stress test sont les suivants :
+\begin{itemize}
+\item \textbf{Nombre de requêtes} : 100
+\item \textbf{Nombre de workers} : 10
+\end{itemize}
+Le nombre de réplicas est ensuite ajusté de 1 à 3, afin d'observer l'impact sur la latence et l'utilisation des ressources.
+Voir les résultats dans la section \ref{sec:results-scaling}, Figure \ref{fig:scalability}.
+
+
+\subsection{Autoscaling via l'API de Dokploy}
+\label{sec:autoscaling}
+
+Dokploy expose une API REST complète, accessible depuis
+\texttt{/api} et documentée via une interface Swagger disponible
+à \texttt{<domaine>:3000/swagger}. L'authentification s'effectue
+par clé API, générée depuis le profil administrateur.
+
+\smallskip
+Cette API permet notamment de modifier le nombre de réplicas d'une
+application via l'endpoint \texttt{application.update}, en passant
+le champ \texttt{replicas} dans le corps de la requête :
+
+\smallskip
+Sur cette base, un script d'autoscaling a été développé. Son
+principe est le suivant : il interroge périodiquement (ici toutes les 30 secondes) l'utilisation
+CPU de la machine hôte, et ajuste dynamiquement le nombre de réplicas de la manière suivante :
+\begin{itemize}
+\item Si l'utilisation CPU dépasse 80\%, le script augmente le nombre de réplicas de 1, 
+jusqu'à un maximum de 2, car au-delà la machine est saturée.
+\item Si l'utilisation CPU descend en dessous de 30\%, le script réduit le nombre de réplicas de 1, 
+jusqu'à un minimum de 1.
+\item Si l'utilisation CPU est comprise entre 30\% et 80\%, le nombre de réplicas reste inchangé.
+\end{itemize}
+
+% {\color{red} Parle plus de ce script, montre des courbes !}
+
+Ce script constitue une forme rudimentaire d'autoscaling horizontal,
+analogue au principe du \textit{Horizontal Pod Autoscaler} (HPA)\cite{Kubernetes2025} de
+Kubernetes, mais implémenté sans dépendance à un orchestrateur
+complexe.
+
+% {\color{red} une référence sur HPA ? }
+\smallskip
+Il est important de noter que Dokploy ne propose pas nativement de
+mécanisme d'autoscaling automatique pour les applications non-Compose
+\footnote{Cette fonctionnalité est explicitement listée comme manquante
+dans le suivi des issues du projet.}. 
+Ce script pallie donc cette limite de manière pragmatique, en exploitant l'API existante.
+% {\color{blue} verif que je dis ca a la fin (le footenote)}
+
+La donnée ainsi collectée est agrégée par fenêtre de 2 secondes afin d'augmenter la lisibilité des courbes(\ref{fig:autoscaling}).
+% \label{fig:autoscaling}
+
+\section{Orchestration dans Dokploy}
+Dokploy gère l'orchestration des conteneurs via Docker Swarm\cite{DockerSwarm2026}.
+
+\begin{enumerate}
+\item \textbf{En cas de crash d'une instance}, Docker Swarm détecte la
+  défaillance et si Docker Engine ne parvient pas à redémarrer le
+  conteneur sur le même nœud, Swarm le recrée automatiquement sur un
+  autre nœud du cluster (dans le cas d'une configuration multi-machines)
+  ou dans le même nœud si les ressources le permettent afin de respecter
+  le nombre de réplicas défini pour l'application.
+
+
+  \smallskip
+\item 
+  \textbf{En cas de saturation des ressources}, Docker Swarm ne dispose
+  pas de mécanismes avancés de gestion de la surcharge.
+
+  \smallskip
+  La seule solution consiste à ajuster manuellement le nombre de
+  réplicas ou à augmenter les ressources disponibles sur les nœuds du
+  cluster. Il existe une solution d'autoscaling via l'API de Dokploy,
+  mais elle n'est pas native et nécessite la mise en place d'un script
+  externe comme décrit dans la section \ref{sec:autoscaling}.
+
+  \smallskip
+  Cependant, il est important de noter que l'API de Dokploy ne fournit
+  pas d'informations détaillées sur la la charge ou la latence des
+  applications, ce qui limite la capacité à implémenter un autoscaling
+  réactif et efficace basé sur des métriques précises.
+
+  {\color{red} Qui le fait autre que dokploy ? et si l'app mesurait ca ?}
+\end{enumerate}
+
+\section{Amélioration du RNN server}
+Afin d'essayer de tirer parti des fonctionnalités de Dokploy, notamment la gestion d'une base de données, 
+le code du RNN server a été amélioré afin qu'il puisse sauvegarder le modèle entraîné dans une base de données, 
+et mettre a jour le modèle a chaud pour éviter de devoir réentraîner à chaque changement.
+
+\subsubsection{Sauvegarde du modèle dans une base de données}
+Premièrement, il a fallu deployer un service PostgreSQL dans le projet Dokploy et creer une table \texttt{models} 
+qui stocke les modèles sérialisés en binaire (BYTEA) avec les champs \texttt{id}, \texttt{name}, \texttt{data}, 
+\texttt{created\_at} et \texttt{is\_active}.
+
+\smallskip
+Ensuite, il a fallu modifier le code du RNN server pour qu'il puisse se connecter à la base de données,
+sauvegarder le modèle entraîné dans la table \texttt{models} via la route \texttt{/upload} et selectionner le modèle
+actif via \texttt{/models/<id>/activate}.
+
+\subsubsection{Problème lié aux réplicas}
+Comme mentionné précédement, le RNN server est déployé sur plusieurs replicas, et traefik se charge de répartir le 
+trafic entre les différentes instances. 
+
+\smallskip
+Cependant, cela pose un problème : quand on formule la requete \texttt{/upload} 
+ou \texttt{/models/<id>/activate} afin de mettre à jour le modèle actif, la requete n'est traitée que par une seule
+instance. 
+
+\smallskip
+Cela signifie que les autres instances ne sont pas informées du changement de modèle, 
+et continuent à utiliser l'ancien modèle.
+
+Pour résoudre ce problème une solution a été mise en place : avant chaque prédiction, chaque replica consulte la BDD 
+pour vérifier si le modèle actif a changé (active\_model\_id), et recharge uniquement si nécessaire. 
+Tous les replicas restent ainsi synchronisés sans communication directe entre eux.
+% {\color{blue} déployer ce fix a fait tomber le serveur, et ca m'a fait perdre l'accès SSH !!!}
+
+\subsection{Amelioration de l'autoscaling}
+Afin d'améliorer le script d'autoscaling décrit dans la section \ref{sec:autoscaling}, une nouvelle fonctionnalité a été ajoutée : 
+si le nombre de réplicas atteint le maximum autorisé (2 dans notre cas) et que l'utilisation CPU dépasse toujours 80\%,
+le script fais une requete à l'endpoint \texttt{/models/<id>/activate} pour activer un modèle plus léger 
+(moins de neurones, moins de couches) qui consomme moins de ressources.
+
+{\color{red} PAS ENCORE FAIT A FAIRE}
+
+% \section{Multiplication des resources}
+% Dokploy offre également la possibilité de server scaling\footnote{https://docs.dokploy.com/docs/core/cluster#server-scaling-methods}, 
+% qui permet d'ajouter des machines supplémentaires au cluster afin de répartir la charge entre plusieurs nœuds.
+% En ajoutant des machines supplémentaires, la répartition des taches est la suivante :
+% Une machine principale, dite \textit{manager}, où est installé Dokploy et qui gère le cluster, et une ou plusieurs 
+% machines secondaires, dites \textit{workers}. Le manager orchestre les tâches et répartit les conteneurs à déployer 
+% entre les workers en fonction de la charge et des ressources disponibles.
+% ======================================================================================================================
+\chapter{Résultats et Discussion}
+\section{Résultats}
+\label{sec:results}
+\subsection{Deploiement et monitoring}
+Le déploiement de l'application RNN-Server via Dokploy s'est déroulé sans accroc,
+confirmant la bonne intégration du pipeline de construction d'image Docker à partir du dépôt Git.
+
+\smallskip
+L'application est accessible à l'URL configurée (\texttt{rnn.dokploy.claveille.fr}) 
+et répond correctement aux requêtes de classification.
+
+\smallskip
+Le dashboard de Dokploy permet de suivre en temps réel les logs et les métriques système, 
+offrant une visibilité précieuse sur le comportement de l'application sous charge.
+
+
+\subsection{Performance under load}
+\label{sec:results-perf}
+La première phase d'expérimentation a consisté à évaluer les performances de l'application en conditions de charge,
+sur un seul replica, afin d'identifier les limites de la configuration initiale.
+
+Comme nous pouvons l'observer dans les figures \ref{fig:latency} et \ref{fig:resources}, une seule instance du serveur 
+consomme en moyenne 50\% des ressources CPU disponibles sur la machine, et environ 70\% de la RAM indépendamment 
+du nombre de workers utilisés pour le stress test.
+Nous pouvons également observer que plus le nombre de workers augmente, plus la latence moyenne et p95
+\footnote{P95 (95e percentile de latence) : valeur en dessous de laquelle se situent 95\% des temps de réponse observés.
+Elle permet d’évaluer les performances dans les cas lents sans être trop influencée par les valeurs extrêmes.} 
+augmente, ce qui indique que le serveur est rapidement saturé et que les requêtes s'accumulent en file d'attente, 
+ce qui dégrade les performances.
+
+\smallskip
+Cela illustre les limites de notre infrastructure : avec une seule
+instance la capacité de traitement est rapidement saturée.
+
+
+\subsection{Scalabilité avec Dokploy}
+\label{sec:results-scaling}
+Nous avons ensuite testé la scalabilité de notre solution en augmentant le nombre d'instances du serveur via les réplicas de Dokploy,
+afin d'observer l'impact sur la latence et l'utilisation des ressources.
+
+Comme illustré dans la figure \ref{fig:scalability}, le passage de 1 à 2 replicas améliore légèrement les performances : 
+la latence moyenne est réduite de 1458 ms à 899 ms, les deux vCPU disponibles étant alors pleinement exploités.
+
+En revanche, l'ajout d'un troisième replica provoque une dégradation sévère : le CPU atteint 96\% de charge,
+la RAM 93.6\%, et la latence p95 bondit de 1309 ms à 8257 ms.
+
+On peut supposer que cette saturation des ressources entraîne un recours au swap disque,
+ce qui expliquerait ces temps de réponse extrêmes.
+Sur cette machine, 2 replicas constituent donc le point d'équilibre optimal, 
+au-delà duquel la contention des ressources dégrade fortement les latences.
+
+
+\subsection{Autoscaling}
+\label{sec:results-autoscaling}
+Nous allons enfin tester le script d'autoscaling développé pour ajuster dynamiquement le nombre de réplicas 
+en fonction de l'utilisation CPU de la machine hôte.
+
+\smallskip
+Pour rappel, le script est configuré pour augmenter le nombre de réplicas de 1 si l'utilisation CPU dépasse 80\%, 
+et pour réduire le nombre de réplicas de 1 si l'utilisation CPU descend en dessous de 30\%.
+
+Comme nous pouvons l'observer dans la figure \ref{fig:autoscaling}, le script réagit correctement aux variations de charge :
+lorsque l'utilisation CPU dépasse 80\%, le script augmente le nombre de réplicas, ce qui a pour effet de produire 
+n pic de latence dû à la création du nouveau conteneur a partir de 40 secondes, mais qui permet ensuite, 
+une fois le replica déployé, de réduire la latence à des valeurs similaires à celles observées avec 2 replicas.
+
+% ======================================================================================================================
+\section{Discussion}
+\label{sec:discussion}
+\subsection{Adéquation aux besoins}
+Les résultats obtenus confirment que Dokploy répond aux objectifs initialement fixés,
+le déploiement depuis un dépôt Git s'effectue sans intervention manuelle sur la machine hôte, 
+la gestion multi-utilisateurs permet une séparation effective des projets, 
+et le dashboard offre une visibilité suffisante sur les logs et l'état des applications. 
+
+\smallskip
+Du point de vue pédagogique, la plateforme remplit donc son rôle : un étudiant peut déployer 
+une application sans manipuler directement l'infrastructure sous-jacente.
+
+\subsection{Limites matérielles}
+La contrainte la plus structurante reste celle des ressources, avec seulement 2 vCPU et 4,2 Go de RAM, 
+la plateforme ne dispose d'aucune marge d'élasticité réelle. 
+
+\smallskip
+Les résultats de stress test l'illustrent clairement : une seule instance du serveur RNN consomme 
+environ 50 \% du CPU disponible, ce qui laisse peu de place pour des déploiements simultanés. 
+
+\smallskip
+Le passage à trois réplicas s'est révélé contre-productif, saturant la machine au point de provoquer un recours 
+probable au swap et de faire bondir la latence.
+
+\smallskip
+Ce constat n'est pas un échec de Dokploy, mais une illustration concrète d'une limite fondamentale du self-hosting : 
+contrairement à un cloud public, on ne peut pas abstraire l'absence de ressources physiques. 
+
+Enfin on a pu remarquer que bien qu'ayant pour effet de réduire la latence, le scaling horizontal ne fait que 
+redistribuer une ressource CPU fixe, sans l'augmenter.
+
+\subsection{Limites de Dokploy}
+Dokploy présente également des limites intrinsèques, l'absence d'autoscaling natif oblige à recourir à des 
+scripts externes comme celui développé dans ce projet. 
+
+\smallskip
+Cette approche fonctionne, mais reste fragile : elle repose sur une métrique unique (le CPU global de la machine hôte) 
+plutôt que sur des indicateurs applicatifs précis comme la latence ou le nombre de requêtes en file d'attente, 
+ce qui limite sa réactivité et sa précision.
+Par ailleurs, la synchronisation des réplicas autour du modèle actif a nécessité une modification architecturale du 
+serveur RNN lui-même, chaque replica consultant la base de données avant chaque prédiction pour détecter un changement 
+de modèle. 
+
+\smallskip
+Cette solution fonctionne, mais introduit une latence supplémentaire et 
+une dépendance à la base de données sur le chemin critique de chaque requête.
+
+% Perspectives
+% À court terme, un doublement des ressources du VPS (4 vCPU, 8 Go de RAM) lèverait les principales contraintes observées et permettrait d'héberger plusieurs applications simultanément sans saturation immédiate.
+% À moyen terme, l'ajout d'une machine secondaire permettrait de tirer pleinement parti du scaling horizontal de Dokploy, en distribuant effectivement la charge plutôt qu'en la répartissant sur les mêmes ressources physiques. Cela apporterait également une forme de résilience élémentaire.
+% Enfin, si les besoins pédagogiques venaient à croître — plus d'utilisateurs, applications plus critiques — une migration vers k3s couplée à une interface de déploiement dédiée constituerait une évolution naturelle, au prix d'une complexité d'administration sensiblement plus élevée.
+
+\section{Perspectives}
+
+Plusieurs axes d'amélioration peuvent être envisagés.
+
+\textbf{À court terme}, une augmentation des ressources du VPS (passage à 4
+vCPU et 8 Go de RAM) permettrait de lever les principales contraintes
+matérielles observées et d'accueillir davantage d'applications
+simultanées.
+
+\textbf{À moyen terme}, l'ajout d'une machine secondaire permettrait de
+distribuer les charges entre deux nœuds, ce que Dokploy supporte
+nativement. Cela apporterait une forme de résilience sans nécessiter
+de migration vers un outil plus complexe.
+
+Enfin, \textbf{si les besoins venaient à croître significativement} (notamment
+en termes de nombre d'utilisateurs ou de criticité des applications)
+une migration vers une solution d'orchestration plus robuste comme
+k3s, couplée à une interface de déploiement dédiée, constituerait une
+évolution naturelle.
+
+% ======================================================================================================================
+\chapter{Conclusion}
+
+Ce projet avait pour objectif de concevoir et déployer une plateforme de type PaaS auto-hébergée, 
+en remplacement du service Render utilisé dans le cours d'IoT du projet DS4H. 
+L'enjeu n'était pas simplement de substituer un outil par un autre, mais de reproduire, dans un contexte contraint, 
+les mécanismes fondamentaux d'un environnement cloud : abstraction de l'infrastructure, 
+déploiement automatisé, isolation des applications, gestion multi-utilisateurs.
+
+La démarche adoptée a consisté à partir des besoins concrets pour évaluer méthodiquement plusieurs solutions existantes,
+avant de retenir Dokploy comme outil le mieux adapté au contexte. 
+Les expérimentations menées ont confirmé la viabilité de cette approche : le déploiement depuis un dépôt Git s'effectue 
+sans intervention manuelle, le scaling horizontal est fonctionnel.
+
+% Ces résultats ont cependant mis en évidence une tension que l'on retrouve à tous les niveaux du cloud computing : entre puissance et complexité, entre élasticité et maîtrise. Sur un VPS de 2 vCPU et 4,2 Go de RAM, le scaling horizontal ne compense pas l'absence d'élasticité réelle — il la rend simplement plus visible. C'est peut-être là la leçon la plus instructive de ce projet : les abstractions du cloud ne font pas disparaître les contraintes physiques, elles les déplacent.
+
+D'un point de vue technique, plusieurs axes restent ouverts. 
+L'autoscaling par substitution de modèle, esquissé en fin de projet, constituerait une réponse 
+originale à la saturation des ressources : plutôt que d'ajouter des instances, 
+adapter dynamiquement la complexité du modèle en fonction de la charge. 
+Cette approche, plus proche de ce que font les systèmes embarqués ou les pipelines ML en production, 
+mériterait d'être plus explorée.
+
+
+
+\appendix
+\chapter{Annexes}
 
 
 % %%%%%%%%%%%%%%%%%% Latence %%%%%%%%%%%%%%%%%%
@@ -601,6 +1024,8 @@ Dans les figures suivantes, nous présentons les résultats obtenus en termes de
   \end{tikzpicture}
   \caption{Latence}
   \end{minipage}
+    \label{fig:latence1replica}
+    \label{fig:latency}
   \hfill
   \begin{minipage}{0.48\textwidth}
   \centering
@@ -632,99 +1057,9 @@ Dans les figures suivantes, nous présentons les résultats obtenus en termes de
   \end{tikzpicture}
   \caption{CPU / RAM}
   \end{minipage}
+    \label{fig:resources}
 
 \end{figure}
-
-% {\color{red} remarquer ???? visuellement, ? mais moi je veux faire une reaction programmée!!}
-
-{\color{red} Tu as fait un truc pour montrer l'impact de l'augmentation du nombre de requetes?}
-
-On peut voir que plus le nombre de workers augmente, plus la latence augmente, et que ca n'a pas d'impact significatif 
-sur l'utilisation de la RAM, et du CPU.
-
-\smallskip
-Cela illustre les limites de notre infrastructure : avec une seule
-instance la capacité de traitement est rapidement saturée.
-
-{\color{red} c'est un coeur qui est saturé ? mais tu as plein de coeur ?
-\color{blue} J'en ai 2 (: }
-
-
-\section{Scalabilité avec Dokploy}
-Dokploy permet de faire deux types de scaling : 
-\begin{enumerate}
-\item Le \textbf{scaling vertical}, qui consiste à augmenter les
-  ressources allouées à une instance (CPU, RAM, etc.)  afin
-  d'améliorer ses performances.
-
-  Cette approche est limitée par les ressources physiques disponibles
-  sur la machine hôte.
-
-\item Et le \textbf{scaling horizontal}, qui consiste à ajouter des
-  machines supplémentaires au cluster.
-
-  Cette approche permet de répartir la charge entre plusieurs nœuds,
-  mais nécessite une configuration plus complexe et une gestion de
-  l'orchestration des conteneurs pour assurer la cohérence et la
-  disponibilité des applications déployées.
-\end{enumerate}
-
-\subsection{Scaling vertical} 
-{\color{blue}Je sais pas trop quoi dire la dessus}
-
-{\color{red} Est ce que tu as un moyen de regler ca dynamiquement ? 
-oui en lancant un docker-run avec une autre taille de memory .... le use case  =>  tu lances un premier container avec pas beaucoup de memoire pour en pas saturer ta machine
-et si tu vois que ca ne suffit pas tu lances un autre avec plus de memoire qui remplace le premier}
-
-\subsection{Scaling horizontal}
-Le scaling horizontal, aussi appelé server scaling\footnote{https://docs.dokploy.com/docs/core/cluster\#server-scaling-methods},
-permet d'ajouter des machines supplémentaires au cluster afin de répartir la charge entre plusieurs nœuds.
-
-\smallskip
-En ajoutant des machines supplémentaires, la répartition des taches est la suivante :
-Une machine principale, dite \textit{manager}, où est installé Dokploy et qui gère le cluster, et une ou plusieurs 
-machines secondaires, dites \textit{workers}. 
-
-\smallskip
-Le manager orchestre les tâches et répartit les conteneurs à déployer 
-entre les workers en fonction de la charge et des ressources disponibles.
-
-\smallskip
-Chaque worker est connecté au registry Docker, ce qui lui permet de récupérer 
-les images nécessaires pour exécuter les applications déployées.
-
-\smallskip
-Le manager est également responsable de la repartition du trafic entrant entre
-les différentes instances de l'application via le reverse proxy Traefik, 
-assurant ainsi une forme de load balancing.
-
-{\color{red} Est ce que le "manager" est programmable ?}
-{\color{red} Des références ? quels algos ?}
-
-\subsection{Scaling horizontal via les réplicas}
-Nous allons donc tester la scalabilité de notre solution en augmentant le nombre d'instances du serveur. 
-
-\smallskip
-Dokploy permet de faire cela facilement depuis le dashboard, en ajustant le nombre de conteneurs déployés pour 
-l'application.
-
-{\color{red} Non ppas depuis le dashboard .. il faut que ca se programme !}
-
-Pour cela, Dokploy nécessite un \texttt{Docker Registry}, qui est un service de stockage et de distribution d'images Docker. 
-Il joue le rôle d'un dépôt centralisé depuis lequel chaque instance peut récupérer l'image de l'application à déployer. 
-Sans ce registry, les différents conteneurs ne pourraient pas accéder à une version commune et cohérente de l'image.
-
-Nous utilisons ici le \texttt{GitHub Container Registry (GHCR)}, qui s'intègre nativement avec notre dépôt GitHub et 
-ne nécessite pas d'infrastructure supplémentaire. Une fois le registry configuré dans Dokploy, il suffit d'ajuster 
-le nombre de réplicas depuis l'onglet \texttt{Advanced} de l'application. Traefik, le reverse proxy intégré à Dokploy, 
-se charge alors automatiquement de répartir le trafic entre les différentes instances.
-
-Pour les évaluations suivantes, les paramètres utilisés pour le stress test sont les suivants :
-\begin{itemize}
-\item \textbf{Nombre de requêtes} : 100
-\item \textbf{Nombre de workers} : 10
-\end{itemize}
-Le nombre de réplicas est ensuite ajusté de 1 à 3, afin d'observer l'impact sur la latence et l'utilisation des ressources.
 
 % =====================================================================
 % Fichier CSV à modifier UNE SEULE FOIS
@@ -884,69 +1219,17 @@ Le nombre de réplicas est ensuite ajusté de 1 à 3, afin d'observer l'impact s
   \end{minipage}
 
   \caption{Impact du nombre de replicas sur la latence et les ressources}
+    \label{fig:scalability}
 \end{figure}
 
-Comme nous pouvons l'observer, le passage de 1 à 2 replicas améliore significativement les performances : 
-la latence moyenne est réduite de moitié (de 1458 ms à 899 ms), les deux vCPU disponibles étant alors pleinement exploités. 
+% screen monitoring 
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.95\textwidth]{assets/monitoring.png}
+  \caption{Dashboard de monitoring de Dokploy}
+  \label{fig:monitoring}
+\end{figure}
 
-\smallskip
-En revanche, l'ajout d'un troisième replica provoque une dégradation sévère : le CPU atteint 96\% de charge, 
-la RAM 93.6\%, et la latence p95 bondit de 1309 ms à 8257 ms. 
-
-{ \color{blue} pas sur, ca reste quand meme interessant ?
-\smallskip
-Cette saturation des ressources entraîne vraisemblablement un recours au swap disque, 
-ce qui explique ces temps de réponse extrêmes. 
-
-% (le serveur a encore crash -_- c'est peut etre l'hébergeur)
-}
-\smallskip
-Sur cette machine, 2 replicas constituent donc le point d'équilibre optimal, 
-au-delà duquel la contention des ressources dégrade fortement les latences.
-
-Dorénavant les tests de performance seront réalisés avec 2 replicas, 
-afin de bénéficier d'une capacité de traitement maximale sans saturer la machine.
-
-\subsection{Autoscaling via l'API de Dokploy}
-\label{sec:autoscaling}
-
-Dokploy expose une API REST complète, accessible depuis
-\texttt{/api} et documentée via une interface Swagger disponible
-à \texttt{<domaine>:3000/swagger}. L'authentification s'effectue
-par clé API, générée depuis le profil administrateur.
-
-\smallskip
-Cette API permet notamment de modifier le nombre de réplicas d'une
-application via l'endpoint \texttt{application.update}, en passant
-le champ \texttt{replicas} dans le corps de la requête :
-
-\smallskip
-Sur cette base, un script d'autoscaling a été développé. Son
-principe est le suivant : il interroge périodiquement (ici toutes les 30 secondes) l'utilisation
-CPU de la machine hôte, et ajuste dynamiquement le nombre de réplicas de la manière suivante :
-\begin{itemize}
-\item Si l'utilisation CPU dépasse 80\%, le script augmente le nombre de réplicas de 1, 
-jusqu'à un maximum de 2, car au-delà la machine est saturée.
-\item Si l'utilisation CPU descend en dessous de 30\%, le script réduit le nombre de réplicas de 1, 
-jusqu'à un minimum de 1.
-\item Si l'utilisation CPU est comprise entre 30\% et 80\%, le nombre de réplicas reste inchangé.
-\end{itemize}
-
-% {\color{red} Parle plus de ce script, montre des courbes !}
-
-Ce script constitue une forme rudimentaire d'autoscaling horizontal,
-analogue au principe du \textit{Horizontal Pod Autoscaler} (HPA)\cite{Kubernetes2025} de
-Kubernetes, mais implémenté sans dépendance à un orchestrateur
-complexe.
-
-% {\color{red} une référence sur HPA ? }
-\smallskip
-Il est important de noter que Dokploy ne propose pas nativement de
-mécanisme d'autoscaling automatique pour les applications non-Compose
-\footnote{Cette fonctionnalité est explicitement listée comme manquante
-dans le suivi des issues du projet.}. 
-Ce script pallie donc cette limite de manière pragmatique, en exploitant l'API existante.
-{\color{blue} verif que je dis ca a la fin (le footenote)}
 
 % =========================================================
 % =========================================================
@@ -968,7 +1251,7 @@ Ce script pallie donc cette limite de manière pragmatique, en exploitant l'API 
       title={Évolution de la latence au cours du temps},
       grid=major,
       legend style={
-          at={(0.5,-0.15)},
+          at={(0.5,-0.20)},
           anchor=north,
           legend columns=3
       },
@@ -1029,265 +1312,88 @@ Ce script pallie donc cette limite de manière pragmatique, en exploitant l'API 
   \label{fig:autoscaling}
 \end{figure}
 
-Comme illustré dans la figure \ref{fig:autoscaling}, nous pouvons observer qu'a partir de la 40ème seconde, 
-{\color{blue} l'autoscaler demande un nouveau réplicas, il est cree jusqu'a la 50eme sec et aprés la latence réduit
-ATTENTION deplacer légende \& faire fig pour le CPU}
+% =========================================================
+% FICHIER CSV
+% =========================================================
+% \def\csvfile{assets/system_metrics.csv}
+\pgfplotstableread[
+    col sep=comma,
+    ignore chars={\%}
+]{assets/autoscaling_server.csv}\csvfile
 
-\section{Orchestration dans Dokploy}
-Dokploy gère l'orchestration des conteneurs via Docker Swarm\cite{DockerSwarm2026}.
+\begin{figure}[h!]
+    \centering
 
-\begin{enumerate}
-\item \textbf{En cas de crash d'une instance}, Docker Swarm détecte la
-  défaillance et si Docker Engine ne parvient pas à redémarrer le
-  conteneur sur le même nœud, Swarm le recrée automatiquement sur un
-  autre nœud du cluster (dans le cas d'une configuration multi-machines)
-  ou dans le même nœud si les ressources le permettent afin de respecter
-  le nombre de réplicas défini pour l'application.
+    \begin{tikzpicture}
+    \begin{axis}[
+        width=0.95\textwidth,
+        height=8cm,
+        xlabel={Temps},
+        ylabel={Utilisation (\%)},
+        title={Évolution des ressources système},
+        grid=major,
+        legend style={
+            at={(0.5,-0.20)},
+            anchor=north,
+            legend columns=3
+        },
+        ymin=0,
+        ymax=100
+    ]
 
+    % =========================================================
+    % CPU
+    % =========================================================
+    \addplot[
+        thick,
+        red
+    ]
+    table[
+        col sep=comma,
+        x expr=\coordindex,
+        y=cpu_percent
+    ]{\csvfile};
 
-  \smallskip
-\item 
-  \textbf{En cas de saturation des ressources}, Docker Swarm ne dispose
-  pas de mécanismes avancés de gestion de la surcharge.
+    \addlegendentry{CPU}
 
-  \smallskip
-  La seule solution consiste à ajuster manuellement le nombre de
-  réplicas ou à augmenter les ressources disponibles sur les nœuds du
-  cluster. Il existe une solution d'autoscaling via l'API de Dokploy,
-  mais elle n'est pas native et nécessite la mise en place d'un script
-  externe comme décrit dans la section \ref{sec:autoscaling}.
+    % =========================================================
+    % RAM
+    % =========================================================
+    \addplot[
+        thick,
+        blue
+    ]
+    table[
+        col sep=comma,
+        x expr=\coordindex,
+        y=mem_percent
+    ]{\csvfile};
 
-  \smallskip
-  Cependant, il est important de noter que l'API de Dokploy ne fournit
-  pas d'informations détaillées sur la la charge ou la latence des
-  applications, ce qui limite la capacité à implémenter un autoscaling
-  réactif et efficace basé sur des métriques précises.
+    \addlegendentry{RAM}
 
-  {\color{red} Qui le fait autre que dokploy ? et si l'app mesurait ca ?}
-\end{enumerate}
+    % =========================================================
+    % SWAP
+    % =========================================================
+    \addplot[
+        thick,
+        dashed,
+        black
+    ]
+    table[
+        col sep=comma,
+        x expr=\coordindex,
+        y=swap_percent
+    ]{\csvfile};
 
-\section{Amélioration du RNN server}
-Afin de mieux 
-J'ai amélioré le code du RNN server afin qu'il puisse sauvegarder le modèle entraîné dans une base de données, 
-et mettre a jour le modèle a chaud pour éviter de devoir réentraîner à chaque changement.
-\subsubsection{Sauvegarde du modèle dans une base de données}
-Premièrement, il a fallu deployer un service PostgreSQL dans le projet Dokploy et creer une table \texttt{models} 
-qui stocke les modèles sérialisés en binaire (BYTEA) avec les champs \texttt{id}, \texttt{name}, \texttt{data}, 
-\texttt{created\_at} et \texttt{is\_active}.
-Ensuite, il a fallu modifier le code du RNN server pour qu'il puisse se connecter à la base de données,
-sauvegarder le modèle entraîné dans la table \texttt{models} via la route \texttt{/upload} et selectionner le modèle
-actif via \texttt{/models/<id>/activate}.
+    \addlegendentry{SWAP}
 
-\subsubsection{Problème lié aux réplicas}
-Comme mentionné précédement, le RNN server est déployé sur plusieurs replicas, et traefik se charge de répartir le 
-trafic entre les différentes instances. Cependant, cela pose un problème : quand on formule la requete \texttt{/upload} 
-ou \texttt{/models/<id>/activate} afin de mettre à jour le modèle actif, la requete n'est traitée que par une seule
-instance. Cela signifie que les autres instances ne sont pas informées du changement de modèle, 
-et continuent à utiliser l'ancien modèle.
+    \end{axis}
+    \end{tikzpicture}
 
-Pour résoudre ce problème une solution a été mise en place : avant chaque prédiction, chaque replica consulte la BDD 
-pour vérifier si le modèle actif a changé (active\_model\_id), et recharge uniquement si nécessaire. 
-Tous les replicas restent ainsi synchronisés sans communication directe entre eux.
-% {\color{blue} déployer ce fix a fait tomber le serveur, et ca m'a fait perdre l'accès SSH !!!}
-
-
-% \section{Multiplication des resources}
-% Dokploy offre également la possibilité de server scaling\footnote{https://docs.dokploy.com/docs/core/cluster#server-scaling-methods}, 
-% qui permet d'ajouter des machines supplémentaires au cluster afin de répartir la charge entre plusieurs nœuds.
-% En ajoutant des machines supplémentaires, la répartition des taches est la suivante :
-% Une machine principale, dite \textit{manager}, où est installé Dokploy et qui gère le cluster, et une ou plusieurs 
-% machines secondaires, dites \textit{workers}. Le manager orchestre les tâches et répartit les conteneurs à déployer 
-% entre les workers en fonction de la charge et des ressources disponibles.
-% ======================================================================================================================
-\chapter{Résultats}
-
-\section{Déploiement}
-
-La première phase d’expérimentation a consisté à déployer l’application
-RNN-Server sur l’infrastructure self-hosted via Dokploy.
-
-Le déploiement a été réalisé à partir d’un dépôt Git connecté à la
-plateforme, permettant une construction automatique de l’image Docker
-et son exécution sur le serveur.
-
-{\color{red} Déja dit ? }
-
-Une fois déployée, l’application est accessible via une URL publique
-configurée (\texttt{rnn.dokploy.claveille.fr}) et exposée sur le port
-5000 via un reverse proxy (Traefik).
-
-Le déploiement s’est effectué sans intervention manuelle sur la
-machine hôte, ce qui confirme le bon fonctionnement du pipeline
-d’intégration entre Git, Docker et Dokploy.
-
-\section{Performance under load}
-
-Afin d’évaluer le comportement de l’application en conditions de
-charge, des requêtes continues ont été envoyées au serveur via le
-client \texttt{RNN\_client.py}.
-
-Les observations montrent qu’à charge constante, une seule instance du
-serveur consomme environ 40\% des ressources CPU disponibles sur la
-machine.
-
-Ce résultat met en évidence une saturation rapide des ressources dans
-le cas d’un modèle mono-instance, ce qui constitue une limite
-importante de la configuration initiale.
-
-L’application reste fonctionnelle, mais les temps de réponse
-augmentent progressivement en fonction du volume de requêtes.
-
-{\color{red} Tu as mesuré ? super interessant de voir si tu depasses les limites de latence ?
-MAIS on ne voit rien }
-
-\section{Horizontal scaling}
-Afin d’évaluer les capacités de montée en charge, plusieurs instances
-du serveur ont été déployées en parallèle.
-Dokploy permet la duplication des conteneurs (réplicas), chacun
-exécutant une instance indépendante de l’application.
-Le trafic entrant est automatiquement réparti entre les instances via
-le reverse proxy Traefik, assurant une forme de load balancing.
-
-Les tests montrent une amélioration de la capacité globale de
-traitement, avec une réduction de la saturation CPU par instance.
-{\color{red} "montrent'' ? à qui ..pourquoi ce n'est pas dans le rapport ?}
-
-Pour une même charge testée, l’exploitation processeur moyenne est ainsi passée d'environ 40 \% à
-20 \% après la mise en place des réplicas et de la répartition de charge.
+    \caption{Évolution de l'utilisation CPU, RAM et SWAP}
+\end{figure}
 
 
-Cependant, cette approche atteint rapidement ses limites dans un
-contexte de ressources matérielles fixes, où l’augmentation du nombre
-d’instances conduit à une contention globale du système.
-
-% ======================================================================================================================
-\chapter{Discussion}
-
-\section{Adéquation de la solution aux besoins}
-
-Les résultats obtenus confirment que Dokploy répond aux quatre critères
-initialement définis. Le déploiement depuis un dépôt Git s'effectue
-sans intervention manuelle sur la machine hôte, la gestion des comptes
-utilisateurs permet une séparation effective des projets, et le
-dashboard offre un accès suffisant aux logs et à l'état des
-applications.
-
-Cependant, ces résultats doivent être nuancés au regard des contraintes
-de l'infrastructure. Avec seulement 2 vCPU et 4.2 Go de RAM, la
-plateforme montre ses limites dès qu'une application commence à
-solliciter significativement les ressources : une seule instance du
-serveur RNN consomme jusqu'à 40\% du CPU disponible, ne laissant que peu de ressources
-pour les autres applications déployées simultanément.
-
-\section{Limites identifiées}
-
-\subsection{Limites matérielles}
-
-La contrainte la plus immédiate est celle du stockage : avec 2.1 Go
-libres au moment du déploiement, le VPS n'a plus beaucoups d'espace
-pour accueillir de nouvelles applications. C'est d'ailleurs cette
-contrainte qui a directement éliminé Coolify de la sélection, dont
-l'image Docker dépasse 20 Go — un exemple concret où les comparatifs
-en ligne ne reflètent pas les réalités d'une infrastructure contrainte.
-
-Le scaling horizontal, bien que fonctionnel techniquement, atteint
-rapidement ses limites sur une machine unique : multiplier les
-instances ne fait que redistribuer une ressource CPU fixe, sans
-l'augmenter. Cette limite est fondamentalement différente de ce
-qu'offrirait un cloud public, où l'élasticité est quasi illimitée.
-
-\subsection{Limites de Dokploy}
-
-Dokploy est un projet récent, avec une communauté encore restreinte.
-Cela implique un support limité et une certaine incertitude sur la
-pérennité de la solution à long terme.
-
-Par ailleurs, bien qu'il supporte le déploiement multi-machines,
-Dokploy n'est pas conçu pour orchestrer une infrastructure complexe.
-Il ne propose pas de mécanismes avancés de tolérance aux pannes, de
-migration automatique de conteneurs ou de gestion fine des ressources
-par application.
-
-% \section{Ce que ce projet n'est pas}
-
-% Il est important de rappeler que la solution déployée ici ne constitue
-% pas un cloud au sens industriel du terme. Elle ne propose pas
-% d'élasticité automatique, ni de haute disponibilité garantie, ni de
-% facturation à l'usage.
-
-% C'est un choix assumé : l'objectif n'était pas de reproduire AWS à
-% petite échelle, mais de fournir un environnement suffisamment simple
-% et maîtrisé pour un usage pédagogique. La complexité accidentelle
-% introduite par des solutions comme Kubernetes ou OpenStack aurait été
-% un obstacle, non un atout, dans ce contexte.
-
-\section{Perspectives}
-
-Plusieurs axes d'amélioration peuvent être envisagés.
-
-\textbf{À court terme}, une augmentation des ressources du VPS (passage à 4
-vCPU et 8 Go de RAM) permettrait de lever les principales contraintes
-matérielles observées et d'accueillir davantage d'applications
-simultanées.
-
-\textbf{À moyen terme}, l'ajout d'une machine secondaire permettrait de
-distribuer les charges entre deux nœuds, ce que Dokploy supporte
-nativement. Cela apporterait une forme de résilience sans nécessiter
-de migration vers un outil plus complexe.
-
-Enfin, \textbf{si les besoins venaient à croître significativement} — notamment
-en termes de nombre d'utilisateurs ou de criticité des applications —
-une migration vers une solution d'orchestration plus robuste comme
-k3s, couplée à une interface de déploiement dédiée, constituerait une
-évolution naturelle.
-
-% ======================================================================================================================
-\chapter{Conclusion}
-
-Ce projet avait pour objectif de concevoir et déployer une plateforme
-de type PaaS auto-hébergée, en remplacement du service Render utilisé
-dans le cours d'IoT du projet DS4H.
-
-\smallskip
-La démarche adoptée a consisté à partir des besoins concrets —
-déploiement simple, gestion multi-utilisateurs, monitoring basique et
-contraintes de ressources — pour évaluer méthodiquement plusieurs
-solutions existantes, avant de retenir Dokploy comme outil le mieux
-adapté au contexte.
-
-\smallskip
-Les expérimentations menées ont confirmé la viabilité de cette
-approche : le déploiement d'une application depuis un dépôt Git
-s'effectue sans intervention manuelle, le scaling horizontal est
-fonctionnel, et l'automatisation via l'API permet d'aller au-delà
-des capacités natives de la plateforme.
-
-\smallskip
-Ces résultats ont cependant mis en évidence les limites inhérentes à
-une infrastructure contrainte : sur un VPS de 2 vCPU et 4.2 Go de
-RAM, la marge de manœuvre reste étroite, et le scaling horizontal
-ne compense pas l'absence d'élasticité réelle.
-
-\smallskip
-Plus largement, ce projet illustre une tension fondamentale du cloud
-computing : entre la puissance des solutions industrielles et la
-complexité qu'elles introduisent. Choisir un outil, c'est aussi
-choisir le niveau de complexité que l'on est prêt à assumer.
-
-\smallskip
-Dans ce cas précis, la contrainte pédagogique a guidé vers une
-solution volontairement simple, maintenable par une seule personne,
-et suffisamment transparente pour que les étudiants puissent se
-concentrer sur leurs applications plutôt que sur l'infrastructure
-qui les héberge.
-
-\smallskip
-{\color{red}
-  \begin{Large}
-  "vers une solution volontairement simple" \ldots je ne sais pas ce qui t'a fait croire ca ?
-  La simplicité ne m'intéresse pas ...la preuve je voulais te faire faire du openstack 
-\end{Large}
-}
 % \printbibliography
 \bibliographystyle{plain}
 \bibliography{refs}
