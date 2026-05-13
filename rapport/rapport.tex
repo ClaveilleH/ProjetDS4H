@@ -44,18 +44,18 @@
 
 % ======================================================================================================================
 \begin{abstract}
-  Ce rapport présente la conception, le déploiement et l’évaluation
-  d’une solution de cloud self-hosted dans le cadre du projet DS4H.
+  Ce rapport présente la conception, le déploiement et l'évaluation
+  d'une solution de cloud self-hosted dans le cadre du projet DS4H.
 
   \smallskip
-  L’objectif principal est de choisir et fournir une alternative
+  L'objectif principal est de choisir et fournir une alternative
   locale au service "Render" utilisé jusqu'alors dans le cours
-  d’IoT. Ceci permettra aux étudiants de déployer et de gérer des
-  applications IoT dans un modèle PaaS (Plateform As A Service).
+  d'IoT. Celui ci permettra aux étudiants de déployer et de gérer des
+  applications IoT dans un modèle PaaS (\textit{Platform as a Service}).
 
   \smallskip
   La spécification "Self Hosted" doit permettre à la formation de ne
-  plus dépendre d’un service cloud externe. En ce sens, on rejoint
+  plus dépendre d'un service cloud externe. En ce sens, on rejoint
   ainsi une démarche de cloud privé.
 
   \smallskip
@@ -72,16 +72,16 @@
 \section{Contexte}  
 Dans le cadre du projet \textbf{DS4H}, il m'a été confié la mission de
 concevoir et déployer une \textbf{solution self-hosted} pour remplacer
-le service \textbf{Render} utilisé dans le cours d’\textbf{IoT}.
+le service \textbf{Render} utilisé dans le cours d'\textbf{IoT}.
 
-L’objectif est de fournir une alternative locale, souveraine et
-maîtrisée, permettant aux étudiants et enseignants de déployer, gérer
-et monitorer des applications IoT sans dépendre d’un service cloud
+L'objectif est de fournir une alternative locale %, souveraine etmaîtrisée, 
+permettant aux étudiants et enseignants de déployer, gérer
+et monitorer des applications IoT sans dépendre d'un service cloud
 externe.
 
-Ce besoin, bien que formulé dans un contexte pédagogique, s’inscrit en
+Ce besoin, bien que formulé dans un contexte pédagogique, s'inscrit en
 réalité dans une problématique plus large : celle du \textbf{cloud
-computing} et de ses différentes formes d’exploitation.
+computing} et de ses différentes formes d'exploitation.
 
 En effet, remplacer un service comme Render ne consiste pas uniquement
 à déployer une application sur un serveur. 
@@ -89,15 +89,15 @@ En effet, remplacer un service comme Render ne consiste pas uniquement
 Cela implique de reproduire, à plus petite échelle, un ensemble de
 mécanismes caractéristiques du cloud moderne :
 \begin{itemize}
-\item abstraction de l’infrastructure,
+\item abstraction de l'infrastructure,
 \item déploiement automatisé, 
 \item isolation des applications,
-\item gestion multi-utilisateurs 
+\item gestion multi-utilisateurs,
 \item élasticité des ressources.
 \end{itemize}
 
 Autrement dit, ce projet revient à concevoir une \textbf{plateforme de
-type PaaS}\footnote{Platform as a Service} simplifiée, adaptée à un contexte
+type PaaS}\footnote{\textit{Platform as a Service}} simplifiée, adaptée à un contexte
 contraint (une seule machine, ressources limitées, utilisateurs non
 experts).
 
@@ -105,29 +105,29 @@ Afin de comprendre les enjeux techniques et les choix réalisés dans ce
 travail, il est donc nécessaire de replacer cette problématique dans
 son contexte historique et conceptuel.
 
-\section{State of the Art}
+\section{État de l'art}
 
-\subsection{De l’abstraction des ressources au cloud computing}
+\subsection{De l'abstraction des ressources au cloud computing}
 
-L’idée d’abstraire les ressources informatiques précède largement
-l’émergence du cloud computing moderne. Dès les premiers systèmes
-d’exploitation, comme Multics, apparaît le concept de « computer
+L'idée d'abstraire les ressources informatiques précède largement
+l'émergence du cloud computing moderne. Dès les premiers systèmes
+d'exploitation, comme Multics, apparaît le concept de « computer
 utility », dans lequel la puissance de calcul est perçue comme un
 service accessible à la demande, indépendamment de la machine
 physique sous-jacente \cite{Multics1965}.
 
 Ce changement de paradigme introduit un principe fondamental du cloud :
-l’utilisateur interagit avec une interface abstraite, tandis que
-l’infrastructure réelle est masquée et gérée séparément.
+l'utilisateur interagit avec une interface abstraite, tandis que
+l'infrastructure réelle est masquée et gérée séparément.
 
 Dans le cadre de ce projet, cette abstraction est essentielle, car les
 utilisateurs (étudiants) doivent pouvoir déployer leurs applications
-sans avoir à manipuler directement l’infrastructure système.
+sans avoir à manipuler directement l'infrastructure système.
 
 \subsection{Systèmes distribués et accès distant}
 
-L’accès distant aux ressources de calcul est une idée fondatrice de
-l’informatique. Dès 1940, \textit{George Stibitz} démontre la possibilité
+L'accès distant aux ressources de calcul est une idée fondatrice de
+l'informatique. Dès 1940, \textit{George Stibitz} démontre la possibilité
 de piloter une machine à distance via une liaison télégraphique
 \cite{Stibitz2012}.
 
@@ -136,52 +136,52 @@ Computing, dans lesquels plusieurs machines collaborent pour exécuter
 des tâches complexes \cite{Foster2001}.
 
 Ces approches introduisent des concepts clés tels que le partage de
-ressources, la transparence réseau et l’exécution distribuée, qui sont
+ressources, la transparence réseau et l'exécution distribuée, qui sont
 au cœur des plateformes cloud modernes.
 
-Aujourd’hui, une application n’est plus nécessairement liée à une
+Aujourd'hui, une application n'est plus nécessairement liée à une
 seule machine, mais peut être répartie sur plusieurs instances,
 améliorant ainsi la scalabilité et la tolérance aux pannes.
 
 \subsection{Informatique orientée services}
 
-L’émergence du Software as a Service (SaaS) marque une rupture majeure
+L'émergence du Software as a Service (SaaS) marque une rupture majeure
 dans la manière de consommer les logiciels. À partir de la fin des
 années 1990, des entreprises comme Salesforce proposent des
 applications accessibles via un navigateur web \cite{Salesforce1999}.
 
-Ce modèle introduit l’idée que les différentes couches de
-l’informatique (logiciel, plateforme, infrastructure) peuvent être
+Ce modèle introduit l'idée que les différentes couches de
+l'informatique (logiciel, plateforme, infrastructure) peuvent être
 fournies sous forme de services \cite{NIST2026}.
 
-Cette approche est directement liée à l’objectif de ce projet, qui
-consiste à remplacer Render, une plateforme de type PaaS\footnote{Platform as a Service}, par une
+Cette approche est directement liée à l'objectif de ce projet, qui
+consiste à remplacer Render, une plateforme de type PaaS\footnote{\textit{Platform as a Service}}, par une
 solution auto-hébergée offrant des fonctionnalités similaires de
-déploiement et de gestion d’applications.
+déploiement et de gestion d'applications.
 
 \subsection{Virtualisation et conteneurisation}
 
 La virtualisation est une technologie clé ayant permis
-l’essor du cloud computing. Elle permet d’exécuter plusieurs
+l'essor du cloud computing. Elle permet d'exécuter plusieurs
 environnements isolés sur une même machine physique, optimisant ainsi
-l’utilisation des ressources \cite{VMware2007}.
+l'utilisation des ressources \cite{VMware2007}.
 
 Cependant, les machines virtuelles présentent certaines limites,
 notamment en termes de consommation de ressources et de temps de
-démarrage. Ces contraintes ont conduit à l’émergence des conteneurs,
+démarrage. Ces contraintes ont conduit à l'émergence des conteneurs,
 qui offrent une isolation plus légère en partageant le noyau du
 système hôte \cite{Merkel2014}.
 
-Les conteneurs sont aujourd’hui devenus l’unité standard de déploiement
-dans les environnements cloud, car ils permettent d’assurer la
+Les conteneurs sont aujourd'hui devenus l'unité standard de déploiement
+dans les environnements cloud, car ils permettent d'assurer la
 portabilité et la reproductibilité des applications.
 
 Dans ce projet, cette approche est centrale, puisque la solution
-retenue (Dokploy) repose sur l’utilisation de conteneurs Docker pour
+retenue (Dokploy) repose sur l'utilisation de conteneurs Docker pour
 le déploiement et la gestion des applications.
 
-\subsection{Orchestration et automatisation}
-L’orchestration des conteneurs, 
+% \subsection{Orchestration et automatisation}
+% L'orchestration des conteneurs, 
 
 \subsection{Modèles du cloud computing}
 
@@ -191,37 +191,37 @@ modèles de déploiement :
 \begin{itemize}
 \item \textbf{Cloud public} : les ressources sont fournies par un
 prestataire externe et mutualisées entre plusieurs utilisateurs.
-\item \textbf{Cloud privé} : l’infrastructure est dédiée à une seule
+\item \textbf{Cloud privé} : l'infrastructure est dédiée à une seule
 organisation.
 \item \textbf{Cloud hybride} : combinaison des deux approches.
 \end{itemize}
 
 Par ailleurs, les modèles de service définissent le niveau
-d’abstraction proposé \cite{NIST2026, ISO2026} :
+d'abstraction proposé \cite{NIST2026, ISO2026} :
 
 \begin{itemize}
-\item \textbf{IaaS} (Infrastructure as a Service) : mise à disposition
+\item \textbf{IaaS} (\textit{Infrastructure as a Service}) : mise à disposition
 de ressources matérielles virtualisées.
-\item \textbf{PaaS} (Platform as a Service) : environnement de
-déploiement d’applications.
-\item \textbf{SaaS} (Software as a Service) : accès à des logiciels
+\item \textbf{PaaS} (\textit{Platform as a Service}) : environnement de
+déploiement d'applications.
+\item \textbf{SaaS} (\textit{Software as a Service}) : accès à des logiciels
 complets.
 \end{itemize}
 
 La solution développée dans ce projet peut être interprétée comme une
 forme simplifiée de PaaS, déployée sur une infrastructure
-self-hosted, s’apparentant à un cloud privé.
+self-hosted, s'apparentant à un cloud privé.
 
 \subsection{DevOps et Infrastructure as Code}
 
-Le cloud computing moderne repose fortement sur l’automatisation.
-L’Infrastructure as Code (IaC) permet de définir et de gérer
-l’infrastructure à l’aide de fichiers de configuration, garantissant
+Le cloud computing moderne repose fortement sur l'automatisation.
+L'\textit{Infrastructure as Code} (IaC) permet de définir et de gérer
+l'infrastructure à l'aide de fichiers de configuration, garantissant
 la reproductibilité et la cohérence des environnements \cite{Morris2016}.
 
 Parallèlement, les pratiques DevOps visent à réduire la séparation
 entre développement et exploitation, notamment grâce à
-l’automatisation des déploiements et à l’intégration continue
+l'automatisation des déploiements et à l'intégration continue
 \cite{Bass2015}.
 
 Ces concepts se retrouvent dans les outils modernes de déploiement,
@@ -229,18 +229,18 @@ qui permettent de connecter un dépôt de code à une infrastructure
 capable de construire et déployer automatiquement une application.
 
 Dans ce projet, ces principes sont directement appliqués à travers
-l’utilisation de Dokploy, qui automatise le déploiement d’applications
+l'utilisation de Dokploy, qui automatise le déploiement d'applications
 à partir de dépôts Git et fournit un environnement cohérent pour les
 utilisateurs.
 
-\section{Problem statement}
+\section{Problématique}
 
 Le besoin identifié dans le cadre du projet ne se limite pas à un
 simple remplacement fonctionnel du service Render. 
 
 \smallskip
-Il s’agit en réalitéde déployer une plateforme capable de reproduire, dans un contexte
-contraint, certaines propriétés fondamentales d’un environnement cloud.
+Il s'agit en réalité de déployer une plateforme capable de reproduire, dans un contexte
+contraint, certaines propriétés fondamentales d'un environnement cloud.
 
 \smallskip
 Le problème peut être formulé de la manière suivante :
@@ -255,12 +255,12 @@ de ressources, de simplicité et de maintenabilité ?
 Cette problématique introduit plusieurs contraintes majeures.
 
 \smallskip
-Tout d’abord, l’infrastructure disponible est limitée : le système doit
+Tout d'abord, l'infrastructure disponible est limitée : le système doit
 fonctionner sur un nombre restreint de machines, avec des ressources
 finies en termes de CPU, mémoire et stockage. 
 
 \smallskip
-Contrairement auxfournisseurs de cloud public, il n’est pas possible de s’appuyer sur
+Contrairement aux fournisseurs de cloud public, il n'est pas possible de s'appuyer sur
 une élasticité quasi infinie.
 
 \smallskip
@@ -272,9 +272,9 @@ La solution doit donc masquer la complexité technique et proposer une
 interface simple et accessible.
 
 \smallskip
-Enfin, le projet s’inscrit dans un contexte pédagogique, impliquant une
+Enfin, le projet s'inscrit dans un contexte pédagogique, impliquant une
 facilité de déploiement, de maintenance et de reproduction de
-l’infrastructure, idéalement par une seule personne.
+l'infrastructure, idéalement par une seule personne.
 
 \smallskip
 À partir de ces contraintes, plusieurs objectifs techniques peuvent
@@ -282,20 +282,20 @@ l’infrastructure, idéalement par une seule personne.
 
 \begin{itemize}
 \item \textbf{Simplicité de déploiement} : permettre aux utilisateurs de
-déployer une application avec un minimum d’interactions techniques.
+déployer une application avec un minimum d'interactions techniques.
 \item \textbf{Isolation des applications} : garantir que les différentes
-applications déployées ne perturbent pas l’environnement global.
+applications déployées ne perturbent pas l'environnement global.
 \item \textbf{Gestion multi-utilisateurs} : offrir un système de comptes
 permettant de séparer les usages.
 \item \textbf{Monitoring basique} : fournir un accès aux logs et à
-l’état des applications.
-\item \textbf{Maîtrise des ressources} : limiter l’empreinte système
-afin de préserver les capacités de l’infrastructure.
+l'état des applications.
+\item \textbf{Maîtrise des ressources} : limiter l'empreinte système
+afin de préserver les capacités de l'infrastructure.
 \end{itemize}
 
-Ces objectifs serviront de critères d’évaluation pour comparer les
+Ces objectifs serviront de critères d'évaluation pour comparer les
 différentes solutions techniques envisagées dans la suite de ce
-rapport, et justifier le choix final de l’architecture retenue.
+rapport, et justifier le choix final de l'architecture retenue.
 
 
 % ======================================================================================================================
@@ -304,7 +304,7 @@ rapport, et justifier le choix final de l’architecture retenue.
 \section{Infrastructure disponible}
 
 L'ensemble des expérimentations a été réalisé sur un serveur privé
-virtuel (VPS) tournant sous Debian GNU/Linux 12 (Bookworm), 
+virtuel (VPS) fonctionnant sous Debian GNU/Linux 12 (Bookworm), 
 disposant des ressources suivantes :
 
 \begin{itemize}
@@ -316,12 +316,12 @@ disposant des ressources suivantes :
 \vspace{0.5cm}
 
 Cette contrainte est déterminante, car elle impose des limites strictes
-en termes de mémoire, de puissance de calcul et d’espace disque. 
+en termes de mémoire, de puissance de calcul et d'espace disque. 
 
 \smallskip
-Contrairementaux environnements cloud publics, aucune élasticité automatique n’est
-possible automatiquement, dans le cadre d'un VPS, il faut faire une demande de changement 
-de plan pour augmenter les ressources, et dans le cas d'une machine physique, 
+Contrairement aux environnements cloud publics, aucune élasticité automatique n'est
+possible dans le cadre d'un VPS : il faut faire une demande de changement 
+de plan pour augmenter les ressources. Dans le cas d'une machine physique, 
 il faut acheter du matériel supplémentaire pour faire du scaling vertical.
 % {\color{red} POURQUOI ?? ... seulement des capacités mémoires  ?
 
@@ -344,7 +344,7 @@ présentés dans la suite de cette section.
 Plusieurs solutions de cloud self-hosted ont été étudiées afin de
 répondre aux besoins identifiés dans la section précédente.
 
-% L’objectif n’est pas de construire une infrastructure industrielle,
+% L'objectif n'est pas de construire une infrastructure industrielle,
 % mais de sélectionner une solution adaptée à un contexte pédagogique,
 % avec un compromis entre fonctionnalités et complexité.
 
@@ -365,15 +365,15 @@ Les solutions ont été évaluées selon les critères suivants :
 
 \textbf{OpenStack}~\cite{openstack} se définit comme un système d'exploitation
 cloud qui contrôle de larges pools de ressources de calcul, de stockage et de
-réseau à travers un datacenter, gérées via des APIs ou un tableau de bord~\cite{openstack}.
+réseau à travers un datacenter, gérés via des API ou un dashboard. %~\cite{openstack}.
 Sa complexité et ses besoins matériels le rendent toutefois inadapté à une
 infrastructure limitée.
 \smallskip
 
 \textbf{Kubernetes (k3s)}~\cite{k3s} est une distribution Kubernetes certifiée,
 hautement disponible, conçue pour des charges de production dans des environnements
-contraints en ressources. Il se conditionne en un unique binaire de moins de 70 Mo,
-réduisant les dépendances nécessaires à son installation et son exécution~\cite{k3s}.
+contraints en ressources. Il se présente sous la forme d'un unique binaire de moins de 70 Mo,
+ce qui réduit les dépendances nécessaires à son installation et à son exécution.
 Malgré sa légèreté, il introduit une complexité d'orchestration qui dépasse les
 besoins du projet.
 \smallskip
@@ -381,22 +381,22 @@ besoins du projet.
 \textbf{Dokku}~\cite{dokku} est une plateforme PaaS open-source extensible
 qui s'exécute sur un serveur unique. Il permet de construire des applications
 à la volée depuis un \texttt{git push}, via un Dockerfile ou en détectant
-automatiquement le langage avec des Buildpacks~\cite{dokku}. Cette approche
+automatiquement le langage avec des Buildpacks. Cette approche
 reste cependant limitée en termes d'interface utilisateur et de gestion
 multi-utilisateurs.
 \smallskip
 
 \textbf{CapRover}~\cite{caprover} se présente comme un gestionnaire de déploiement
-d'applications et de serveur web, extrêmement simple d'utilisation, s'appuyant
+d'applications et de serveurs web, extrêmement simple d'utilisation, s'appuyant
 sur Docker, nginx, Let's Encrypt et NetData derrière une interface
-épurée~\cite{caprover}. Il reste néanmoins limité dans la gestion fine des
+épurée. Il reste néanmoins limité dans la gestion fine des
 utilisateurs.
 \smallskip
 
 \textbf{Coolify}~\cite{coolify} est une plateforme PaaS open-source qui simplifie
 l'auto-hébergement d'applications, de bases de données et de services sur son
 propre serveur, compatible avec un large éventail de langages et de
-frameworks~\cite{coolify}. Sa consommation importante de ressources le rend
+frameworks. Sa consommation importante de ressources le rend
 incompatible avec l'infrastructure disponible.
 
 \begin{table}[h!]
@@ -421,7 +421,7 @@ Dokploy          & \checkmark & \checkmark & \checkmark & Faible      & Faibles 
 
 \section{Solution retenue : Dokploy}
 
-Au regard des critères définis, \textbf{Dokploy} a été retenu comme
+Au regard des critères définis, \textbf{Dokploy}\cite{dokploy}   a été retenu comme
 solution principale.
 
 Ce choix repose sur plusieurs éléments :
@@ -434,32 +434,32 @@ Ce choix repose sur plusieurs éléments :
 \item Une consommation de ressources compatible avec le VPS.
 \end{itemize}
 
-Dokploy repose sur l’utilisation de conteneurs Docker pour isoler les
-applications et sur un reverse proxy \footnote{Reverse proxy : Traefik décrit plus en détail plus tard} pour exposer les services.
+Dokploy repose sur l'utilisation de conteneurs Docker pour isoler les
+applications et sur un reverse proxy\footnote{Reverse proxy : Traefik est décrit plus en détail plus loin.} pour exposer les services.
 
 \smallskip
-Il constitue ainsi une implémentation légère d’une plateforme de type
+Il constitue ainsi une implémentation légère d'une plateforme de type
 PaaS, adaptée à un contexte pédagogique.
 
 % \newpage
 \section{Application déployée : MNIST cloud classification}
 
-Afin d’évaluer la solution retenue, une application de test a été
+Afin d'évaluer la solution retenue, une application de test a été
 déployée.
 
 \begin{center}
     \includegraphics[scale=0.3]{assets/classif_mnist_cloud}
 \end{center}
 
-Il s’agit d’un serveur de classification de texte basé sur un réseau
+Il s'agit d'un serveur de classification d'images basé sur un réseau
 de neurones récurrent (RNN), permettant de simuler une charge réaliste.
 
 \smallskip
-Le RNN a été entraîné sur le dataset MNIST, qui contient des images de chiffres manuscrits, 
-afin de pouvoir classer des images envoyées par les clients.
+Le RNN a été entraîné sur le jeu de données MNIST, qui contient des images de chiffres manuscrits, 
+afin de pouvoir classer les images envoyées par les clients.
 
 \smallskip
-L’application est composée de trois éléments :
+L'application est composée de trois éléments :
 
 \begin{itemize}
     \item \textbf{RNN\_factory.py} : génération et entraînement du modèle.
@@ -486,20 +486,20 @@ Cette application a été choisie car elle permet :
 \begin{itemize}
 \item de simuler une charge CPU significative,
 \item de tester la stabilité du déploiement,
-\item d’évaluer la capacité de montée en charge de la plateforme.
+\item d'évaluer la capacité de montée en charge de la plateforme.
 \end{itemize}
 
 % \vspace{0.5cm}
 % Le déploiement repose sur un conteneur Docker, défini par un
 % \texttt{Dockerfile} et un fichier \texttt{requirements.txt} décrivant
 % les dépendances (notamment TensorFlow et Flask) qu'il a fallu creer et déposer sur dépôt GitHub
-% Pour le déploiement, un repto GitHub a été créé, contenant le code de l’application ainsi que les fichiers nécessaires 
-% à la construction de l’image Docker qui sont : 
+% Pour le déploiement, un repto GitHub a été créé, contenant le code de l'application ainsi que les fichiers nécessaires 
+% à la construction de l'image Docker qui sont : 
 % \begin{itemize}
-% \item \textbf{Dockerfile} : décrit les étapes de construction de l’image.
+% \item \textbf{Dockerfile} : décrit les étapes de construction de l'image.
 % \item \textbf{requirements.txt} : liste les dépendances Python nécessaires.
 % \end{itemize}
-% Ensuite, ce dépôt a été connecté à Dokploy, permettant une construction et un déploiement automatiques de l’application 
+% Ensuite, ce dépôt a été connecté à Dokploy, permettant une construction et un déploiement automatiques de l'application 
 % à chaque mise à jour du code.
 
 
@@ -514,24 +514,24 @@ nommée "RNN-Server".
 
 
 \smallskip
-Plusieurs approches de déploiement sont envisageables:
+Plusieurs approches de déploiement sont envisageables :
 \begin{itemize}[label=$\bullet$] 
-\item Il est possible d’utiliser une image Docker préalablement
+\item Il est possible d'utiliser une image Docker préalablement
   construite et publiée sur un registre (tel que Docker Hub ou GitHub
   Container Registry), que Dokploy peut déployer directement.
 
 \item Une autre option consiste à fournir directement les fichiers
-  sources à Dokploy afin qu’il construise l’image à partir d’un
+  sources à Dokploy afin qu'il construise l'image à partir d'un
   Dockerfile.
 
 \item Enfin, il est également possible de connecter un dépôt Git
-  (GitHub, GitLab, etc.) afin d’automatiser le processus de
+  (GitHub, GitLab, etc.) afin d'automatiser le processus de
   déploiement lors de chaque mise à jour du code.
 \end{itemize}
 
 \smallskip
 Dans le cadre de ce projet, la troisième approche a été retenue afin
-de bénéficier d’un flux de travail plus intégré et automatisé.
+de bénéficier d'un flux de travail plus intégré et automatisé.
 
 \smallskip
 Un dépôt Git est donc créé pour le projet, dans lequel sont ajoutés
@@ -540,7 +540,7 @@ les fichiers \texttt{RNN\_factory.py}, \texttt{RNN\_client.py} et
 
 \smallskip
 Un fichier \texttt{Dockerfile} est ensuite défini afin de spécifier
-les étapes de construction de l’image de l’application, ainsi qu’un
+les étapes de construction de l'image de l'application, ainsi qu'un
 fichier \texttt{requirements.txt} listant les dépendances nécessaires,
 telles que TensorFlow et Flask.
 
@@ -548,27 +548,27 @@ telles que TensorFlow et Flask.
 \smallskip
 Du côté de Dokploy, le projet est configuré pour se connecter au dépôt
 Git et pour utiliser le Dockerfile afin de construire automatiquement
-l’image à chaque nouvelle version poussée sur le dépôt.
+l'image à chaque nouvelle version poussée sur le dépôt.
 
 \smallskip
 La commande de lancement du serveur est également définie, à savoir :
 \texttt{gunicorn --bind 0.0.0.0:5000 RNN\_server:app}.
 
 \smallskip
-Enfin il faut parametrer le domaine sur lequel va répondre l'api, (ici %j'ai choisi
-\texttt{rnn.dokpoly.claveille.fr}) et le port pour Traefik (ici : 5000).
+Enfin, il faut paramétrer le domaine auquel l'API va répondre (ici
+\texttt{rnn.dokploy.claveille.fr}) et le port utilisé par Traefik (ici : 5000).
 
 \smallskip
 Une fois la configuration terminée, le déploiement peut être
 initié.
 
 \smallskip
-Dokploy se charge alors de construire l’image Docker, de la
-déployer sur le cluster, puis d’exposer le service via une URL
+Dokploy se charge alors de construire l'image Docker, de la
+déployer sur le cluster, puis d'exposer le service via une URL
 accessible.
 
 \section{Monitoring et gestion des logs}
-Dokploy offre un dashboard centralisé permettant de visualiser l'état des applications déployées,ainsi que les 
+Dokploy offre un dashboard centralisé permettant de visualiser l'état des applications déployées, ainsi que les 
 logs générés par les conteneurs (voir Figure \ref{fig:monitoring}).
 
 \smallskip
@@ -587,7 +587,7 @@ Le script \texttt{RNN\_stress\_test.py} possède plusieurs paramètres configura
 \end{itemize}
 
 % \smallskip
-% Dans les figures suivantes, nous présentons les résultats obtenus en termes de latence et d’utilisation des ressources 
+% Dans les figures suivantes, nous présentons les résultats obtenus en termes de latence et d'utilisation des ressources 
 % (CPU et RAM) en fonction du nombre de workers utilisés pour le stress test.
 \smallskip
 Les résultats sont présentés dans les figures \ref{fig:latency} et \ref{fig:resources}, et seront discutés plus en 
@@ -604,7 +604,7 @@ détail dans la section \ref{sec:results-perf}.
 
 
 \section{Scalabilité avec Dokploy}
-Dokploy permet de faire deux types de scaling : 
+Dokploy permet deux types de scaling : 
 \begin{enumerate}
 \item Le \textbf{scaling vertical}, qui consiste à augmenter les
   ressources allouées à une instance (CPU, RAM, etc.)  afin
@@ -635,7 +635,7 @@ permet d'ajouter des machines supplémentaires au cluster afin de répartir la c
 
 \smallskip
 \textbf{Architecture du cluster.}
-En ajoutant des machines supplémentaires, la répartition des taches est la suivante :
+En ajoutant des machines supplémentaires, la répartition des tâches est la suivante :
 \begin{itemize}
 \item Une machine principale, dite \textit{manager}, où est installé Dokploy et qui gère le cluster, et une ou plusieurs 
 machines secondaires, dites \textit{workers}. 
@@ -645,7 +645,7 @@ entre les workers en fonction de la charge et des ressources disponibles.
 \item Chaque worker est connecté au registry Docker, ce qui lui permet de récupérer 
 les images nécessaires pour exécuter les applications déployées.
 
-\item Le manager est également responsable de la repartition du trafic entrant entre
+\item Le manager est également responsable de la répartition du trafic entrant entre
 les différentes instances de l'application via le reverse proxy Traefik, 
 assurant ainsi une forme de load balancing.
 \end{itemize}   
@@ -675,11 +675,11 @@ Nous allons donc tester la scalabilité de notre solution en augmentant le nombr
 Dokploy permet de faire cela facilement depuis le dashboard, en ajustant le nombre de conteneurs déployés pour 
 l'application.
 
-% {\color{red} Non ppas depuis le dashboard .. il faut que ca se programme !}
-
 Pour cela, Dokploy nécessite un \texttt{Docker Registry}, qui est un service de stockage et de distribution d'images Docker. 
 Il joue le rôle d'un dépôt centralisé depuis lequel chaque instance peut récupérer l'image de l'application à déployer. 
 Sans ce registry, les différents conteneurs ne pourraient pas accéder à une version commune et cohérente de l'image.
+
+L'organisation est décrite dans la Figure \ref{fig:schema2}.
 
 Nous utilisons ici le \texttt{GitHub Container Registry (GHCR)}, qui s'intègre nativement avec notre dépôt GitHub et 
 ne nécessite pas d'infrastructure supplémentaire. Une fois le registry configuré dans Dokploy, il suffit d'ajuster 
@@ -692,7 +692,7 @@ Pour les évaluations suivantes, les paramètres utilisés pour le stress test s
 \item \textbf{Nombre de workers} : 10
 \end{itemize}
 Le nombre de réplicas est ensuite ajusté de 1 à 3, afin d'observer l'impact sur la latence et l'utilisation des ressources.
-Voir les résultats dans la section \ref{sec:results-scaling}, Figure \ref{fig:scalability}.
+Les résultats sont présentés dans la section \ref{sec:results-scaling} et dans la Figure \ref{fig:scalability}.
 
 
 \subsection{Autoscaling via l'API de Dokploy}
@@ -736,7 +736,7 @@ dans le suivi des issues du projet.}.
 Ce script pallie donc cette limite de manière pragmatique, en exploitant l'API existante.
 % {\color{blue} verif que je dis ca a la fin (le footenote)}
 
-La donnée ainsi collectée est agrégée par fenêtre de 2 secondes afin d'augmenter la lisibilité des courbes(\ref{fig:autoscaling}).
+Les données ainsi collectées sont agrégées par fenêtres de 2 secondes afin d'augmenter la lisibilité des courbes (Figure \ref{fig:autoscaling}).
 % \label{fig:autoscaling}
 
 \section{Orchestration dans Dokploy}
@@ -765,7 +765,7 @@ Dokploy gère l'orchestration des conteneurs via Docker Swarm\cite{DockerSwarm20
 
   \smallskip
   Cependant, il est important de noter que l'API de Dokploy ne fournit
-  pas d'informations détaillées sur la la charge ou la latence des
+  pas d'informations détaillées sur la charge ou la latence des
   applications, ce qui limite la capacité à implémenter un autoscaling
   réactif et efficace basé sur des métriques précises.
 
@@ -775,40 +775,40 @@ Dokploy gère l'orchestration des conteneurs via Docker Swarm\cite{DockerSwarm20
 \section{Amélioration du RNN server}
 Afin d'essayer de tirer parti des fonctionnalités de Dokploy, notamment la gestion d'une base de données, 
 le code du RNN server a été amélioré afin qu'il puisse sauvegarder le modèle entraîné dans une base de données, 
-et mettre a jour le modèle a chaud pour éviter de devoir réentraîner à chaque changement.
+et mettre à jour le modèle à chaud pour éviter de devoir le réentraîner à chaque changement (voir Figure \ref{fig:schema2}).
 
 \subsubsection{Sauvegarde du modèle dans une base de données}
-Premièrement, il a fallu deployer un service PostgreSQL dans le projet Dokploy et creer une table \texttt{models} 
+Premièrement, il a fallu déployer un service PostgreSQL dans le projet Dokploy et créer une table \texttt{models} 
 qui stocke les modèles sérialisés en binaire (BYTEA) avec les champs \texttt{id}, \texttt{name}, \texttt{data}, 
 \texttt{created\_at} et \texttt{is\_active}.
 
 \smallskip
 Ensuite, il a fallu modifier le code du RNN server pour qu'il puisse se connecter à la base de données,
-sauvegarder le modèle entraîné dans la table \texttt{models} via la route \texttt{/upload} et selectionner le modèle
+sauvegarder le modèle entraîné dans la table \texttt{models} via la route \texttt{/upload} et sélectionner le modèle
 actif via \texttt{/models/<id>/activate}.
 
 \subsubsection{Problème lié aux réplicas}
-Comme mentionné précédement, le RNN server est déployé sur plusieurs replicas, et traefik se charge de répartir le 
+Comme mentionné précédemment, le RNN server est déployé sur plusieurs réplicas, et Traefik se charge de répartir le 
 trafic entre les différentes instances. 
 
 \smallskip
-Cependant, cela pose un problème : quand on formule la requete \texttt{/upload} 
-ou \texttt{/models/<id>/activate} afin de mettre à jour le modèle actif, la requete n'est traitée que par une seule
+Cependant, cela pose un problème : lorsqu'on envoie une requête \texttt{/upload} 
+ou \texttt{/models/<id>/activate} afin de mettre à jour le modèle actif, la requête n'est traitée que par une seule
 instance. 
 
 \smallskip
 Cela signifie que les autres instances ne sont pas informées du changement de modèle, 
 et continuent à utiliser l'ancien modèle.
 
-Pour résoudre ce problème une solution a été mise en place : avant chaque prédiction, chaque replica consulte la BDD 
+Pour résoudre ce problème, une solution a été mise en place : avant chaque prédiction, chaque réplica consulte la BDD 
 pour vérifier si le modèle actif a changé (active\_model\_id), et recharge uniquement si nécessaire. 
-Tous les replicas restent ainsi synchronisés sans communication directe entre eux.
+Tous les réplicas restent ainsi synchronisés sans communication directe entre eux.
 % {\color{blue} déployer ce fix a fait tomber le serveur, et ca m'a fait perdre l'accès SSH !!!}
 
-\subsection{Amelioration de l'autoscaling}
+\subsection{Amélioration de l'autoscaling}
 Afin d'améliorer le script d'autoscaling décrit dans la section \ref{sec:autoscaling}, une nouvelle fonctionnalité a été ajoutée : 
 si le nombre de réplicas atteint le maximum autorisé (2 dans notre cas) et que l'utilisation CPU dépasse toujours 80\%,
-le script fais une requete à l'endpoint \texttt{/models/<id>/activate} pour activer un modèle plus léger 
+le script fait une requête à l'endpoint \texttt{/models/<id>/activate} pour activer un modèle plus léger 
 (moins de neurones, moins de couches) qui consomme moins de ressources.
 
 La logique est donc la suivante :
@@ -817,11 +817,11 @@ La logique est donc la suivante :
     \item Si CPU > 80\% et replicas < MAX → scale up, on reste sur le modèle actuel
     \item Si CPU > 80\% et replicas == MAX → fallback sur cnn\_v1 (intermédiaire)
     \item Si CPU > 80\% et replicas == MAX + déjà sur cnn\_v1 → fallback sur mlp\_v0\_fallback (le plus léger)
-    \item Si CPU redescend sous 30\% → scale down + on remonte progressivement vers cnn\_v2\_dropout
+    \item Si CPU redescend sous 30\% : scale down + on remonte progressivement vers cnn\_v2\_dropout
 \end{itemize}
 
-Comme précédemment, la donnée collectée est agrégée par fenêtre de 2 secondes afin d'augmenter la lisibilité des 
-courbes(\ref{fig:autoscalingV2}, et sera analysée dans la section \ref{sec:results}).
+Comme précédemment, les données collectées sont agrégées par fenêtres de 2 secondes afin d'augmenter la lisibilité des 
+courbes (Figure \ref{fig:autoscalingV2}) et seront analysées dans la section \ref{sec:results}.
 
 
 % CPU normal → cnn_v2_dropout (le plus lourd, meilleure précision)
@@ -841,7 +841,7 @@ courbes(\ref{fig:autoscalingV2}, et sera analysée dans la section \ref{sec:resu
 \chapter{Résultats et Discussion}
 \section{Résultats}
 \label{sec:results}
-\subsection{Deploiement et monitoring}
+\subsection{Déploiement et monitoring}
 Le déploiement de l'application RNN-Server via Dokploy s'est déroulé sans accroc,
 confirmant la bonne intégration du pipeline de construction d'image Docker à partir du dépôt Git.
 
@@ -857,14 +857,14 @@ offrant une visibilité précieuse sur le comportement de l'application sous cha
 \subsection{Performance under load}
 \label{sec:results-perf}
 La première phase d'expérimentation a consisté à évaluer les performances de l'application en conditions de charge,
-sur un seul replica, afin d'identifier les limites de la configuration initiale.
+sur un seul réplica, afin d'identifier les limites de la configuration initiale.
 
 Comme nous pouvons l'observer dans les figures \ref{fig:latency} et \ref{fig:resources}, une seule instance du serveur 
 consomme en moyenne 50\% des ressources CPU disponibles sur la machine, et environ 70\% de la RAM indépendamment 
 du nombre de workers utilisés pour le stress test.
 Nous pouvons également observer que plus le nombre de workers augmente, plus la latence moyenne et p95
 \footnote{P95 (95e percentile de latence) : valeur en dessous de laquelle se situent 95\% des temps de réponse observés.
-Elle permet d’évaluer les performances dans les cas lents sans être trop influencée par les valeurs extrêmes.} 
+Elle permet d'évaluer les performances dans les cas lents sans être trop influencée par les valeurs extrêmes.} 
 augmente, ce qui indique que le serveur est rapidement saturé et que les requêtes s'accumulent en file d'attente, 
 ce qui dégrade les performances.
 
@@ -878,15 +878,15 @@ instance la capacité de traitement est rapidement saturée.
 Nous avons ensuite testé la scalabilité de notre solution en augmentant le nombre d'instances du serveur via les réplicas de Dokploy,
 afin d'observer l'impact sur la latence et l'utilisation des ressources.
 
-Comme illustré dans la figure \ref{fig:scalability}, le passage de 1 à 2 replicas améliore légèrement les performances : 
+Comme illustré dans la figure \ref{fig:scalability}, le passage de 1 à 2 réplicas améliore légèrement les performances : 
 la latence moyenne est réduite de 1458 ms à 899 ms, les deux vCPU disponibles étant alors pleinement exploités.
 
-En revanche, l'ajout d'un troisième replica provoque une dégradation sévère : le CPU atteint 96\% de charge,
-la RAM 93.6\%, et la latence p95 bondit de 1309 ms à 8257 ms.
+En revanche, l'ajout d'un troisième réplica provoque une dégradation sévère : le CPU atteint 96\% de charge,
+la RAM 93.6\%, et la latence p95 passe de 1309 ms à 8257 ms.
 
 On peut supposer que cette saturation des ressources entraîne un recours au swap disque,
 ce qui expliquerait ces temps de réponse extrêmes.
-Sur cette machine, 2 replicas constituent donc le point d'équilibre optimal, 
+Sur cette machine, 2 réplicas constituent donc le point d'équilibre optimal, 
 au-delà duquel la contention des ressources dégrade fortement les latences.
 
 
@@ -901,10 +901,10 @@ et pour réduire le nombre de réplicas de 1 si l'utilisation CPU descend en des
 
 Comme nous pouvons l'observer dans la figure \ref{fig:autoscaling}, le script réagit correctement aux variations de charge :
 lorsque l'utilisation CPU dépasse 80\%, le script augmente le nombre de réplicas, ce qui a pour effet de produire 
-n pic de latence dû à la création du nouveau conteneur a partir de 40 secondes, mais qui permet ensuite, 
-une fois le replica déployé, de réduire la latence à des valeurs similaires à celles observées avec 2 replicas.
+un pic de latence dû à la création du nouveau conteneur à partir de 40 secondes, mais qui permet ensuite, 
+une fois le réplica déployé, de réduire la latence à des valeurs similaires à celles observées avec 2 réplicas.
 
-A noter que le script a été testé sur le model le plus lourd afin de provoquer des variations d'utilisation CPU 
+À noter que le script a été testé sur le modèle le plus lourd afin de provoquer des variations d'utilisation CPU 
 suffisamment rapides pour observer l'effet de l'autoscaling. 
 Ce qui explique la plus grande utilisation CPU.
 
@@ -917,14 +917,14 @@ Comme nous pouvons l'observer dans la figure \ref{fig:autoscalingV2}, le script 
 aux variations de charge, nous pouvons encore observer les pics de latence liés à la création de nouveaux conteneurs, 
 mais aussi les changements de modèle.
 
-Avec une latence moyenne de 1500 ms, la solution pourrait parraitre intéressante, mais en regardant la latence p95 qui 
+Avec une latence moyenne de 1500 ms, la solution pourrait paraître intéressante, mais en regardant la latence p95 qui 
 atteint 16 secondes, on se rend compte que les performances sont très variables (un pic de latence max de 20 secondes a été observé).
 
-D'autant plus que le temps de traitement globale est plus long que dans le cas d'un scaling horizontal seul, 
+D'autant plus que le temps de traitement global est plus long que dans le cas d'un scaling horizontal seul, 
 ce qui suggère que les changements de modèle introduisent une latence supplémentaire significative,
 sans pour autant résoudre le problème de saturation des ressources.
 
-En prenant en compte le taux d'erreur qui jusqu'à présent frolait les 0\%, et qui atteint ici 58\%, 
+En prenant en compte le taux d'erreur, qui jusqu'à présent frôlait les 0\%, et qui atteint ici 58\%, 
 on peut conclure que cette solution d'autoscaling est contre-productive dans notre contexte.
 
 
@@ -977,7 +977,7 @@ probable au swap et de faire bondir la latence.
 Ce constat n'est pas un échec de Dokploy, mais une illustration concrète d'une limite fondamentale du self-hosting : 
 contrairement à un cloud public, on ne peut pas abstraire l'absence de ressources physiques. 
 
-Enfin on a pu remarquer que bien qu'ayant pour effet de réduire la latence, le scaling horizontal ne fait que 
+Enfin, on a pu remarquer que, bien qu'ayant pour effet de réduire la latence, le scaling horizontal ne fait que 
 redistribuer une ressource CPU fixe, sans l'augmenter.
 
 \subsection{Limites de Dokploy}
@@ -988,8 +988,9 @@ scripts externes comme celui développé dans ce projet.
 Cette approche fonctionne, mais reste fragile : elle repose sur une métrique unique (le CPU global de la machine hôte) 
 plutôt que sur des indicateurs applicatifs précis comme la latence ou le nombre de requêtes en file d'attente, 
 ce qui limite sa réactivité et sa précision.
+
 Par ailleurs, la synchronisation des réplicas autour du modèle actif a nécessité une modification architecturale du 
-serveur RNN lui-même, chaque replica consultant la base de données avant chaque prédiction pour détecter un changement 
+serveur RNN lui-même, chaque réplica consultant la base de données avant chaque prédiction pour détecter un changement 
 de modèle. 
 
 \smallskip
@@ -1020,7 +1021,7 @@ nativement. Cela apporterait une forme de résilience sans nécessiter
 de migration vers un outil plus complexe.
 
 Enfin, \textbf{si les besoins venaient à croître significativement} (notamment
-en termes de nombre d'utilisateurs ou de criticité des applications)
+en termes de nombre d'utilisateurs ou de criticité des applications),
 une migration vers une solution d'orchestration plus robuste comme
 k3s, couplée à une interface de déploiement dédiée, constituerait une
 évolution naturelle.
@@ -1045,7 +1046,7 @@ D'un point de vue technique, plusieurs axes restent ouverts.
 L'autoscaling par substitution de modèle, esquissé en fin de projet, constituerait une réponse 
 originale à la saturation des ressources : plutôt que d'ajouter des instances, 
 adapter dynamiquement la complexité du modèle en fonction de la charge. 
-Cette approche, plus proche de ce que font les systèmes embarqués ou les pipelines ML en production, 
+Cette approche, plus proche de ce que font les systèmes embarqués ou les pipelines ML\footnote{Machine Learning} en production, 
 mériterait d'être plus explorée.
 
 
@@ -1283,7 +1284,7 @@ mériterait d'être plus explorée.
 
   \end{minipage}
 
-  \caption{Impact du nombre de replicas sur la latence et les ressources}
+  \caption{Impact du nombre de réplicas sur la latence et les ressources}
     \label{fig:scalability}
 \end{figure}
 
@@ -1294,6 +1295,15 @@ mériterait d'être plus explorée.
   \caption{Dashboard de monitoring de Dokploy}
   \label{fig:monitoring}
 \end{figure}
+
+% shéma 2 
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.6\textwidth]{assets/classif_mnist_cloudV2.png}
+  \caption{Dashboard de monitoring de Dokploy}
+  \label{fig:schema2}
+\end{figure}
+
 
 
 % =========================================================

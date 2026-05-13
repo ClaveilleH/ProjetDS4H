@@ -1,0 +1,30 @@
+1. Introduction (~2 min)
+
+Context: IoT course at DS4H, dependency on Render (external cloud)
+Goal: replace it with a self-hosted PaaS alternative
+Why it matters: sovereignty, pedagogical control
+
+2. State of the art & solution selection (~2 min)
+
+Quick overview of cloud models (IaaS/PaaS/SaaS) and containerization
+Candidates evaluated: OpenStack, k3s, Dokku, CapRover, Coolify, Dokploy
+Why Dokploy: lightweight, web UI, Git integration, multi-user, low resource footprint
+
+3. Infrastructure & deployment (~2 min)
+
+Constrained VPS: 2 vCPU, 4.2 GB RAM, 25 GB disk
+Test application: MNIST RNN classifier (Flask API + Docker + GitHub)
+Deployment pipeline: Git push → Docker build → live via Traefik
+
+4. Scaling experiments (~5 min)
+
+Performance under load (1 replica): CPU saturation, latency grows with workers
+Horizontal scaling (1→2→3 replicas): sweet spot at 2, 3 crashes the machine
+Autoscaling v1: external script polling CPU, adjusting replicas via Dokploy API
+Autoscaling v2: model swapping (cnn_v2 → cnn_v1 → mlp fallback) — backfired (58% error rate)
+
+5. Discussion & conclusion (~2 min)
+
+Dokploy meets pedagogical goals
+Hard lesson: horizontal scaling redistributes fixed resources, doesn't create new ones
+Perspectives: bigger VPS, second node, eventual migration to k3s
