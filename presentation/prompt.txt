@@ -1,0 +1,29 @@
+I have two files:
+- `rapport.pdf` — my full project report
+- `pres.md` — my slide deck content with speaker notes
+
+Create a complete, standalone `presentation.html` using Reveal.js (loaded from cdnjs).
+
+## Design
+- Clean, minimal academic style
+- Color scheme: dark navy (#1a2f4e) as accent, white background, dark text
+- Font: DM Sans from Google Fonts
+- One clear idea per slide, minimal text on screen
+
+## Slides
+Follow `pres.md` exactly for content and structure.
+Use `rapport.md` as additional context if something is unclear in `pres.md`.
+
+## Images
+Wherever `pres.md` describes an image (e.g. "Image render", "Schéma : ...", "Graphe : ..."):
+- Reserve the space with a placeholder box
+- The box should display the image description as a label (e.g. "[ Schéma : Internet → Traefik → Containers ]")
+- Style: light gray background (#f0f0f0), dashed border, centered label in muted text
+- Add an HTML comment <!-- PLACEHOLDER: description --> so I can find them easily
+
+## Technical requirements
+- Single self-contained HTML file, no external dependencies except CDN
+- Reveal.js from cdnjs.cloudflare.com
+- Navigable with keyboard arrows
+- Speaker notes in <aside class="notes"> for each slide
+- Works when opened directly in Chrome (no server needed)

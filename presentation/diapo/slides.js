@@ -4,7 +4,19 @@ const SLIDES = [
     eyebrow: "Master 1 Informatique - DS4H",
     title: "Self Hosted Cloud Implementation",
     subtitle: "Remplacer Render par une plateforme PaaS auto-hebergee",
-    meta: ["Hugo Claveille", "Encadre par Gilles Menez", "2025"],
+    meta: ["Hugo Claveille", "Encadre par Gilles Menez", "2026"],
+  },
+  {
+    // type: "plan",
+    section: "Plan",œ
+    title: "Plan de la presentation",
+    bullets: [
+      "Contexte et motivation",
+      "Etat de l'art et choix de la solution",
+      "Infrastructure et deploiement",
+      "Evaluation et strategies d'autoscaling",
+      "Discussion et conclusion",
+    ],
   },
   {
     section: "Introduction",

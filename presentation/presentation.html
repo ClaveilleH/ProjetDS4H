@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Self-Hosted Cloud Implementation</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/white.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300;1,9..40,400&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --navy: #1a2f4e;
+      --navy-light: #2d4f7c;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+    }
+
+    .reveal {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 30px;
+      color: #1f2937;
+    }
+
+    .reveal h1, .reveal h2, .reveal h3 {
+      font-family: 'DM Sans', sans-serif;
+      color: var(--navy);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      text-transform: none;
+      margin-bottom: 0;
+    }
+
+    .reveal h1 { font-size: 1.8em; line-height: 1.2; }
+    .reveal h2 { font-size: 1.25em; }
+    .reveal h3 { font-size: 1em; }
+
+    .reveal .slides section {
+      text-align: left;
+      padding: 0 10px;
+    }
+
+    .reveal strong { color: var(--navy); font-weight: 600; }
+    .reveal em { color: var(--muted); }
+
+    .reveal code {
+      font-family: 'Courier New', monospace;
+      font-size: 0.85em;
+      background: #f3f4f6;
+      padding: 0.1em 0.3em;
+      border-radius: 3px;
+      color: var(--navy);
+    }
+
+    /* ── Accent rule ── */
+    .accent-rule {
+      width: 50px;
+      height: 3px;
+      background: var(--navy);
+      margin: 0.35em 0 0.75em 0;
+      border-radius: 2px;
+    }
+
+    /* ── Title slide ── */
+    .title-slide { text-align: center !important; }
+
+    .title-slide h1 {
+      font-size: 1.7em;
+      border-bottom: 3px solid var(--navy);
+      padding-bottom: 0.3em;
+      margin-bottom: 0.6em;
+    }
+
+    .title-slide .meta {
+      color: var(--muted);
+      font-size: 0.68em;
+      margin: 0.2em 0;
+      font-weight: 400;
+    }
+
+    /* ── Chapter transition ── */
+    .chapter-slide { text-align: center !important; }
+    .chapter-slide h2 {
+      color: white !important;
+      font-size: 1.9em;
+    }
+    .chapter-slide .chapter-sub {
+      color: rgba(255,255,255,0.6);
+      font-size: 0.7em;
+      margin-top: 0.5em;
+    }
+
+    /* ── Lists ── */
+    .reveal ul {
+      margin-left: 0.3em;
+      list-style: none;
+      padding: 0;
+    }
+
+    .reveal ul li {
+      padding: 0.35em 0 0.35em 1.2em;
+      position: relative;
+      font-size: 0.82em;
+      line-height: 1.5;
+    }
+
+    .reveal ul li::before {
+      content: "—";
+      position: absolute;
+      left: 0;
+      color: var(--navy);
+      font-weight: 600;
+    }
+
+    /* ── Plan list ── */
+    .plan-list {
+      list-style: none;
+      padding: 0;
+      counter-reset: plan;
+      margin: 0.5em 0 0 0;
+    }
+
+    .plan-list li {
+      counter-increment: plan;
+      padding: 0.5em 0 0.5em 2.5em;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.82em;
+      position: relative;
+    }
+
+    .plan-list li:last-child { border-bottom: none; }
+
+    .plan-list li::before {
+      content: counter(plan);
+      position: absolute;
+      left: 0;
+      background: var(--navy);
+      color: white;
+      width: 1.6em;
+      height: 1.6em;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.78em;
+      font-weight: 600;
+      top: 0.4em;
+    }
+
+    /* ── Two-column layout ── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.4em;
+      align-items: start;
+    }
+
+    .two-col-wide {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 1.4em;
+      align-items: start;
+    }
+
+    /* ── Placeholder ── */
+    .placeholder {
+      background: #f0f0f0;
+      border: 2px dashed #bbb;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1em;
+      min-height: 110px;
+      color: #888;
+      font-size: 0.6em;
+      font-style: italic;
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    /* ── Stat boxes (infrastructure slide) ── */
+    .stat-row {
+      display: flex;
+      gap: 0.8em;
+      margin-bottom: 0.8em;
+    }
+
+    .stat-box {
+      flex: 1;
+      background: #f9fafb;
+      border-left: 4px solid var(--navy);
+      padding: 0.5em 0.7em;
+      border-radius: 0 4px 4px 0;
+    }
+
+    .stat-box .value {
+      font-size: 1.15em;
+      font-weight: 700;
+      color: var(--navy);
+      line-height: 1.2;
+    }
+
+    .stat-box .label {
+      font-size: 0.52em;
+      color: var(--muted);
+      margin-top: 0.15em;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── Table ── */
+    .reveal table {
+      font-size: 0.66em;
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.5em;
+    }
+
+    .reveal table th {
+      background: var(--navy);
+      color: white;
+      padding: 0.55em 0.8em;
+      font-weight: 500;
+      text-align: left;
+    }
+
+    .reveal table td {
+      padding: 0.45em 0.8em;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .reveal table tr:nth-child(even) td { background: #f9fafb; }
+
+    .reveal table tr.highlight td {
+      background: #eef2fb;
+      font-weight: 600;
+    }
+
+    .check  { color: #16a34a; font-weight: 700; }
+    .cross  { color: #dc2626; font-weight: 700; }
+    .partial{ color: #d97706; font-weight: 700; }
+
+    /* ── Result boxes ── */
+    .result-box {
+      border-left: 4px solid;
+      padding: 0.4em 0.8em;
+      margin: 0.35em 0;
+      border-radius: 0 4px 4px 0;
+      font-size: 0.74em;
+      line-height: 1.5;
+    }
+
+    .result-good    { border-color: #16a34a; background: #f0fdf4; }
+    .result-bad     { border-color: #dc2626; background: #fef2f2; }
+    .result-neutral { border-color: var(--navy); background: #eef2fb; }
+
+    /* ── Section label ── */
+    .section-label {
+      font-size: 0.6em;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.2em;
+    }
+
+    /* ── Sub-heading inside slide ── */
+    .sub-head {
+      font-size: 0.7em;
+      font-weight: 600;
+      color: var(--navy);
+      margin: 0.7em 0 0.3em;
+    }
+  </style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+
+<!-- ════════════════════════════════════════════════
+     SLIDE 1 — TITLE
+     ════════════════════════════════════════════════ -->
+<section class="title-slide">
+  <h1>Self-Hosted Cloud<br>Implementation</h1>
+  <p class="meta">Hugo Claveille</p>
+  <p class="meta">Master 1 Computer Science — DS4H Project</p>
+  <p class="meta">May 2026</p>
+  <aside class="notes">
+    Hello everyone. Today I'm going to present my DS4H project called Self-Hosted Cloud Implementation.
+    The main objective was to explore and evaluate an infrastructure to replace the Render service.
+  </aside>
+</section>
+
+
+<!-- ════════════════════════════════════════════════
+     SLIDE 2 — PLAN
+     ════════════════════════════════════════════════ -->
+<section>
+  <h2>Plan</h2>
+  <div class="accent-rule"></div>
+  <ol class="plan-list">
+    <li>Introduction</li>
+    <li>State of the art &amp; solution selection</li>
+    <li>Infrastructure &amp; deployment</li>
+    <li>Methodology</li>
+    <li>Scaling experiments</li>
+    <li>Discussion &amp; conclusion</li>
+  </ol>
+  <aside class="notes">
+    Here's the plan for this presentation.
+    First, I will introduce the context and motivation for this project.
+    Then, I will give a quick overview of the state of the art in cloud computing and how I selected the solution.
+    Next, I will describe the infrastructure I set up and how deployments work.
+    Then I will explain the methodology behind the scaling experiments.
+    After that, I will share the results of the experiments I conducted.
+    Finally, I will discuss the implications of this project and conclude with some final thoughts.
+  </aside>
+</section>
+
+
+<!-- ════════════════════════════════════════════════
+     SLIDE 3 — INTRODUCTION
+     ════════════════════════════════════════════════ -->
+<section>
+  <h2>Introduction</h2>
+  <div class="accent-rule"></div>
+  <div class="two-col">
+    <div>
+      <!-- PLACEHOLDER: Screenshot or logo of Render (the cloud deployment service) -->
+      <div class="placeholder" style="min-height:90px;">[ Image : Render — service de déploiement cloud externe ]</div>
+      <!-- PLACEHOLDER: Clock icon or illustration showing 30s cold start delay -->
+      <div class="placeholder" style="min-height:90px; margin-top:0.6em;">[ Image : Horloge — cold start de 30s sur Render (free tier) ]</div>
+    </div>
+    <div>
+      <p style="font-size:0.78em; margin-bottom:0.6em;">
+        Goal: build a <strong>self-hosted alternative</strong><br>that we fully control
+      </p>
+      <ul>
+        <li>Abstraction of infrastructure</li>
+        <li>Application isolation</li>
+        <li>Multi-user support</li>
+        <li>Automated CI/CD</li>
+      </ul>
+    </div>
+  </div>
+  <aside class="notes">
+    The IoT course is currently using Render to let students deploy their applications.
+    The problem is that Render is an external service — which means we depend on a third party for availability and pricing.
+    On top of that, Render has a well-known issue: on free tier, services go to sleep after inactivity, and take up to 30 seconds to wake up, which is quite annoying in a classroom setting.
+    So the goal of this project was to replace it with a self-hosted solution that we fully control — one that can abstract the infrastructure, isolate applications, handle multiple users, and automate deployments.
+  </aside>
+</section>
+
+
+<!-- ════════════════════════════════════════════════
+     SLIDE 4 — STATE OF THE ART: ABSTRACTION
+     ════════════════════════════════════════════════ -->
+<section>
+  <h2>State of the Art: Abstraction &amp; Remote Access</h2>
+  <div class="accent-rule"></div>
+  <ul>
+    <li>Abstraction of computing resources is <strong>not a new idea</strong></li>
+    <li><strong>1960s</strong> — "computer utility": computing power as a service <em>(Multics)</em></li>
+    <li><strong>1940s</strong> — remote access to computing resources <em>(George Stibitz, 1940)</em></li>
+  </ul>
+  <div class="two-col" style="margin-top:0.7em;">
+    <!-- PLACEHOLDER: Historic photo or screenshot of the Multics operating system (1960s mainframe) -->
+    <div class="placeholder" style="min-height:130px;">[ Image : Multics — système d'exploitation années 1960, concept "computer utility" ]</div>
+    <!-- PLACEHOLDER: Timeline from 1940 (remote access by Stibitz) to 1960s Multics to 1990s SaaS to 2000s Cloud -->
+    <div class="placeholder" style="min-height:130px;">[ Frise chronologique : 1940 accès distant → 1960s Multics → 1990s SaaS → 2000s Cloud ]</div>
+  </div>
+  <aside class="notes">
+    The idea of abstracting computing resources is not new. As early as the 1960s, systems like Multics introduced the concept of a computer utility — where computing power would be consumed like electricity, on demand.
+    Around the same time, the idea of accessing machines remotely emerged — George Stibitz demonstrated remote control of a computer as early as 1940.
+    These early concepts laid the foundation for what we now call cloud computing.
+  </aside>
+</section>
+
+
+<!-- ════════════════════════════════════════════════
+     SLIDE 5 — STATE OF THE ART: CLOUD MODELS
+     ════════════════════════════════════════════════ -->
+<section>
+  <h2>State of the Art: Cloud Models &amp; Containerization</h2>
+  <div class="accent-rule"></div>
+  <div class="two-col">
+    <div>
+      <p class="sub-head">Service models</p>
+      <ul>
+        <li><strong>IaaS</strong> — raw infrastructure</li>
+        <li><strong>PaaS</strong> — deployment platform</li>
+        <li><strong>SaaS</strong> — full application</li>
+      </ul>
+      <p class="sub-head">Deployment types</p>
+      <ul>
+        <li>Public / Private / Hybrid</li>
+      </ul>
+    </div>
+    <div>
+      <p class="sub-head">Key enabling technology</p>
+      <ul>
+        <li><strong>Containers</strong> — lightweight isolation, shared kernel, portable</li>
+        <li><strong>Docker</strong> — standard container runtime</li>
+        <li>Git push → build → deploy <em>(DevOps / IaC)</em></li>
+      </ul>
+    </div>
+  </div>
+  <aside class="notes">
+    These concepts evolved into the cloud models we know today.
+    IaaS gives you raw infrastructure, PaaS gives you a deployment environment, SaaS gives you a full application.
+    And deployments can be public, where the infrastructure is owned by a third party, private, where you own it, or hybrid.
+    The key enabling technology is containerization — Docker in particular — which allows multiple isolated apps to run on a single machine.
+    Combined with DevOps practices, a simple git push can trigger an automatic build and deployment.
+    These are exactly the properties we want for our self-hosted platform.
+  </aside>
+</section>
+
+
+<!-- ════════════════════════════════════════════════
+     SLIDE 6 — OUR NEEDS
+     ════════════════════════════════════════════════ -->
+<section>
+  <h2>Our Needs</h2>
+  <div class="accent-rule"></div>
+  <ul>
+    <li><strong>Web UI</strong> — students are not sysadmins</li>
+    <li><strong>Git integration</strong> — push to deploy</li>
+    <li><strong>Multi-user</strong> — isolate projects per student</li>
+    <li><strong>Low resource footprint</strong> — single constrained machine</li>
+    <li><strong>Monitoring &amp; logging</strong> — track usage and troubleshoot</li>
+    <li><strong>Easy to maintain</strong> — one person, one machine</li>
+  </ul>
+  <aside class="notes">
+    First, a web interface — students are not sysadmins, they can't work exclusively with a command line.
+    Second, Git integration — a push to a repository should trigger an automatic deployment.
+    Third, multi-user support — each student needs their own isolated space.
+    Fourth, the solution must run on a single machine with limited resources.
+    And finally, it needs to have monitoring and logging capabilities to track usage and troubleshoot issues.
+  </aside>
+</section>
+
+
+<!-- ════════════════════════════════════════════════
+     SLIDE 7 — INFRASTRUCTURE & CONSTRAINTS
+     ════════════════════════════════════════════════ -->
+<section>
+  <h2>Infrastructure &amp; Constraints</h2>
+  <div class="accent-rule"></div>
+  <div class="two-col-wide">
+    <div>
+      <p class="section-label">Single VPS — Debian 12</p>
+      <div class="stat-row">
+        <div class="stat-box">
+          <div class="value">2</div>
+          <div class="label">vCPU</div>
+        </div>
+        <div class="stat-box">
+          <div class="value">4.2 GB</div>
+          <div class="label">RAM</div>
+        </div>
+        <div class="stat-box">
+          <div class="value">25 GB</div>
+          <div class="label">Storage</div>
+        </div>
+      </div>
+      <ul>
+        <li>No automatic elasticity</li>
+        <li>Manual upgrade only</li>
+        <li>~1.5 GB RAM free under normal load</li>
+      </ul>
+    </div>
+    <div>
+      <!-- PLACEHOLDER: Stylized architecture diagram of the VPS — Debian 12 + Docker + Dokploy stack -->
+      <div class="placeholder" style="min-height:200px;">[ Image : Schéma de l'infrastructure VPS — Debian 12, Docker, Dokploy ]</div>
+    </div>
+  </div>
+  <aside class="notes">
+    The entire project runs on a single VPS running Debian 12.
+    It has 2 virtual CPUs, 4.2 gigabytes of RAM, and 25 gigabytes of storage.
+    In practice, only about 1.5 gigabytes of RAM are freely available under normal conditions.
+    And unlike a public cloud, there is no automatic elasticity — if we need more resources, we have to manually request an upgrade.
+    This is a hard constraint that directly influenced which solutions were viable.
+  </aside>
+</section>
+
+
+<!-- ════════════════════════════════════════════════
+     SLIDE 8 — SOLUTIONS COMPARISON
+     ════════════════════════════════════════════════ -->
+<section>
+  <h2>Solutions Comparison</h2>
+  <div class="accent-rule"></div>
+  <table>
+    <thead>
+      <tr>
+        <th>Solution</th>
+        <th>Web UI</th>
+        <th>Multi-user</th>
+        <th>Git deploy</th>
+        <th>Resources</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>OpenStack</td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="partial">~</span></td>
+        <td>Too heavy</td>
+      </tr>
+      <tr>
+        <td>k3s</td>
+        <td><span class="partial">~</span></td>
+        <td><span class="partial">~</span></td>
+        <td><span class="partial">~</span></td>
+        <td>Medium</td>
+      </tr>
+      <tr>
+        <td>Dokku</td>
+        <td><span class="cross">✗</span></td>
+        <td>Limited</td>
+        <td><span class="check">✓</span></td>
+        <td>Low</td>
+      </tr>
+      <tr>
+        <td>CapRover</td>
+        <td><span class="check">✓</span></td>
+        <td>Limited</td>
+        <td><span class="check">✓</span></td>
+        <td>Low</td>
+      </tr>
+      <tr>
+        <td>Coolify</td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+        <td>+20 GB</td>
+      </tr>
+      <tr class="highlight">
+        <td><strong>Dokploy</strong></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+        <td><span class="check">✓</span></td>
+        <td><strong>Low</strong></td>
+      </tr>
+    </tbody>
+  </table>
+  <aside class="notes">
+    I evaluated six solutions against our needs and constraints.
+    OpenStack is too resource-heavy for our VPS.
+    k3s, the lightweight Kubernetes distribution, is technically viable but introduces unnecessary orchestration complexity.
+    Dokku has no web interface.
+    CapRover has limited multi-user support.
+    Coolify ticks all the boxes but requires over 20 gigabytes of storage.
+    That leaves Dokploy — it is an open-source, community-driven PaaS built on top of Docker.
+    It has a web interface, full multi-user support, native Git integration, and a low resource footprint. It was the clear choice.
+  </aside>
+</section>
+
+
+<!-- ════════════════════════════════════════════════
+     SLIDE 9 — HOW DOKPLOY WORKS
+     ════════════════════════════════════════════════ -->
+<section>
+  <h2>How Dokploy Works</h2>
+  <div class="accent-rule"></div>
+  <ul>
+    <li><strong>Docker</strong> — containerizes and isolates each application</li>
+    <li><strong>Traefik</strong> — reverse proxy, routes traffic, handles SSL automatically</li>
+    <li><strong>Docker Swarm</strong> — orchestrates containers, handles restarts</li>
+    <li><strong>Web UI</strong> — single dashboard to manage everything</li>
+  </ul>
+  <!-- PLACEHOLDER: Schéma Internet → Traefik → Container 1 / Container 2 / Container 3 -->
+  <div class="placeholder" style="margin-top:0.8em; min-height:130px;">[ Schéma : Internet → Traefik → Container 1 / Container 2 / Container 3 ]</div>
+  <aside class="notes">
+    Dokploy is built on top of three core technologies.
+    First, Docker — every application is packaged and run as a container, which ensures isolation between apps.
+    Second, Traefik — a reverse proxy that sits in front of all containers, routes incoming traffic to the right app, and handles SSL certificates automatically.
+    Third, Docker Swarm — the orchestration layer that manages containers, ensures they stay running, and handles restarts if something crashes.
+    On top of all this, Dokploy provides a single web dashboard to manage deployments, users, logs and configurations.
+  </aside>
+</section>
+
+
+<!-- ════════════════════════════════════════════════
+     SLIDE 10 — DEPLOYING THE TEST APP
+     ════════════════════════════════════════════════ -->
+<section>
+  <h2>Deploying the Test App</h2>
+  <div class="accent-rule"></div>
+  <p style="font-size:0.78em;"><strong>RNN server</strong> — MNIST digit classifier exposed as a REST API</p>
+  <ul style="margin-top:0.3em; margin-bottom:0.7em;">
+    <li><code>POST /predict</code> — classify a digit image</li>
+    <li><code>GET /metrics</code> — real-time CPU / RAM usage</li>
+    <li><code>POST /upload</code> — swap the active model</li>
+  </ul>
+  <!-- PLACEHOLDER: Schéma GitHub repo → Dokploy → Docker container → rnn.dokploy.claveille.fr -->
+  <div class="placeholder" style="min-height:130px;">[ Schéma : GitHub repo → Dokploy → Docker container → rnn.dokploy.claveille.fr ]</div>
+  <p style="font-size:0.62em; color:var(--muted); margin-top:0.5em;">Pipeline: Git push → Dokploy builds image → Traefik exposes public URL</p>
+  <aside class="notes">
+    To evaluate Dokploy, I needed a real application to deploy.
+    I took a digit classification server based on a neural network trained on the MNIST dataset.
+    It exposes a REST API with endpoints to predict digits from images, retrieve system metrics, and upload new models.
+    The deployment pipeline is fully automated: I first had to write a Dockerfile to containerize the application, and a requirements.txt for dependencies.
+    Then, I push the files to GitHub, Dokploy detects the change, builds the Docker image, and Traefik exposes the service at a public URL.
+    No manual intervention needed on the server, except for the initial setup.
+  </aside>
+</section>
+
+
+<!-- ════════════════════════════════════════════════
+     SLIDE 11 — CHAPTER: SCALING EXPERIMENTS
+     ════════════════════════════════════════════════ -->
+<section data-background-color="#1a2f4e" class="chapter-slide">
+  <h2>Scaling Experiments</h2>
+  <p class="chapter-sub">Four experiments — increasing load on a single VPS</p>
+  <aside class="notes">
+    Now let's get into the core of the project — the scaling experiments.
+    I ran four experiments to evaluate how well Dokploy handles increasing load.
+  </aside>
+</section>
+
+
+<!-- ════════════════════════════════════════════════
+     SLIDE 12 — PERFORMANCE UNDER LOAD
+     ════════════════════════════════════════════════ -->
+<section>
+  <h2>Performance Under Load</h2>
+  <div class="accent-rule"></div>
+  <p class="section-label">Experiment 1 — single instance baseline</p>
+  <ul>
+    <li>Stress test: increasing number of parallel <strong>workers</strong></li>
+    <li>Single instance uses <strong>~50% CPU · ~70% RAM</strong></li>
+    <li>Latency grows with workers → server <strong>saturates quickly</strong></li>
+  </ul>
+  <!-- PLACEHOLDER: Graphe latence moyenne + p95 en fonction du nombre de workers (x-axis: workers, y-axis: ms) -->
+  <div class="placeholder" style="margin-top:0.7em; min-height:170px;">[ Graphe : latence moyenne + p95 (ms) en fonction du nombre de workers ]</div>
+  <aside class="notes">
+    The first experiment was simply to measure the performance of a single instance under load.
+    I ran stress tests by sending classification requests with an increasing number of parallel workers.
+    A worker is an independent thread that sends requests to the server — so more workers means more concurrent requests.
+    The results were clear — a single instance already consumes around 50% of the available CPU and 70% of the RAM.
+    As the number of workers increases, latency grows significantly, which means the server starts queuing requests.
+    This illustrates the limits of our infrastructure — with a single instance, we saturate quickly.
+  </aside>
+</section>
+
+
+<!-- ════════════════════════════════════════════════
+     SLIDE 13a — HORIZONTAL SCALING: SCHEMA
+     ════════════════════════════════════════════════ -->
+<section>
+  <h2>Horizontal Scaling</h2>
+  <div class="accent-rule"></div>
+  <p class="section-label">Experiment 2 — adding replicas</p>
+  <!-- PLACEHOLDER: Schéma 2 réplicas avec Traefik — load balancing entre les deux containers -->
+  <div class="placeholder" style="min-height:290px;">[ Schéma : 2 réplicas — Traefik load-balance les requêtes entre Container A et Container B ]</div>
+  <aside class="notes">
+    The second experiment was to test horizontal scaling — adding more instances of the server.
+    A replica is an independent instance of the application running in its own container.
+    Traefik load-balances incoming requests across all running replicas.
+  </aside>
+</section>
+
+
+<!-- ════════════════════════════════════════════════
+     SLIDE 13b — HORIZONTAL SCALING: RESULTS
+     ════════════════════════════════════════════════ -->
+<section>
+  <h2>Horizontal Scaling — Results</h2>
+  <div class="accent-rule"></div>
+  <p style="font-size:0.72em; margin-bottom:0.5em; color:var(--muted);">1 → 2 → 3 replicas · 10 workers · 100 requests</p>
+  <div class="result-box result-good">
+    <strong>2 replicas:</strong> avg latency 1458 ms → <strong>899 ms</strong> ✓ — both vCPUs fully utilized
+  </div>
+  <div class="result-box result-bad">
+    <strong>3 replicas:</strong> CPU 96% · RAM 93% · p95 latency <strong>8 257 ms</strong> ✗ — machine swaps
+  </div>
+  <div class="result-box result-neutral">
+    <strong>Sweet spot: 2 replicas</strong> — beyond that, adding instances is counterproductive
+  </div>
+  <!-- PLACEHOLDER: Graphe latence moyenne + p95 pour 1 / 2 / 3 réplicas (grouped bar chart) -->
+  <div class="placeholder" style="margin-top:0.5em; min-height:120px;">[ Graphe : latence moyenne + p95 pour 1 / 2 / 3 réplicas ]</div>
+  <aside class="notes">
+    Going from 1 to 2 replicas reduces average latency from 1458 to 899 milliseconds, which makes sense since both vCPUs are now fully utilized.
+    However, adding a third replica completely saturates the machine — CPU hits 96%, RAM hits 93%, and p95 latency jumps to over 8 seconds.
+    The machine likely starts using swap at this point.
+    So 2 replicas is the sweet spot on this infrastructure — beyond that, adding instances becomes counterproductive.
+  </aside>
+</section>
+
+
+<!-- ════════════════════════════════════════════════
+     SLIDE 14 — AUTOSCALING V1
+     ════════════════════════════════════════════════ -->
+<section>
+  <h2>Autoscaling v1</h2>
+  <div class="accent-rule"></div>
+  <p class="section-label">Experiment 3 — external script, CPU-based</p>
+  <ul>
+    <li>External script polling CPU every <strong>30 s</strong></li>
+    <li>CPU &gt; 80 % → add replica <em>(max 2)</em></li>
+    <li>CPU &lt; 30 % → remove replica <em>(min 1)</em></li>
+  </ul>
+  <div class="result-box result-good" style="margin-top:0.5em;">
+    Script reacts correctly — latency spike during scale-up (~40 s to deploy), then stabilizes
+  </div>
+  <!-- PLACEHOLDER: Graphe CPU (%) + nombre de réplicas + latence (ms) dans le temps (multi-series line chart) -->
+  <div class="placeholder" style="margin-top:0.5em; min-height:145px;">[ Graphe : CPU (%) + nombre de réplicas + latence (ms) dans le temps ]</div>
+  <aside class="notes">
+    The third experiment was autoscaling. Since Dokploy has no native autoscaling,
+    I built an external script that polls the CPU usage every 30 seconds and adjusts the number of replicas accordingly.
+    If CPU goes above 80%, it adds a replica. If it drops below 30%, it removes one.
+    The results show that the script reacts correctly — when load increases, a new replica is created.
+    There is a latency spike during the scale-up, which is expected since a new container is created.
+    But once deployed, latency drops back to levels similar to the 2-replica configuration.
+  </aside>
+</section>
+
+
+<!-- ════════════════════════════════════════════════
+     SLIDE 15 — AUTOSCALING V2
+     ════════════════════════════════════════════════ -->
+<section>
+  <h2>Autoscaling v2 — Model Swapping</h2>
+  <div class="accent-rule"></div>
+  <p class="section-label">Experiment 4 — v1 + switch to lighter model under extreme load</p>
+  <ul>
+    <li>CPU &gt; 80 % <strong>and</strong> replicas at max → switch to <strong>lighter model</strong></li>
+    <li>Hypothesis: fewer resources consumed → lower latency</li>
+  </ul>
+  <div class="result-box result-bad" style="margin-top:0.5em;">
+    <strong>58 % error rate</strong> · p95 <strong>16 s</strong> · avg latency 1 775 ms — <strong>counterproductive</strong>
+  </div>
+  <!-- PLACEHOLDER: Graphe CPU (%) + réplicas + latence (ms) + modèle actif dans le temps (multi-series, model indicator overlay) -->
+  <div class="placeholder" style="margin-top:0.5em; min-height:145px;">[ Graphe : CPU + réplicas + latence + modèle actif dans le temps ]</div>
+  <aside class="notes">
+    The fourth experiment added a model swapping mechanism on top of autoscaling.
+    The idea: if we're already at maximum replicas and CPU is still above 80%, switch to a lighter model that consumes fewer resources.
+    In theory this sounds smart — but in practice it backfired.
+    The error rate jumped to 58%, p95 latency reached 16 seconds, and overall throughput was worse than a fixed 2-replica setup.
+    The model switching introduces additional latency on every request, and the constant reloading under load made things worse.
+  </aside>
+</section>
+
+
+<!-- ════════════════════════════════════════════════
+     SLIDE 16 — DISCUSSION & LIMITS
+     ════════════════════════════════════════════════ -->
+<section>
+  <h2>Discussion &amp; Limits</h2>
+  <div class="accent-rule"></div>
+  <ul>
+    <li>
+      <strong>Hardware</strong> — 2 vCPU / 4.2 GB RAM: no real elasticity,
+      scaling redistributes fixed resources
+    </li>
+    <li>
+      <strong>Dokploy</strong> — no native autoscaling, metrics too coarse-grained
+      (CPU only)
+    </li>
+    <li>
+      <strong>Autoscaling v2</strong> — model swapping introduced more problems
+      than it solved
+    </li>
+    <li>
+      <strong>Horizontal scaling ≠ more resources</strong> — it just spreads
+      what you already have
+    </li>
+  </ul>
+  <aside class="notes">
+    Let's step back and discuss what these results mean.
+    The most fundamental limit is the hardware — with only 2 vCPUs and 4.2 gigabytes of RAM, there is no real elasticity.
+    Horizontal scaling doesn't create new resources, it just redistributes the ones we have.
+    Dokploy itself also has limits — there is no native autoscaling, and the only metric we can easily access is global CPU usage, which is too coarse to build a reactive system on.
+    Finally, the model swapping experiment showed that adding complexity to work around hardware limits can make things worse.
+    Sometimes the right answer is simply: more hardware.
+  </aside>
+</section>
+
+
+<!-- ════════════════════════════════════════════════
+     SLIDE 17 — CONCLUSION & PERSPECTIVES
+     ════════════════════════════════════════════════ -->
+<section>
+  <h2>Conclusion &amp; Perspectives</h2>
+  <div class="accent-rule"></div>
+  <p style="font-size:0.78em; margin-bottom:0.3em;">
+    <strong>Dokploy meets the pedagogical goals</strong> —
+    deploy from Git, no sysadmin needed
+  </p>
+  <p style="font-size:0.72em; color:var(--muted); margin-bottom:0.8em;">
+    Self-hosting works, but physical limits cannot be abstracted away
+  </p>
+  <p class="sub-head">Looking ahead</p>
+  <ul>
+    <li><strong>Short term</strong> — bigger VPS (4 vCPU · 8 GB RAM)</li>
+    <li><strong>Mid term</strong> — add a second node, true horizontal scaling</li>
+    <li><strong>Long term</strong> — migrate to k3s if needs grow significantly</li>
+  </ul>
+  <aside class="notes">
+    To conclude — Dokploy successfully meets the pedagogical goals of this project.
+    A student can deploy an application from a Git repository without touching the underlying infrastructure.
+    However, this project also illustrated a fundamental truth about self-hosting: unlike a public cloud, you cannot abstract away the absence of physical resources.
+    The cloud makes elasticity feel infinite — on a VPS, you hit the wall quickly.
+    Looking ahead, the most impactful short-term improvement would simply be upgrading the VPS.
+    Mid-term, adding a second node would enable true horizontal scaling.
+    And long-term, if the number of users or the criticality of applications grows significantly, a migration to k3s would be the natural next step.
+    Thank you for your attention — I'm happy to take any questions.
+  </aside>
+</section>
+
+
+</div><!-- /.slides -->
+</div><!-- /.reveal -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/notes/notes.min.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    slideNumber: 'c/t',
+    transition: 'fade',
+    transitionSpeed: 'fast',
+    controls: true,
+    progress: true,
+    center: false,
+    width: 1200,
+    height: 700,
+    margin: 0.07,
+    plugins: [ RevealNotes ]
+  });
+</script>
+</body>
+</html>
