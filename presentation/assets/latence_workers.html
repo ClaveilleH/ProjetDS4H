@@ -1,0 +1,41 @@
+
+<style>
+.chart-wrap { padding: 1.5rem 0; }
+.chart-title { font-size: 14px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 1rem; text-align: center; }
+.legend { display: flex; gap: 20px; justify-content: center; margin-bottom: 12px; font-size: 13px; color: var(--color-text-secondary); }
+.legend span { display: flex; align-items: center; gap: 6px; }
+.legend-dot { width: 10px; height: 10px; border-radius: 2px; }
+</style>
+<h2 class="sr-only">Latence moyenne et P95 en fonction du nombre de workers</h2>
+<div class="chart-wrap">
+  <p class="chart-title">Latence en fonction du nombre de workers</p>
+  <div class="legend">
+    <span><span class="legend-dot" style="background:#378ADD"></span>Moyenne</span>
+    <span><span class="legend-dot" style="background:#D85A30"></span>P95</span>
+    <span><span class="legend-dot" style="background:#888780; opacity:0.5"></span>Max</span>
+  </div>
+  <div style="position:relative;width:100%;height:280px"><canvas id="c1" role="img" aria-label="Latence en fonction du nombre de workers. P95 atteint 3000ms à 20 workers.">Latence vs workers</canvas></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+new Chart(document.getElementById('c1'), {
+  type: 'line',
+  data: {
+    labels: [1,2,4,6,8,10,12,15,20],
+    datasets: [
+      { label: 'Moyenne', data: [120,185,310,450,620,800,1050,1450,2100], borderColor:'#378ADD', backgroundColor:'rgba(55,138,221,0.08)', tension:0.4, pointRadius:4, borderWidth:2 },
+      { label: 'P95', data: [200,320,580,850,1200,1600,2100,2800,3400], borderColor:'#D85A30', backgroundColor:'rgba(216,90,48,0.06)', tension:0.4, pointRadius:4, borderWidth:2, borderDash:[5,3] },
+      { label: 'Max', data: [300,500,900,1400,2000,2700,3200,4000,5200], borderColor:'#888780', backgroundColor:'transparent', tension:0.4, pointRadius:3, borderWidth:1.5, borderDash:[2,4] }
+    ]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{display:false} },
+    scales:{
+      x:{ title:{display:true,text:'Workers',color:'#888780',font:{size:12}}, grid:{color:'rgba(128,128,128,0.1)'} },
+      y:{ title:{display:true,text:'Latence (ms)',color:'#888780',font:{size:12}}, grid:{color:'rgba(128,128,128,0.1)'}, min:0 }
+    }
+  }
+});
+</script>

@@ -178,6 +178,14 @@ if we need more resources, we have to manually request an upgrade.
 
 ---
 
+## Transition
+
+To resume we now know that we need a Pass with ????
+
+So let se what posibilities do we have
+
+---
+
 ## Slide 8 — Solutions Comparison
 
 | Solution | Web UI | Multi-user | Git deploy | Resources |
@@ -192,7 +200,7 @@ if we need more resources, we have to manually request an upgrade.
 ---
 
 I evaluated six solutions against our needs and constraints. 
-OpenStack is too resource-heavy for our VPS. 
+OpenStack was too complex as a first approach.
 k3s, the lightweight Kubernetes distribution, is technically viable but introduces unnecessary orchestration complexity. 
 Dokku has no web interface. 
 CapRover has limited multi-user support. 
@@ -235,6 +243,8 @@ To evaluate Dokploy, I needed a real application to deploy.
 
 I took a digit classification server based on a neural network trained on the MNIST dataset
 It exposes a REST API with endpoints to predict digits from images, retrieve system metrics, and upload new models. 
+
+<!-- C'est quoi mnist ? -->
 
 The deployment pipeline is fully automated: 
 I first had to write a Dockerfile to containerize the application, and a requirements.txt file to specify dependencies. 

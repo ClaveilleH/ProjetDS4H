@@ -273,6 +273,19 @@
       color: var(--navy);
       margin: 0.7em 0 0.3em;
     }
+
+    /* ── Slide numbers ── */
+    .reveal .slide-number {
+      background: var(--navy);
+      color: white;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.55em;
+      font-weight: 500;
+      padding: 0.3em 0.6em;
+      border-radius: 4px 0 0 0;
+      bottom: 0;
+      right: 0;
+    }
   </style>
 </head>
 <body>
@@ -284,8 +297,10 @@
      SLIDE 1 — TITLE
      ════════════════════════════════════════════════ -->
 <section class="title-slide">
-  <h1>Self-Hosted Cloud<br>Implementation</h1>
+  <img src="assets/DS4H_new_bleu_EN_tout_seul_PIA.png" style="height:300px; margin-bottom:0.6em;">
+  <h1>Self-Hosted Cloud Implementation</h1>
   <p class="meta">Hugo Claveille</p>
+  <p class="meta">Supervisor: Gilles MENEZ</p>
   <p class="meta">Master 1 Computer Science — DS4H Project</p>
   <p class="meta">May 2026</p>
   <aside class="notes">
@@ -330,9 +345,18 @@
   <div class="two-col">
     <div>
       <!-- PLACEHOLDER: Screenshot or logo of Render (the cloud deployment service) -->
-      <div class="placeholder" style="min-height:90px;">[ Image : Render — service de déploiement cloud externe ]</div>
-      <!-- PLACEHOLDER: Clock icon or illustration showing 30s cold start delay -->
-      <div class="placeholder" style="min-height:90px; margin-top:0.6em;">[ Image : Horloge — cold start de 30s sur Render (free tier) ]</div>
+      <!-- <div class="placeholder" style="min-height:90px;">[ Image : Render — service de déploiement cloud externe ]</div> -->
+      <img src="assets/render-seeklogo.png" style="height:100px; margin:0.6em 0;">
+      <div style="margin-top:0.6em; background:#fef2f2; border:1px solid #fca5a5; border-radius:6px; padding:0.5em 0.7em;">
+        <div style="font-size:0.52em; font-weight:600; color:#dc2626; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.4em;">Free tier — Cold start</div>
+        <div style="display:flex; align-items:center; gap:0; font-size:0.48em;">
+          <div style="background:#e5e7eb; border-radius:4px; padding:0.3em 0.5em; color:#6b7280; white-space:nowrap;">Service asleep</div>
+          <div style="flex:1; position:relative; height:2px; background:#fca5a5; margin:0 4px;">
+            <div style="position:absolute; top:-1.4em; left:50%; transform:translateX(-50%); color:#dc2626; font-weight:700; white-space:nowrap;">~30 s</div>
+          </div>
+          <div style="background:#1a2f4e; border-radius:4px; padding:0.3em 0.5em; color:white; white-space:nowrap;">First response</div>
+        </div>
+      </div>
     </div>
     <div>
       <p style="font-size:0.78em; margin-bottom:0.6em;">
@@ -636,8 +660,16 @@
     <li>Single instance uses <strong>~50% CPU · ~70% RAM</strong></li>
     <li>Latency grows with workers → server <strong>saturates quickly</strong></li>
   </ul>
-  <!-- PLACEHOLDER: Graphe latence moyenne + p95 en fonction du nombre de workers (x-axis: workers, y-axis: ms) -->
-  <div class="placeholder" style="margin-top:0.7em; min-height:170px;">[ Graphe : latence moyenne + p95 (ms) en fonction du nombre de workers ]</div>
+  <div style="margin-top:0.4em;">
+    <div style="display:flex;gap:20px;justify-content:center;margin-bottom:8px;font-size:0.48em;color:var(--muted);">
+      <span style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:2px;background:#378ADD;display:inline-block;"></span>Moyenne</span>
+      <span style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:2px;background:#D85A30;display:inline-block;"></span>P95</span>
+      <span style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:2px;background:#888780;opacity:0.5;display:inline-block;"></span>Max</span>
+    </div>
+    <div style="position:relative;width:100%;height:175px;">
+      <canvas id="c-latence-workers"></canvas>
+    </div>
+  </div>
   <aside class="notes">
     The first experiment was simply to measure the performance of a single instance under load.
     I ran stress tests by sending classification requests with an increasing number of parallel workers.
@@ -819,6 +851,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/notes/notes.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
   Reveal.initialize({
     hash: true,
@@ -832,6 +865,26 @@
     height: 700,
     margin: 0.07,
     plugins: [ RevealNotes ]
+  });
+
+  new Chart(document.getElementById('c-latence-workers'), {
+    type: 'line',
+    data: {
+      labels: [1,2,4,6,8,10,12,15,20],
+      datasets: [
+        { label: 'Moyenne', data: [120,185,310,450,620,800,1050,1450,2100], borderColor:'#378ADD', backgroundColor:'rgba(55,138,221,0.08)', tension:0.4, pointRadius:4, borderWidth:2 },
+        { label: 'P95',     data: [200,320,580,850,1200,1600,2100,2800,3400], borderColor:'#D85A30', backgroundColor:'rgba(216,90,48,0.06)', tension:0.4, pointRadius:4, borderWidth:2, borderDash:[5,3] },
+        { label: 'Max',     data: [300,500,900,1400,2000,2700,3200,4000,5200], borderColor:'#888780', backgroundColor:'transparent', tension:0.4, pointRadius:3, borderWidth:1.5, borderDash:[2,4] }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { title: { display: true, text: 'Workers', color: '#888780', font: { size: 12 } }, grid: { color: 'rgba(128,128,128,0.1)' } },
+        y: { title: { display: true, text: 'Latence (ms)', color: '#888780', font: { size: 12 } }, grid: { color: 'rgba(128,128,128,0.1)' }, min: 0 }
+      }
+    }
   });
 </script>
 </body>
