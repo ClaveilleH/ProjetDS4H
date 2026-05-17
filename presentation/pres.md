@@ -36,9 +36,7 @@ Then, I will give a quick overview of the state of the art in cloud computing an
 
 Next, I will describe the infrastructure I set up and how deployments work.
 
-Then i will explain the methodology behind the scaling experiments.
-
-After that, I will share the results of the experiments I conducted.
+Then i will explain the methodology and the results of the scaling experiments.
 
 Finally, I will discuss the implications of this project and conclude with some final thoughts.
 
@@ -165,6 +163,8 @@ Image : le truc stylé généré par claude
 
 ---
 
+To select the best solution we also need to know the spec of the VPS
+
 The entire project runs on a single VPS running Debian 12. 
 
 It has 2 virtual CPUs, 4.2 gigabytes of RAM, and 25 gigabytes of storage. 
@@ -221,6 +221,7 @@ Schéma : Internet → Traefik → Container 1 / Container 2 / Container 3
 
 ---
  <!-- A RELIRE ET VOIR SI C'EST INTERESSANT -->
+ <!-- On vire ce slide on deplace les infos aprés -->
 Dokploy is built on top of three core technologies. 
 First, Docker — every application is packaged and run as a container, which ensures isolation between apps. 
 Second, Traefik — a reverse proxy that sits in front of all containers, routes incoming traffic to the right app, and handles SSL certificates automatically. 
@@ -272,13 +273,14 @@ Latency grows with workers → server saturates quickly
 Graphe : latence moyenne + p95 en fonction du nombre de workers
 
 ---
-
+<!-- AJOUTER GRAPH CPU -->
 The first experiment was simply to measure the performance of a single instance under load. 
 
 I some stress tests by sending classification requests with an increasing number of parallel workers.
 A worker is an independent thread that sends requests to the server — so more workers means more concurrent requests.
 
-The results were clear — a single instance already consumes around 50% of the available CPU and 70% of the RAM. 
+The results were clear — 
+<!-- a single instance already consumes around 50% of the available CPU and 70% of the RAM.  -->
 As the number of workers increases, latency grows significantly, which means the server starts queuing requests. 
 
 This illustrates the limits of our infrastructure — with a single instance, we saturate quickly.
@@ -290,6 +292,13 @@ This illustrates the limits of our infrastructure — with a single instance, we
 Schema 2 replicas avec traefik
 
 ---
+
+The second experiment was to test horizontal scaling — adding more instances of the server.
+
+For that i needed to a Docker Hub that store the built image  to duplicate it
+
+with one two then three replicas
+A replica is an independent instance of the application running in its own container.
 
 
 
@@ -305,11 +314,6 @@ Sweet spot: 2 replicas
 Graphe : latence moyenne + p95 pour 1 / 2 / 3 replicas
 
 ---
-
-The second experiment was to test horizontal scaling — adding more instances of the server.
-
-with one two then three replicas
-A replica is an independent instance of the application running in its own container.
 
 Going from 1 to 2 replicas reduces average latency from 1458 to 899 milliseconds, which makes sense since both vCPUs are now fully utilized. 
 However, adding a third replica completely saturates the machine — CPU hits 96%, RAM hits 93%, and latency p95 jumps to over 8 seconds. 
@@ -339,6 +343,8 @@ The results show that the script reacts correctly — when load increases, a new
 There is a latency spike during the scale-up, which is expected since a new container is created. 
 But once deployed, latency drops back to levels similar to the 2-replica configuration."
 
+Utile en cas d'utilisation prolongée pour renta le spike
+
 ---
 
 ## Slide 15 — Autoscaling v2
@@ -352,7 +358,8 @@ Graphe : CPU + replicas + latence + model actif dans le temps
 
 ---
 
-The fourth experiment added a model swapping mechanism on top of autoscaling. 
+The fourth experiment added a hot model swap on top of autoscaling — switching the active model at runtime, without restarting the container. 
+
 The idea was: if we're already at maximum replicas and CPU is still above 80%, instead of doing nothing, 
 we switch to a lighter model that consumes fewer resources. 
 
@@ -375,7 +382,9 @@ Horizontal scaling ≠ more resources — it just spreads what you have
 
 ---
 
-Let's step back and discuss what these results mean. The most fundamental limit is the hardware — with only 2 vCPUs and 4.2 gigabytes of RAM, there is no real elasticity. Horizontal scaling doesn't create new resources, it just redistributes the ones we have. Dokploy itself also has limits — there is no native autoscaling, and the only metric we can easily access is global CPU usage, which is too coarse to build a reactive system on. Finally, the model swapping experiment showed that adding complexity to work around hardware limits can make things worse. Sometimes the right answer is simply: more hardware.
+Let's step back and discuss what these results mean. The most fundamental limit is the hardware — with only 2 vCPUs and 4.2 gigabytes of RAM, there is no real elasticity. Horizontal scaling doesn't create new resources, it just redistributes the ones we have. 
+
+Dokploy itself also has limits — there is no native autoscaling, and the only metric we can easily access is global CPU usage, which is too coarse to build a reactive system on. Finally, the model swapping experiment showed that adding complexity to work around hardware limits can make things worse. Sometimes the right answer is simply: more hardware.
 
 ---
 

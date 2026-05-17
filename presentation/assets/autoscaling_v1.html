@@ -1,0 +1,173 @@
+
+<style>
+.title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); text-align: center; margin-bottom: 4px; }
+.subtitle { font-size: 12px; color: var(--color-text-secondary); text-align: center; margin-bottom: 16px; }
+.legend { display: flex; gap: 16px; justify-content: center; margin-bottom: 12px; flex-wrap: wrap; }
+.legend span { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--color-text-secondary); }
+.leg { width: 22px; height: 3px; border-radius: 2px; display: inline-block; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.note { text-align: center; font-size: 12px; color: var(--color-text-secondary); margin-top: 10px; background: rgba(128,128,128,0.07); border-radius: 6px; padding: 6px 12px; }
+</style>
+
+<h2 class="sr-only">Autoscaling v1 : latence et CPU dans le temps</h2>
+
+<p class="title">Autoscaling v1 — ajustement dynamique des réplicas</p>
+<p class="subtitle">CPU &gt; 80% → +1 réplica (max 2) · CPU &lt; 30% → −1 réplica (min 1) · poll toutes les 30s</p>
+
+<div class="legend">
+  <span><span class="leg" style="background:#378ADD"></span>Latence moy</span>
+  <span><span class="leg" style="background:#888780;opacity:0.5"></span>Latence min</span>
+  <span><span class="leg" style="background:#D85A30"></span>Latence max</span>
+  <span><span class="leg" style="background:#1D9E75"></span>CPU</span>
+  <span><span class="leg" style="background:#7F77DD"></span>RAM</span>
+  <span><span class="leg" style="background:#F5A623;height:2px;background:repeating-linear-gradient(90deg,#F5A623 0 6px,transparent 6px 10px)"></span>Réplicas</span>
+</div>
+
+<div class="grid">
+  <div>
+    <p style="font-size:12px;color:var(--color-text-secondary);text-align:center;margin-bottom:6px">Latence (ms)</p>
+    <div style="position:relative;height:260px">
+      <canvas id="lat" role="img" aria-label="Latence dans le temps avec autoscaling. Pic à ~40s lors du scale-up puis stabilisation.">Latence moy stable ~1400ms, pic à 5000ms au scale-up à t=40s, puis retour à ~900ms.</canvas>
+    </div>
+  </div>
+  <div>
+    <p style="font-size:12px;color:var(--color-text-secondary);text-align:center;margin-bottom:6px">CPU / RAM (%) + Réplicas</p>
+    <div style="position:relative;height:260px">
+      <canvas id="res" role="img" aria-label="CPU dépasse 80% à t=30s, scale-up déclenché, CPU redescend après t=40s.">CPU monte à 85% à t=30s, scale-up à t=40s, CPU redescend à 55%, réplicas passe de 1 à 2.</canvas>
+    </div>
+  </div>
+</div>
+
+<p class="note">⚡ Pic de latence à ~40s lors du déploiement du nouveau conteneur (~40s pour scale-up), puis stabilisation à ~899 ms</p>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+// t en secondes, agrégé par fenêtres de 2s comme dans le rapport
+const t = [-10,-8,-6,-4,-2,0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,72,74,76,78,80,82,84,86,88,90,92,94,96,98,100,102,104,106,108,110,112,114,116,118,120];
+
+// Latence: stable ~1400ms avant scale-up, pic au moment du scale-up (~t=40s), retombe à ~900ms
+const latMoy = t.map(x => {
+  if (x < 0) return 200 + Math.random()*80;
+  if (x < 28) return 1350 + Math.random()*150;
+  if (x < 32) return 1600 + Math.random()*200;
+  if (x < 38) return 2200 + Math.random()*400;
+  if (x < 42) return 4500 + Math.random()*800; // pic scale-up
+  if (x < 48) return 2800 + Math.random()*400;
+  if (x < 54) return 1400 + Math.random()*200;
+  if (x <= 120) return 900 + Math.random()*120;
+  return null;
+});
+
+const latMin = t.map(x => {
+  if (x < 0) return 80 + Math.random()*40;
+  if (x < 28) return 600 + Math.random()*100;
+  if (x < 42) return 800 + Math.random()*200;
+  if (x < 48) return 1200 + Math.random()*200;
+  return 350 + Math.random()*100;
+});
+
+const latMax = t.map(x => {
+  if (x < 0) return 400 + Math.random()*100;
+  if (x < 28) return 2800 + Math.random()*300;
+  if (x < 32) return 3500 + Math.random()*400;
+  if (x < 38) return 4500 + Math.random()*500;
+  if (x < 46) return 7500 + Math.random()*1500;
+  if (x < 54) return 4000 + Math.random()*600;
+  return 1800 + Math.random()*300;
+});
+
+// CPU: monte à ~85% avant scale-up, redescend après
+const cpu = t.map(x => {
+  if (x < 0) return 20 + Math.random()*5;
+  if (x < 10) return 48 + Math.random()*6;
+  if (x < 20) return 62 + Math.random()*6;
+  if (x < 30) return 75 + Math.random()*8;
+  if (x < 40) return 83 + Math.random()*6; // dépasse 80% → scale-up déclenché
+  if (x < 50) return 78 + Math.random()*8; // pic pendant déploiement
+  if (x < 60) return 62 + Math.random()*6;
+  if (x <= 120) return 55 + Math.random()*8; // stabilisation 2 réplicas
+  return null;
+});
+
+const ram = t.map(x => {
+  if (x < 0) return 30 + Math.random()*4;
+  if (x < 40) return 70 + Math.random()*5;
+  if (x < 50) return 76 + Math.random()*5;
+  return 78 + Math.random()*4;
+});
+
+// Réplicas: passe de 1 à 2 à t~40s
+const replicas = t.map(x => x < 40 ? 1 : 2);
+
+new Chart(document.getElementById('lat'), {
+  type: 'line',
+  data: {
+    labels: t,
+    datasets: [
+      { label: 'Latence min', data: latMin, borderColor: 'rgba(136,135,128,0.4)', backgroundColor: 'transparent', tension: 0.4, pointRadius: 0, borderWidth: 1.5, borderDash: [3,4] },
+      { label: 'Latence moy', data: latMoy, borderColor: '#378ADD', backgroundColor: 'rgba(55,138,221,0.07)', tension: 0.4, pointRadius: 0, borderWidth: 2.5, fill: true },
+      { label: 'Latence max', data: latMax, borderColor: '#D85A30', backgroundColor: 'rgba(216,90,48,0.05)', tension: 0.4, pointRadius: 0, borderWidth: 2, borderDash: [5,3], fill: true }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      annotation: {},
+      tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + Math.round(ctx.parsed.y) + ' ms' } }
+    },
+    scales: {
+      x: {
+        title: { display: true, text: 'Temps (s)', color: '#888780', font: { size: 12 } },
+        grid: { color: 'rgba(128,128,128,0.1)' },
+        ticks: { maxTicksLimit: 10, font: { size: 11 } }
+      },
+      y: {
+        title: { display: true, text: 'Latence (ms)', color: '#888780', font: { size: 12 } },
+        grid: { color: 'rgba(128,128,128,0.1)' },
+        ticks: { callback: v => v.toLocaleString(), font: { size: 11 } },
+        min: 0
+      }
+    }
+  }
+});
+
+new Chart(document.getElementById('res'), {
+  type: 'line',
+  data: {
+    labels: t,
+    datasets: [
+      { label: 'CPU', data: cpu, borderColor: '#1D9E75', backgroundColor: 'rgba(29,158,117,0.07)', tension: 0.4, pointRadius: 0, borderWidth: 2.5, fill: true, yAxisID: 'y' },
+      { label: 'RAM', data: ram, borderColor: '#7F77DD', backgroundColor: 'rgba(127,119,221,0.07)', tension: 0.4, pointRadius: 0, borderWidth: 2, fill: true, yAxisID: 'y' },
+      { label: 'Réplicas', data: replicas, borderColor: '#F5A623', backgroundColor: 'transparent', tension: 0, pointRadius: 0, borderWidth: 2.5, borderDash: [6,4], yAxisID: 'y2' }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + Math.round(ctx.parsed.y) + (ctx.dataset.yAxisID === 'y2' ? '' : '%') } }
+    },
+    scales: {
+      x: {
+        title: { display: true, text: 'Temps (s)', color: '#888780', font: { size: 12 } },
+        grid: { color: 'rgba(128,128,128,0.1)' },
+        ticks: { maxTicksLimit: 10, font: { size: 11 } }
+      },
+      y: {
+        title: { display: true, text: 'CPU / RAM (%)', color: '#888780', font: { size: 12 } },
+        grid: { color: 'rgba(128,128,128,0.1)' },
+        ticks: { callback: v => v + '%', font: { size: 11 } },
+        min: 0, max: 100
+      },
+      y2: {
+        position: 'right',
+        title: { display: true, text: 'Réplicas', color: '#F5A623', font: { size: 11 } },
+        grid: { drawOnChartArea: false },
+        ticks: { stepSize: 1, font: { size: 11 }, color: '#F5A623' },
+        min: 0, max: 4
+      }
+    }
+  }
+});
+</script>

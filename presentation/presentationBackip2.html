@@ -645,8 +645,8 @@
       <span style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:2px;background:#D85A30;display:inline-block;"></span>P95</span>
       <span style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:2px;background:#888780;opacity:0.5;display:inline-block;"></span>Max</span>
     </div>
-    <div style="position:relative;width:100%;height:100%;margin:0;min-width:0;">
-      <canvas id="c-latence-workers" style="max-width:100%;max-height: 100%;"></canvas>
+    <div style="position:relative;width:75%;height:230px;margin:0;">
+      <canvas id="c-latence-workers"></canvas>
     </div>
   </div>
   <aside class="notes">
@@ -704,14 +704,14 @@
       <span style="display:flex;align-items:center;gap:5px;"><span style="width:18px;height:2px;background:#1D9E75;display:inline-block;border-radius:2px;"></span>CPU moy</span>
       <span style="display:flex;align-items:center;gap:5px;"><span style="width:18px;height:2px;background:#7F77DD;display:inline-block;border-radius:2px;"></span>RAM moy</span>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1em;width:100%;box-sizing:border-box;">
-      <div style="min-width:0;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1em;">
+      <div>
         <p style="font-size:0.42em;color:var(--muted);text-align:center;margin-bottom:4px;">Latence (ms)</p>
-        <div style="position:relative;height:150px;"><canvas id="chart-lat" style="max-width:100%;"></canvas></div>
+        <div style="position:relative;height:150px;"><canvas id="chart-lat"></canvas></div>
       </div>
-      <div style="min-width:0;">
+      <div>
         <p style="font-size:0.42em;color:var(--muted);text-align:center;margin-bottom:4px;">CPU / RAM (%)</p>
-        <div style="position:relative;height:150px;"><canvas id="chart-res" style="max-width:100%;"></canvas></div>
+        <div style="position:relative;height:150px;width: 100%;"><canvas id="chart-res"></canvas></div>
       </div>
     </div>
   </div>
@@ -783,26 +783,8 @@
   <div class="result-box result-bad" style="margin-top:0.5em;">
     <strong>58 % error rate</strong> · p95 <strong>16 s</strong> · avg latency 1 775 ms — <strong>counterproductive</strong>
   </div>
-  <div style="margin-top:0.4em;">
-    <div style="display:flex;gap:14px;justify-content:center;margin-bottom:5px;font-size:0.42em;color:var(--muted);flex-wrap:wrap;">
-      <span style="display:flex;align-items:center;gap:5px;"><span style="width:18px;height:2px;background:#378ADD;display:inline-block;border-radius:2px;"></span>Latence moy</span>
-      <span style="display:flex;align-items:center;gap:5px;"><span style="width:18px;height:2px;background:#D85A30;display:inline-block;border-radius:2px;"></span>Latence max</span>
-      <span style="display:flex;align-items:center;gap:5px;"><span style="width:18px;height:2px;background:#1D9E75;display:inline-block;border-radius:2px;"></span>CPU</span>
-      <span style="display:flex;align-items:center;gap:5px;"><span style="width:18px;height:2px;background:#7F77DD;display:inline-block;border-radius:2px;"></span>RAM</span>
-      <span style="display:flex;align-items:center;gap:5px;"><span style="width:18px;height:2px;background:#F5A623;display:inline-block;border-radius:2px;"></span>Réplicas</span>
-      <span style="display:flex;align-items:center;gap:5px;"><span style="width:18px;height:2px;background:#C47ACC;display:inline-block;border-radius:2px;"></span>Modèle</span>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1em;width:100%;box-sizing:border-box;">
-      <div style="min-width:0;">
-        <p style="font-size:0.42em;color:var(--muted);text-align:center;margin-bottom:4px;">Latence (ms)</p>
-        <div style="position:relative;height:190px;"><canvas id="chart-as2-lat" style="max-width:100%;"></canvas></div>
-      </div>
-      <div style="min-width:0;">
-        <p style="font-size:0.42em;color:var(--muted);text-align:center;margin-bottom:4px;">CPU / RAM (%) + Réplicas + Modèle</p>
-        <div style="position:relative;height:190px;"><canvas id="chart-as2-res" style="max-width:100%;"></canvas></div>
-      </div>
-    </div>
-  </div>
+  <!-- PLACEHOLDER: Graphe CPU (%) + réplicas + latence (ms) + modèle actif dans le temps (multi-series, model indicator overlay) -->
+  <div class="placeholder" style="margin-top:0.5em; min-height:145px;">[ Graphe : CPU + réplicas + latence + modèle actif dans le temps ]</div>
   <aside class="notes">
     The fourth experiment added a model swapping mechanism on top of autoscaling.
     The idea: if we're already at maximum replicas and CPU is still above 80%, switch to a lighter model that consumes fewer resources.
@@ -901,13 +883,7 @@
     plugins: [ RevealNotes ]
   });
 
-  const resizeAllCharts = () => {
-    [chartWorkers, chartLat, chartRes, chartAs1Lat, chartAs1Res, chartAs2Lat, chartAs2Res].forEach(c => c && c.resize());
-  };
-  Reveal.on('ready', resizeAllCharts);
-  Reveal.on('slidechanged', resizeAllCharts);
-
-  const chartWorkers = new Chart(document.getElementById('c-latence-workers'), {
+  new Chart(document.getElementById('c-latence-workers'), {
     type: 'line',
     data: {
       labels: [1,2,4,6,8,10,12,15,20],
@@ -932,7 +908,7 @@
   const dpr = window.devicePixelRatio * 3;
   const scaleDefaults = { grid: { color: 'rgba(128,128,128,0.1)' }, ticks: { font: { size: 10 } }, title: { font: { size: 10 }, color: '#888780' } };
 
-  const chartLat = new Chart(document.getElementById('chart-lat'), {
+  new Chart(document.getElementById('chart-lat'), {
     type: 'line',
     data: {
       labels: replicaLabels,
@@ -952,7 +928,7 @@
     }
   });
 
-  const chartRes = new Chart(document.getElementById('chart-res'), {
+  new Chart(document.getElementById('chart-res'), {
     type: 'line',
     data: {
       labels: replicaLabels,
@@ -997,7 +973,7 @@
     }
   });
 
-  const chartAs1Res = new Chart(document.getElementById('chart-as1-res'), {
+  new Chart(document.getElementById('chart-as1-res'), {
     type: 'line',
     data: { labels: tAs1, datasets: [
       { label:'CPU',      data: as1Cpu, borderColor:'#1D9E75', backgroundColor:'rgba(29,158,117,0.07)', tension:0.4, pointRadius:0, borderWidth:2.5, fill:true, yAxisID:'y' },
@@ -1012,122 +988,6 @@
         y2:{ position:'right', title:{display:true,text:'Réplicas',color:'#F5A623',font:{size:10}}, grid:{drawOnChartArea:false}, ticks:{stepSize:1,font:{size:10},color:'#F5A623'}, min:0, max:4 }
       }
     }
-  });
-
-  // ── Autoscaling v2 ──
-  const tAs2 = Array.from({length: 71}, (_, i) => i * 2);
-  function as2Smooth(arr, w=1) {
-    return arr.map((v,i) => { let s=0,c=0; for(let j=Math.max(0,i-w);j<=Math.min(arr.length-1,i+w);j++){s+=arr[j];c++;} return s/c; });
-  }
-  const as2LatMoyRaw = tAs2.map(t => {
-    if(t<5)  return 300;
-    if(t<20) return 1400;
-    if(t<28) return 1450+t*3;
-    if(t===30) return 4800;
-    if(t>28&&t<40) return 4800-(t-28)*350;
-    if(t>=40&&t<68) return 1500;
-    if(t>=68&&t<70) return 1500+(t-68)*1800;
-    if(t===70) return 5500;
-    if(t>70&&t<80) return 5500-(t-70)*380;
-    if(t>=80&&t<108) return 1775;
-    if(t>=108&&t<112) return 1775+(t-108)*1600;
-    if(t===112) return 8200;
-    if(t>112&&t<120) return 8200+(t-112)*900;
-    return 15000;
-  });
-  const as2LatMaxRaw = tAs2.map(t => {
-    if(t<5)  return 600;
-    if(t<28) return 2800;
-    if(t>=28&&t<42) return 7000;
-    if(t>=42&&t<68) return 2500;
-    if(t>=68&&t<82) return 9000;
-    if(t>=82&&t<108) return 3000;
-    if(t>=108&&t<122) return 10000+(t-108)*700;
-    return 19000;
-  });
-  const as2CpuRaw = tAs2.map(t => {
-    if(t<5)  return 18;
-    if(t<15) return 18+(t-5)*5;
-    if(t<28) return 68+(t-15)*1.2;
-    if(t>=28&&t<42) return 82;
-    if(t>=42&&t<68) return 74;
-    if(t>=68&&t<72) return 85;
-    if(t>=72&&t<108) return 68;
-    if(t>=108&&t<114) return 86;
-    return 55;
-  });
-  const as2RamRaw = tAs2.map(t => {
-    if(t<5)  return 72;
-    if(t<20) return 72+(t-5)*0.7;
-    if(t>=20&&t<115) return 83;
-    return 74;
-  });
-  const as2Rep    = tAs2.map(t => t < 40 ? 1 : 2);
-  const as2Modele = tAs2.map(t => t < 72 ? 0 : t < 112 ? 1 : 2);
-  const as2LatMoy = as2Smooth(as2LatMoyRaw);
-  const as2LatMax = as2Smooth(as2LatMaxRaw);
-  const as2Cpu    = as2Smooth(as2CpuRaw);
-  const as2Ram    = as2Smooth(as2RamRaw);
-
-  const as2Events = [
-    { t:30, label:'① Scale-up', color:'#F5A623' },
-    { t:70, label:'② cnn_v1',   color:'#C47ACC' },
-    { t:110,label:'③ mlp_v0',   color:'#D85A30' },
-  ];
-  function as2EventPlugin(chart) {
-    return [{
-      afterDraw(c) {
-        const ctx = c.ctx, xs = c.scales.x, ys = c.scales.y;
-        as2Events.forEach(ev => {
-          const idx = tAs2.indexOf(ev.t);
-          if(idx < 0) return;
-          const xPx = xs.getPixelForValue(idx);
-          ctx.save();
-          ctx.beginPath(); ctx.moveTo(xPx, ys.top); ctx.lineTo(xPx, ys.bottom);
-          ctx.strokeStyle = ev.color; ctx.lineWidth = 1.5; ctx.setLineDash([4,3]); ctx.stroke();
-          ctx.setLineDash([]);
-          ctx.fillStyle = ev.color; ctx.font = 'bold 9px sans-serif';
-          ctx.fillText(ev.label, xPx+3, ys.top+14);
-          ctx.restore();
-        });
-      }
-    }];
-  }
-
-  const chartAs2Lat = new Chart(document.getElementById('chart-as2-lat'), {
-    type:'line',
-    data:{ labels:tAs2, datasets:[
-      { label:'Latence moy', data:as2LatMoy, borderColor:'#378ADD', backgroundColor:'rgba(55,138,221,0.07)', tension:0.4, pointRadius:0, borderWidth:2.5, fill:true },
-      { label:'Latence max', data:as2LatMax, borderColor:'#D85A30', backgroundColor:'rgba(216,90,48,0.04)', tension:0.4, pointRadius:0, borderWidth:1.5, borderDash:[5,3] }
-    ]},
-    options:{ responsive:true, maintainAspectRatio:false, devicePixelRatio:dpr,
-      plugins:{ legend:{display:false}, tooltip:{mode:'index',intersect:false, callbacks:{label:ctx=>ctx.dataset.label+': '+Math.round(ctx.parsed.y).toLocaleString()+' ms'}} },
-      scales:{
-        x:{...scaleDefaults, title:{display:true,text:'Temps (s)',...scaleDefaults.title}, ticks:{...scaleDefaults.ticks,maxTicksLimit:8}},
-        y:{...scaleDefaults, title:{display:true,text:'Latence (ms)',...scaleDefaults.title}, ticks:{...scaleDefaults.ticks,callback:v=>v>=1000?(v/1000).toFixed(0)+'k':v}, min:0}
-      }
-    },
-    plugins: as2EventPlugin()
-  });
-
-  const chartAs2Res = new Chart(document.getElementById('chart-as2-res'), {
-    type:'line',
-    data:{ labels:tAs2, datasets:[
-      { label:'CPU',      data:as2Cpu,    borderColor:'#1D9E75', backgroundColor:'rgba(29,158,117,0.07)', tension:0.4, pointRadius:0, borderWidth:2.5, fill:true, yAxisID:'y' },
-      { label:'RAM',      data:as2Ram,    borderColor:'#7F77DD', backgroundColor:'rgba(127,119,221,0.07)', tension:0.4, pointRadius:0, borderWidth:2,   fill:true, yAxisID:'y' },
-      { label:'Réplicas', data:as2Rep,    borderColor:'#F5A623', backgroundColor:'transparent', tension:0, pointRadius:0, borderWidth:2.5, borderDash:[6,4], yAxisID:'y2', stepped:true },
-      { label:'Modèle',   data:as2Modele, borderColor:'#C47ACC', backgroundColor:'transparent', tension:0, pointRadius:0, borderWidth:2,   borderDash:[3,3], yAxisID:'y2', stepped:true }
-    ]},
-    options:{ responsive:true, maintainAspectRatio:false, devicePixelRatio:dpr,
-      plugins:{ legend:{display:false}, tooltip:{mode:'index',intersect:false, callbacks:{label:ctx=>ctx.dataset.yAxisID==='y2'?ctx.dataset.label+': '+(ctx.dataset.label==='Modèle'?['cnn_v2','cnn_v1','mlp_v0'][Math.round(ctx.parsed.y)]??'':Math.round(ctx.parsed.y)):ctx.dataset.label+': '+Math.round(ctx.parsed.y)+'%'}} },
-      scales:{
-        x:{...scaleDefaults, title:{display:true,text:'Temps (s)',...scaleDefaults.title}, ticks:{...scaleDefaults.ticks,maxTicksLimit:8}},
-        y:{...scaleDefaults, title:{display:true,text:'CPU / RAM (%)',...scaleDefaults.title}, ticks:{...scaleDefaults.ticks,callback:v=>v+'%'}, min:0, max:105},
-        y2:{ position:'right', title:{display:true,text:'Réplicas / Modèle',color:'#888780',font:{size:10}}, grid:{drawOnChartArea:false},
-          ticks:{font:{size:9}, callback:v=>['1r','2r','—'][v]??''}, min:0, max:4 }
-      }
-    },
-    plugins: as2EventPlugin()
   });
 </script>
 </body>

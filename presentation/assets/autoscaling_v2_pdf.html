@@ -1,0 +1,247 @@
+
+<style>
+.title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); text-align: center; margin-bottom: 4px; }
+.subtitle { font-size: 12px; color: var(--color-text-secondary); text-align: center; margin-bottom: 14px; }
+.legend { display: flex; gap: 14px; justify-content: center; margin-bottom: 10px; flex-wrap: wrap; }
+.legend span { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--color-text-secondary); }
+.leg { width: 20px; height: 3px; border-radius: 2px; display: inline-block; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.warn { text-align: center; font-size: 11px; color: #D85A30; margin-top: 8px; background: rgba(216,90,48,0.08); border-radius: 6px; padding: 5px 12px; border: 0.5px solid rgba(216,90,48,0.3); }
+</style>
+
+<p class="title">Autoscaling v2 — réplicas + changement de modèle</p>
+<p class="subtitle">CPU &gt; 80% + replicas == max → bascule vers modèle plus léger</p>
+
+<div class="legend">
+  <span><span class="leg" style="background:#378ADD"></span>Latence moy</span>
+  <span><span class="leg" style="background:#D85A30"></span>Latence max</span>
+  <span><span class="leg" style="background:#1D9E75"></span>CPU</span>
+  <span><span class="leg" style="background:#7F77DD"></span>RAM</span>
+  <span><span class="leg" style="background:#F5A623"></span>Réplicas</span>
+  <span><span class="leg" style="background:#C47ACC"></span>Modèle actif</span>
+</div>
+
+<div class="grid">
+  <div>
+    <p style="font-size:11px;color:var(--color-text-secondary);text-align:center;margin-bottom:4px">Latence (ms)</p>
+    <div style="position:relative;height:270px"><canvas id="lat"></canvas></div>
+  </div>
+  <div>
+    <p style="font-size:11px;color:var(--color-text-secondary);text-align:center;margin-bottom:6px">CPU / RAM (%) + Réplicas</p>
+    <div style="position:relative;height:270px"><canvas id="res"></canvas></div>
+  </div>
+</div>
+<p class="warn">Taux d'erreur 58% · P95 ~16 s · Latence max ~20 s → solution contre-productive</p>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+// Données reconstituées depuis le rapport PDF (section 3.1.5, figures A.8, A.9)
+// Durée totale ~140s, agrégation 2s
+// Logique : cnn_v2_dropout → scale-up → si CPU>80%+max replicas → cnn_v1 → mlp_v0_fallback
+// Événements clés :
+//   t=0  : démarrage, 1 réplica, modèle lourd (cnn_v2_dropout)
+//   t=30 : CPU > 80% → scale-up à 2 réplicas, pic latence
+//   t=40 : 2 réplicas déployés, latence redescend
+//   t=70 : CPU > 80% encore + replicas == max → bascule cnn_v1, pic latence
+//   t=80 : modèle cnn_v1 actif, latence moyenne ~1775ms
+//   t=110: CPU > 80% + replicas == max + déjà cnn_v1 → bascule mlp_v0_fallback
+//   t=120: mlp_v0_fallback actif, mais erreurs explosent → latence max ~20s
+//   t=140: fin
+
+const T = Array.from({length: 71}, (_, i) => i * 2); // 0..140 par pas de 2s
+
+function smooth(arr, w=2) {
+  return arr.map((v,i) => {
+    let s=0,c=0;
+    for(let j=Math.max(0,i-w);j<=Math.min(arr.length-1,i+w);j++){s+=arr[j];c++;}
+    return s/c;
+  });
+}
+
+// Latence moyenne : ~1400ms idle, pic ~5000ms au scale-up (t=30-40), stable ~1500ms, pic ~6000ms chgt modèle (t=70-80), ~1775ms, nouveau pic ~8000ms (t=110-120), puis erreurs → latence élevée ~16000ms
+const latMoyRaw = T.map(t => {
+  if (t < 5)  return 300;
+  if (t < 20) return 1400 + Math.sin(t)*80;
+  if (t < 28) return 1450 + t*3;
+  if (t === 30) return 4800;
+  if (t > 28 && t < 40) return 4800 - (t-28)*350;
+  if (t >= 40 && t < 68) return 1500 + Math.sin(t*0.4)*120;
+  if (t >= 68 && t < 70) return 1500 + (t-68)*1800;
+  if (t === 70) return 5500;
+  if (t > 70 && t < 80) return 5500 - (t-70)*380;
+  if (t >= 80 && t < 108) return 1775 + Math.sin(t*0.5)*150;
+  if (t >= 108 && t < 112) return 1775 + (t-108)*1600;
+  if (t === 112) return 8200;
+  if (t > 112 && t < 120) return 8200 + (t-112)*900;
+  if (t >= 120) return 15000 + Math.sin(t)*800;
+  return 1500;
+});
+
+// Latence max
+const latMaxRaw = T.map(t => {
+  if (t < 5)  return 600;
+  if (t < 28) return 2800 + Math.sin(t)*200;
+  if (t >= 28 && t < 42) return 7000 + Math.sin(t)*500;
+  if (t >= 42 && t < 68) return 2500 + Math.sin(t*0.5)*300;
+  if (t >= 68 && t < 82) return 9000 + Math.sin(t)*600;
+  if (t >= 82 && t < 108) return 3000 + Math.sin(t*0.4)*400;
+  if (t >= 108 && t < 122) return 10000 + (t-108)*700;
+  if (t >= 122) return 19000 + Math.sin(t)*800;
+  return 3000;
+});
+
+// CPU : monte vite (~80% charge lourde), redescend légèrement avec scale-up, remonte, redescend légèrement avec chgt modèle
+const cpuRaw = T.map(t => {
+  if (t < 5)  return 18;
+  if (t < 15) return 18 + (t-5)*5;
+  if (t < 28) return 68 + (t-15)*1.2;
+  if (t >= 28 && t < 32) return 83 + Math.sin(t)*3; // dépasse 80% → scale-up
+  if (t >= 32 && t < 42) return 78 + Math.sin(t*2)*5; // déploiement
+  if (t >= 42 && t < 68) return 72 + Math.sin(t*0.7)*10; // 2 réplicas, CPU ~70-80%
+  if (t >= 68 && t < 72) return 85 + Math.sin(t)*3; // dépasse 80% + max replicas → chgt modèle
+  if (t >= 72 && t < 80) return 78 + Math.sin(t)*6;
+  if (t >= 80 && t < 108) return 65 + Math.sin(t*0.6)*12;
+  if (t >= 108 && t < 114) return 86 + Math.sin(t)*3; // 3ème déclenchement
+  if (t >= 114 && t < 120) return 75 + Math.sin(t)*5;
+  if (t >= 120) return 55 + Math.sin(t*0.4)*8; // modèle léger mais erreurs
+  return 70;
+});
+
+// RAM : relativement stable ~82-88%
+const ramRaw = T.map(t => {
+  if (t < 5) return 72;
+  if (t < 20) return 72 + (t-5)*0.7;
+  if (t >= 20 && t < 42) return 82 + Math.sin(t*0.3)*3;
+  if (t >= 42 && t < 80) return 83 + Math.sin(t*0.4)*3;
+  if (t >= 80 && t < 115) return 82 + Math.sin(t*0.3)*3;
+  if (t >= 115) return 74 + Math.sin(t*0.4)*2; // modèle léger → RAM libérée
+  return 82;
+});
+
+// Réplicas : 1 → 2 à t=40
+const replicasRaw = T.map(t => t < 40 ? 1 : 2);
+
+// Modèle : 0=cnn_v2_dropout, 1=cnn_v1, 2=mlp_v0_fallback
+const modeleRaw = T.map(t => {
+  if (t < 72) return 0;
+  if (t < 112) return 1;
+  return 2;
+});
+
+const latMoy = smooth(latMoyRaw, 1);
+const latMax = smooth(latMaxRaw, 1);
+const cpu = smooth(cpuRaw, 1);
+const ram = smooth(ramRaw, 1);
+
+// Événements
+const events = [
+  { t: 30, label: '① Scale-up →2', color: '#F5A623' },
+  { t: 70, label: '② →cnn_v1', color: '#C47ACC' },
+  { t: 110, label: '③ →mlp_v0', color: '#D85A30' },
+];
+
+function makeChart(id, datasets, yConfig, extraPlugins=[]) {
+  return new Chart(document.getElementById(id), {
+    type: 'line',
+    data: { labels: T, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 600 },
+      plugins: {
+        legend: { display: false },
+        tooltip: { mode: 'index', intersect: false }
+      },
+      scales: {
+        x: {
+          title: { display: true, text: 'Temps (s)', color: '#888780', font: { size: 11 } },
+          grid: { color: 'rgba(128,128,128,0.1)' },
+          ticks: { maxTicksLimit: 8, font: { size: 10 } }
+        },
+        ...yConfig
+      }
+    },
+    plugins: [{
+      afterDraw(chart) {
+        const ctx = chart.ctx;
+        const xScale = chart.scales.x;
+        const yScale = chart.scales.y;
+        // seuils
+        extraPlugins.forEach(fn => fn(ctx, xScale, yScale, chart));
+        // lignes événements
+        events.forEach(ev => {
+          const idx = T.indexOf(ev.t);
+          if (idx < 0) return;
+          const xPx = xScale.getPixelForValue(idx);
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(xPx, yScale.top);
+          ctx.lineTo(xPx, yScale.bottom);
+          ctx.strokeStyle = ev.color;
+          ctx.lineWidth = 1.5;
+          ctx.setLineDash([4,3]);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.fillStyle = ev.color;
+          ctx.font = 'bold 9px sans-serif';
+          ctx.fillText(ev.label, xPx + 3, yScale.top + 14);
+          ctx.restore();
+        });
+      }
+    }]
+  });
+}
+
+// LATENCE
+makeChart('lat', [
+  { label: 'Moy', data: latMoy, borderColor: '#378ADD', backgroundColor: 'rgba(55,138,221,0.07)', tension: 0.4, pointRadius: 0, borderWidth: 2.5, fill: true },
+  { label: 'Max', data: latMax, borderColor: '#D85A30', backgroundColor: 'rgba(216,90,48,0.04)', tension: 0.4, pointRadius: 0, borderWidth: 1.5, borderDash: [5,3] }
+], {
+  y: {
+    title: { display: true, text: 'Latence (ms)', color: '#888780', font: { size: 11 } },
+    grid: { color: 'rgba(128,128,128,0.1)' },
+    ticks: { callback: v => v >= 1000 ? (v/1000).toFixed(0)+'k' : v, font: { size: 10 } },
+    min: 0
+  }
+});
+
+// CPU/RAM + REPLICAS + MODELE
+makeChart('res', [
+  { label: 'CPU', data: cpu, borderColor: '#1D9E75', backgroundColor: 'rgba(29,158,117,0.08)', tension: 0.4, pointRadius: 0, borderWidth: 2.5, fill: true, yAxisID: 'y' },
+  { label: 'RAM', data: ram, borderColor: '#7F77DD', backgroundColor: 'rgba(127,119,221,0.07)', tension: 0.4, pointRadius: 0, borderWidth: 2, fill: true, yAxisID: 'y' },
+  { label: 'Réplicas', data: replicasRaw, borderColor: '#F5A623', backgroundColor: 'transparent', tension: 0, pointRadius: 0, borderWidth: 2.5, borderDash: [6,4], yAxisID: 'y2', stepped: true },
+  { label: 'Modèle', data: modeleRaw, borderColor: '#C47ACC', backgroundColor: 'transparent', tension: 0, pointRadius: 0, borderWidth: 2, borderDash: [3,3], yAxisID: 'y2', stepped: true }
+], {
+  y: {
+    title: { display: true, text: 'CPU / RAM (%)', color: '#888780', font: { size: 11 } },
+    grid: { color: 'rgba(128,128,128,0.1)' },
+    ticks: { callback: v => v+'%', font: { size: 10 } },
+    min: 0, max: 105
+  },
+  y2: {
+    position: 'right',
+    title: { display: true, text: 'Réplicas / Modèle', color: '#888780', font: { size: 10 } },
+    grid: { drawOnChartArea: false },
+    ticks: {
+      callback: v => ['1r','2r','—'][v] ?? '',
+      font: { size: 10 }
+    },
+    min: 0, max: 4
+  }
+}, [
+  (ctx, xScale, yScale) => {
+    const y80 = yScale.getPixelForValue(80);
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(xScale.left, y80);
+    ctx.lineTo(xScale.right, y80);
+    ctx.strokeStyle = 'rgba(216,90,48,0.35)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4,4]);
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(216,90,48,0.5)';
+    ctx.font = '9px sans-serif';
+    ctx.fillText('seuil 80%', xScale.right - 52, y80 - 3);
+    ctx.restore();
+  }
+]);
+</script>

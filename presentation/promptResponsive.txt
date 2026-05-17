@@ -1,0 +1,7 @@
+Fix the responsiveness of this Reveal.js presentation for video projector use. Keep the 1200×700 16:9 fixed canvas — Reveal handles scaling — but fix these specific issues:
+
+1. Chart.js canvases: wrap each <canvas> in a position:relative div and remove any fixed height in px on the canvas elements themselves; let the parent div control height using a percentage of the slide
+2. Images with fixed pixel heights (notably shem.png at height:550px): replace fixed height with max-height: 65vh and width: auto; max-width: 100%
+3. devicePixelRatio: replace window.devicePixelRatio * 3 with just window.devicePixelRatio in all Chart.js configs
+4. Google Fonts fallback: add a local fallback stack so if the font fails to load the layout doesn't break — add font-family: 'DM Sans', system-ui, -apple-system, sans-serif everywhere DM Sans is used
+5. Do not change any colors, layout structure, slide content, or CSS variables

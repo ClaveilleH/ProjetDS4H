@@ -1,0 +1,180 @@
+
+<style>
+.title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); text-align: center; margin-bottom: 4px; }
+.subtitle { font-size: 12px; color: var(--color-text-secondary); text-align: center; margin-bottom: 16px; }
+.legend { display: flex; gap: 18px; justify-content: center; margin-bottom: 12px; flex-wrap: wrap; }
+.legend span { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--color-text-secondary); }
+.leg { width: 22px; height: 3px; border-radius: 2px; display: inline-block; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.warn { text-align: center; font-size: 12px; color: #D85A30; margin-top: 10px; background: rgba(216,90,48,0.08); border-radius: 6px; padding: 6px 12px; border: 0.5px solid rgba(216,90,48,0.3); }
+.sweet { text-align: center; font-size: 12px; color: #1D9E75; margin-top: 6px; background: rgba(29,158,117,0.08); border-radius: 6px; padding: 6px 12px; border: 0.5px solid rgba(29,158,117,0.3); }
+</style>
+
+<h2 class="sr-only">Courbes latence et CPU/RAM en fonction du nombre de réplicas</h2>
+
+<p class="title">Scaling horizontal — impact du nombre de réplicas</p>
+<p class="subtitle">10 workers · 100 requêtes</p>
+
+<div class="legend">
+  <span><span class="leg" style="background:#378ADD"></span>Moyenne</span>
+  <span><span class="leg" style="background:#D85A30;height:2px;background:repeating-linear-gradient(90deg,#D85A30 0 6px,transparent 6px 10px)"></span>P95</span>
+  <span><span class="leg" style="background:#888780;opacity:0.5"></span>Max</span>
+  <span><span class="leg" style="background:#1D9E75"></span>CPU moy</span>
+  <span><span class="leg" style="background:#7F77DD"></span>RAM moy</span>
+</div>
+
+<div class="grid">
+  <div>
+    <p style="font-size:12px;color:var(--color-text-secondary);text-align:center;margin-bottom:6px">Latence (ms)</p>
+    <div style="position:relative;height:260px">
+      <canvas id="lat" role="img" aria-label="Courbes latence vs réplicas. P95 explose à 8257ms avec 3 réplicas.">1→2 réplicas: latence moy de 1458 à 899ms. 3 réplicas: P95 8257ms.</canvas>
+    </div>
+  </div>
+  <div>
+    <p style="font-size:12px;color:var(--color-text-secondary);text-align:center;margin-bottom:6px">CPU / RAM (%)</p>
+    <div style="position:relative;height:260px">
+      <canvas id="res" role="img" aria-label="Courbes CPU et RAM vs réplicas. CPU 96% avec 3 réplicas.">CPU: 50, 70, 96%. RAM: 70, 80, 94%.</canvas>
+    </div>
+  </div>
+</div>
+
+<p class="warn">3 réplicas → saturation : CPU 96% · RAM 94% · P95 8 257 ms</p>
+<p class="sweet">✓ Point optimal : 2 réplicas — latence moyenne ↓ de 1 458 ms → 899 ms</p>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const labels = ['1', '2', '3'];
+
+new Chart(document.getElementById('lat'), {
+  type: 'line',
+  data: {
+    labels,
+    datasets: [
+      {
+        label: 'Moyenne',
+        data: [1458, 899, 3200],
+        borderColor: '#378ADD',
+        backgroundColor: 'rgba(55,138,221,0.08)',
+        tension: 0.4,
+        pointRadius: 6,
+        pointHoverRadius: 8,
+        borderWidth: 2.5,
+        fill: true
+      },
+      {
+        label: 'P95',
+        data: [1309, 899, 8257],
+        borderColor: '#D85A30',
+        backgroundColor: 'rgba(216,90,48,0.04)',
+        tension: 0.4,
+        pointRadius: 6,
+        pointHoverRadius: 8,
+        borderWidth: 2.5,
+        borderDash: [6, 4],
+        fill: true
+      },
+      {
+        label: 'Max',
+        data: [2100, 1400, 11000],
+        borderColor: 'rgba(136,135,128,0.5)',
+        backgroundColor: 'transparent',
+        tension: 0.4,
+        pointRadius: 4,
+        borderWidth: 1.5,
+        borderDash: [3, 5]
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y.toLocaleString() + ' ms' } }
+    },
+    scales: {
+      x: {
+        title: { display: true, text: 'Nombre de réplicas', color: '#888780', font: { size: 12 } },
+        grid: { color: 'rgba(128,128,128,0.1)' }
+      },
+      y: {
+        title: { display: true, text: 'Latence (ms)', color: '#888780', font: { size: 12 } },
+        grid: { color: 'rgba(128,128,128,0.1)' },
+        ticks: { callback: v => v.toLocaleString(), font: { size: 11 } },
+        min: 0
+      }
+    }
+  }
+});
+
+new Chart(document.getElementById('res'), {
+  type: 'line',
+  data: {
+    labels,
+    datasets: [
+      {
+        label: 'CPU moy',
+        data: [50, 70, 96],
+        borderColor: '#1D9E75',
+        backgroundColor: 'rgba(29,158,117,0.08)',
+        tension: 0.4,
+        pointRadius: 6,
+        pointHoverRadius: 8,
+        borderWidth: 2.5,
+        fill: true
+      },
+      {
+        label: 'CPU max',
+        data: [65, 85, 100],
+        borderColor: '#1D9E75',
+        backgroundColor: 'transparent',
+        tension: 0.4,
+        pointRadius: 4,
+        borderWidth: 1.5,
+        borderDash: [5, 4]
+      },
+      {
+        label: 'RAM moy',
+        data: [70, 80, 94],
+        borderColor: '#7F77DD',
+        backgroundColor: 'rgba(127,119,221,0.07)',
+        tension: 0.4,
+        pointRadius: 6,
+        pointHoverRadius: 8,
+        borderWidth: 2.5,
+        fill: true
+      },
+      {
+        label: 'RAM max',
+        data: [75, 86, 100],
+        borderColor: '#7F77DD',
+        backgroundColor: 'transparent',
+        tension: 0.4,
+        pointRadius: 4,
+        borderWidth: 1.5,
+        borderDash: [5, 4]
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y + '%' } }
+    },
+    scales: {
+      x: {
+        title: { display: true, text: 'Nombre de réplicas', color: '#888780', font: { size: 12 } },
+        grid: { color: 'rgba(128,128,128,0.1)' }
+      },
+      y: {
+        title: { display: true, text: 'Utilisation (%)', color: '#888780', font: { size: 12 } },
+        grid: { color: 'rgba(128,128,128,0.1)' },
+        ticks: { callback: v => v + '%', font: { size: 11 } },
+        min: 0, max: 100
+      }
+    }
+  }
+});
+</script>
