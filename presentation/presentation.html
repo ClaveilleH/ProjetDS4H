@@ -117,9 +117,12 @@
     .plan-list {
       list-style: none;
       padding: 0;
+      padding-left: 0;
       counter-reset: plan;
       margin: 0.5em 0 0 0;
     }
+
+    .plan-list li::marker { display: none; content: ''; }
 
     .plan-list li {
       counter-increment: plan;
@@ -301,10 +304,11 @@
   <h1>Self-Hosted Cloud Implementation</h1>
   <p class="meta">Hugo Claveille</p>
   <p class="meta">Supervisor: Gilles MENEZ</p>
-  <p class="meta">Master 1 Computer Science — DS4H Project</p>
+  <p class="meta">Master 1 Computer Science - DS4H Project</p>
   <p class="meta">May 2026</p>
   <aside class="notes">
-    Hello everyone. Today I'm going to present my DS4H project called Self-Hosted Cloud Implementation.
+    Hello everyone.
+    Today I’m going to present my DS4H project called Self-Hosted Cloud Implementation.
     The main objective was to explore and evaluate an infrastructure to replace the Render service.
   </aside>
 </section>
@@ -325,13 +329,13 @@
     <li>Discussion &amp; conclusion</li>
   </ol>
   <aside class="notes">
-    Here's the plan for this presentation.
-    First, I will introduce the context and motivation for this project.
-    Then, I will give a quick overview of the state of the art in cloud computing and how I selected the solution.
-    Next, I will describe the infrastructure I set up and how deployments work.
-    Then I will explain the methodology behind the scaling experiments.
-    After that, I will share the results of the experiments I conducted.
-    Finally, I will discuss the implications of this project and conclude with some final thoughts.
+    Here’s the plan for this presentation.<br>
+    First, I will introduce the context and motivation for this project.<br>
+    Then, I will give a quick overview of the state of the art in cloud computing and how I selected the solution.<br>
+    Next, I will describe the infrastructure I set up and how deployments work.<br>
+    Then i will explain the methodology and the results of the scaling experiments.<br>
+    Finally, I will discuss the implications of this project and conclude with some final thoughts.<br>
+
   </aside>
 </section>
 
@@ -366,15 +370,24 @@
         <li>Abstraction of infrastructure</li>
         <li>Application isolation</li>
         <li>Multi-user support</li>
-        <li>Automated CI/CD</li>
+        <li>Scalability</li>
+        <li>Orchestration</li>
+        <!-- <li>Automated CI/CD</li> -->
       </ul>
     </div>
   </div>
   <aside class="notes">
-    The IoT course is currently using Render to let students deploy their applications.
-    The problem is that Render is an external service — which means we depend on a third party for availability and pricing.
-    On top of that, Render has a well-known issue: on free tier, services go to sleep after inactivity, and take up to 30 seconds to wake up, which is quite annoying in a classroom setting.
-    So the goal of this project was to replace it with a self-hosted solution that we fully control — one that can abstract the infrastructure, isolate applications, handle multiple users, and automate deployments.
+    The IoT course is currently using Render to let students deploy their applications.<br>
+    The problem is that Render is an external service — which means we depend on a third 
+    party for availability and pricing.<br>
+    On top of that, Render has a well-known issue: on free tier, services go to sleep after inactivity,
+    and take up to 30 seconds to wake up, which is quite annoying in a classroom setting.<br>
+    And for now, render has a free tier, but that could change in the future.<br>
+    So the goal of this project was to replace it with a self-hosted solution that we fully control — 
+    one that can abstract the infrastructure, isolate applications, handle multiple users, and automate deployments.<br>
+    And then test how well it works under load and the scalability and orchestration capabilities.
+    Now <strong>that we understand the problem</strong>, let me give a bit of background on the technologies involved — 
+    and then walk you through how I selected the solution.
   </aside>
 </section>
 
@@ -382,7 +395,7 @@
 <!-- ════════════════════════════════════════════════
      SLIDE 4 — STATE OF THE ART: ABSTRACTION
      ════════════════════════════════════════════════ -->
-<section>
+<section data-visibility="hidden">
   <h2>State of the Art: Abstraction &amp; Remote Access</h2>
   <div class="accent-rule"></div>
   <ul>
@@ -397,9 +410,12 @@
     <div class="placeholder" style="min-height:130px;">[ Frise chronologique : 1940 accès distant → 1960s Multics → 1990s SaaS → 2000s Cloud ]</div>
   </div>
   <aside class="notes">
-    The idea of abstracting computing resources is not new. As early as the 1960s, systems like Multics introduced the concept of a computer utility — where computing power would be consumed like electricity, on demand.
-    Around the same time, the idea of accessing machines remotely emerged — George Stibitz demonstrated remote control of a computer as early as 1940.
-    These early concepts laid the foundation for what we now call cloud computing.
+    The idea of <strong>abstracting computing resources</strong> is not new. 
+    As early as the 1960s, systems like Multics introduced the concept of a computer utility — 
+    where computing power would be consumed like electricity, on demand.<br>
+    Around the same time, the idea of accessing machines remotely emerged — 
+    George Stibitz demonstrated remote control of a computer as early as 1940.
+    <!-- These early concepts laid the foundation for what we now call cloud computing. -->
   </aside>
 </section>
 
@@ -433,12 +449,16 @@
     </div>
   </div>
   <aside class="notes">
-    These concepts evolved into the cloud models we know today.
-    IaaS gives you raw infrastructure, PaaS gives you a deployment environment, SaaS gives you a full application.
-    And deployments can be public, where the infrastructure is owned by a third party, private, where you own it, or hybrid.
-    The key enabling technology is containerization — Docker in particular — which allows multiple isolated apps to run on a single machine.
-    Combined with DevOps practices, a simple git push can trigger an automatic build and deployment.
-    These are exactly the properties we want for our self-hosted platform.
+    These <strong>concepts evolved</strong> into the cloud models we know today.<br>
+    <strong>IaaS</strong> as Infrastructure as a Service gives you raw infrastructure, <br>
+    <strong>PaaS</strong> as Platform as a Service gives you a deployment environment, <br>
+    <strong>SaaS</strong> as Software as a Service gives you a full application.<br>
+    And deployments can be <strong>public</strong>, where the infrastructure is owned by a third party, <strong>private</strong>, where you own it, or <strong>hybrid</strong>. <br>
+    The key enabling technology is containerization — with Docker in particular — 
+    which allows multiple isolated apps to run on a single machine.<br>
+    <!-- <em>Combined with DevOps practices, a simple git push can trigger an automatic build and deployment.</em>
+    These are exactly the properties we want for our self-hosted platform.<br> -->
+    Before comparing solutions, let me define what we actually need.<br>
   </aside>
 </section>
 
@@ -458,11 +478,11 @@
     <li><strong>Easy to maintain</strong> — one person, one machine</li>
   </ul>
   <aside class="notes">
-    First, a web interface — students are not sysadmins, they can't work exclusively with a command line.
-    Second, Git integration — a push to a repository should trigger an automatic deployment.
-    Third, multi-user support — each student needs their own isolated space.
-    Fourth, the solution must run on a single machine with limited resources.
-    And finally, it needs to have monitoring and logging capabilities to track usage and troubleshoot issues.
+    First, a <strong>web interface</strong> — students are not sysadmins, they can't work exclusively with a command line.<br>
+    Second, <strong>Git integration</strong> — a push to a repository should trigger an automatic deployment.<br>
+    Third, <strong>multi-user support</strong> — each student needs their own isolated space.<br>
+    Fourth, the solution must run on a <strong>single machine</strong> with <strong>limited resources</strong>.<br>
+    And finally, it needs to have <strong>monitoring</strong> and <strong>logging capabilities</strong> to <strong>track usage</strong> and <strong>troubleshoot issues</strong>.
   </aside>
 </section>
 
@@ -482,7 +502,7 @@
           <div class="label">vCPU</div>
         </div>
         <div class="stat-box">
-          <div class="value">4.2 GB</div>
+          <div class="value">4 GB</div>
           <div class="label">RAM</div>
         </div>
         <div class="stat-box">
@@ -493,7 +513,7 @@
       <ul>
         <li>No automatic elasticity</li>
         <li>Manual upgrade only</li>
-        <li>~1.5 GB RAM free under normal load</li>
+        <!-- <li>~1.5 GB RAM free under normal load</li> -->
       </ul>
     </div>
     <div>
@@ -502,11 +522,11 @@
     </div>
   </div>
   <aside class="notes">
-    The entire project runs on a single VPS running Debian 12.
-    It has 2 virtual CPUs, 4.2 gigabytes of RAM, and 25 gigabytes of storage.
-    In practice, only about 1.5 gigabytes of RAM are freely available under normal conditions.
-    And unlike a public cloud, there is no automatic elasticity — if we need more resources, we have to manually request an upgrade.
-    This is a hard constraint that directly influenced which solutions were viable.
+    To select the best solution, we also need to know the specs of the machine I used.<br>
+    The entire project runs on a single VPS running Debian 12.<br>
+    It has 2 virtual CPUs, 4 gigabytes of RAM, and 25 gigabytes of storage.<br>
+    And unlike a public cloud, there is no automatic elasticity — 
+    if we need more resources, we have to manually request an upgrade.<br>
   </aside>
 </section>
 
@@ -573,14 +593,14 @@
     </tbody>
   </table>
   <aside class="notes">
-    I evaluated six solutions against our needs and constraints.
-    OpenStack is too resource-heavy for our VPS.
-    k3s, the lightweight Kubernetes distribution, is technically viable but introduces unnecessary orchestration complexity.
-    Dokku has no web interface.
-    CapRover has limited multi-user support.
-    Coolify ticks all the boxes but requires over 20 gigabytes of storage.
-    That leaves Dokploy — it is an open-source, community-driven PaaS built on top of Docker.
-    It has a web interface, full multi-user support, native Git integration, and a low resource footprint. It was the clear choice.
+    I evaluated six solutions against our needs and constraints.<br>
+    <strong>OpenStack</strong> and <strong>k3s</strong>, the <strong>lightweight Kubernetes distribution</strong>, were too complex as a first approach.<br>
+    <!-- , is technically viable but introduces unnecessary orchestration complexity. -->
+    <strong>Dokku</strong> has no web interface.<br>
+    <strong>CapRover</strong> has limited multi-user support.<br>
+    <strong>Coolify</strong> <strong>ticks</strong> all the boxes but requires <strong>over 20</strong> gigabytes of storage.w<br>
+    That leaves Dokploy — it is an <strong>open-source, community-driven</strong> PaaS built on top of Docker.w<br>
+    It has a web interface, full multi-user support, native Git integration, and a low resource footprint. It was the clear choice.w<br>
   </aside>
 </section>
 
@@ -604,11 +624,17 @@
     <img src="assets/shem.png" style="width:100%;">
   </div>
   <aside class="notes">
-    To evaluate Dokploy, I needed a real application to deploy.
-    I took a digit classification server based on a neural network trained on the MNIST dataset.
-    It exposes a REST API with endpoints to predict digits from images, retrieve system metrics, and upload new models.
-    The deployment pipeline is fully automated: I first had to write a Dockerfile to containerize the application, and a requirements.txt for dependencies.
-    Then, I push the files to GitHub, Dokploy detects the change, builds the Docker image, and Traefik exposes the service at a public URL.
+    To evaluate Dokploy, I needed a real application to deploy.<br>
+    I took a digit <strong>classification server</strong> based on a <strong>neural network</strong> trained on the MNIST dataset.<br>
+    It exposes a <strong>REST API</strong> with <strong>endpoints</strong> to<br> 
+    <strong>predict digits</strong> from <strong>images</strong>, <br>
+    pull <strong>system metrics</strong>, <br>
+    and <strong>upload new models</strong>.<br>
+    The deployment pipeline is fully automated: <br>
+    I first had to write a <strong>Dockerfile</strong> to <strong>containerize</strong> the application, 
+    and a <strong>requirements.txt</strong> file to specify <strong>dependencies</strong>.<br>
+    Then, I push all the files to a GitHub repository, Dokploy detects the change, 
+    builds the Docker image from the Dockerfile, and Traefik <strong>exposes</strong> the service at a public URL.<br>
     No manual intervention needed on the server, except for the initial setup.
   </aside>
 </section>
@@ -619,9 +645,15 @@
      ════════════════════════════════════════════════ -->
 <section data-background-color="#1a2f4e" class="chapter-slide">
   <h2>Scaling Experiments</h2>
-  <p class="chapter-sub">Four experiments — increasing load on a single VPS</p>
+  <p class="chapter-sub">Four experiments :</p>
+  <ul style="color:rgba(255,255,255,0.8); margin-top:0.5em;">
+    <li>Experiment 1 — single instance baseline</li>
+    <li>Experiment 2 — horizontal scaling with replicas</li>
+    <li>Experiment 3 — vertical scaling with resource limits</li>
+    <li>Experiment 4 — stress test with multiple workers</li>
+  </ul>
   <aside class="notes">
-    Now let's get into the core of the project — the scaling experiments.
+    Now let's get into the core of the project — the scaling experiments. <br>
     I ran four experiments to evaluate how well Dokploy handles increasing load.
   </aside>
 </section>
@@ -650,11 +682,11 @@
     </div>
   </div>
   <aside class="notes">
-    The first experiment was simply to measure the performance of a single instance under load.
-    I ran stress tests by sending classification requests with an increasing number of parallel workers.
-    A worker is an independent thread that sends requests to the server — so more workers means more concurrent requests.
-    The results were clear — a single instance already consumes around 50% of the available CPU and 70% of the RAM.
-    As the number of workers increases, latency grows significantly, which means the server starts queuing requests.
+    The first experiment was simply to measure the performance of a <strong>single instance under load</strong>.<br>
+    I ran some <strong>stress tests</strong> by sending <strong>classification requests</strong> with an increasing number of <strong>parallel workers</strong><br>
+    A worker is an <strong>independent thread</strong> that sends requests to the server — so more workers means more <strong>concurrent</strong> requests.<br>
+    The results were clear — as the number of workers <strong>increases</strong>, <strong>latency grows</strong> significantly, 
+    which means the server starts <strong>queuing requests</strong>.<br>
     This illustrates the limits of our infrastructure — with a single instance, we saturate quickly.
   </aside>
 </section>
@@ -667,15 +699,28 @@
   <h2>Horizontal Scaling</h2>
   <div class="accent-rule"></div>
   <p class="section-label">Experiment 2 — adding replicas</p>
-  <!-- PLACEHOLDER: Schéma 2 réplicas avec Traefik — load balancing entre les deux containers -->
-  <!-- <div class="placeholder" style="min-height:290px;">[ Schéma : 2 réplicas — Traefik load-balance les requêtes entre Container A et Container B ]</div> -->
-  <div style="text-align:center;">
+  <div style="display:grid;grid-template-columns:1fr 1.4fr;gap:1.2em;align-items:center;">
+    <div>
+      <!-- <p style="font-size:0.78em;"><strong>RNN server</strong> — MNIST digit classifier exposed as a REST API</p> -->
+      <ul style="margin-top:0.3em; margin-bottom:0.7em;">
+        <li><code>Docker Hub</code> ⟶ store the built image</li>
+        <li><code>Replicas</code> ⟶ duplicate the container across instances</li>
+        <li><code>Traefik</code> ⟶ load-balance requests across replicas</li>
+      </ul>
+      <p style="font-size:0.62em; color:var(--muted);">Pipeline: Git push → Dokploy builds image → Traefik exposes public URL</p>
+    </div>
+    <!-- <img src="assets/shem.png" style="width:100%;"> -->
     <img src="assets/shem2.png" style="height:550px; width:auto; margin-top:0.8em;">
   </div>
+  <!-- PLACEHOLDER: Schéma 2 réplicas avec Traefik — load balancing entre les deux containers -->
+  <!-- <div class="placeholder" style="min-height:290px;">[ Schéma : 2 réplicas — Traefik load-balance les requêtes entre Container A et Container B ]</div> -->
+  <!-- <div style="text-align:center;">
+  </div> -->
   <aside class="notes">
-    The second experiment was to test horizontal scaling — adding more instances of the server.
-    A replica is an independent instance of the application running in its own container.
-    Traefik load-balances incoming requests across all running replicas.
+    The second experiment was to test horizontal scaling — adding more instances of the server.<br>
+    For that I needed a Docker Hub to store the built image and duplicate it across replicas.<br>
+    I tested with one, two, then three replicas — a replica is an independent instance of the application running in its own container.<br>
+    Traefik balances the incoming requests across all running replicas.
   </aside>
 </section>
 
@@ -716,9 +761,12 @@
     </div>
   </div>
   <aside class="notes">
-    Going from 1 to 2 replicas reduces average latency from 1458 to 899 milliseconds, which makes sense since both vCPUs are now fully utilized.
-    However, adding a third replica completely saturates the machine — CPU hits 96%, RAM hits 93%, and p95 latency jumps to over 8 seconds.
-    The machine likely starts using swap at this point.
+    Going from 1 to 2 replicas reduces <strong>average latency</strong> from 1500 to 900 milliseconds, <br>
+    which makes sense since <strong>both vCPUs</strong> are now fully used.<br>
+    However, adding a third replica completely saturates the machine — 
+    CPU and RAM usage hit <strong>more than 90%</strong>, and latency jumps to <strong>over 8 seconds</strong>.<br>
+    <!-- CPU hits 96%, RAM hits 93%, and p95 latency jumps to over 8 seconds.<br> -->
+    The machine likely starts using swap at this point.<br>
     So 2 replicas is the sweet spot on this infrastructure — beyond that, adding instances becomes counterproductive.
   </aside>
 </section>
@@ -759,11 +807,12 @@
     </div>
   </div>
   <aside class="notes">
-    The third experiment was autoscaling. Since Dokploy has no native autoscaling,
-    I built an external script that polls the CPU usage every 30 seconds and adjusts the number of replicas accordingly.
-    If CPU goes above 80%, it adds a replica. If it drops below 30%, it removes one.
-    The results show that the script reacts correctly — when load increases, a new replica is created.
-    There is a latency spike during the scale-up, which is expected since a new container is created.
+    The third experiment was autoscaling. <br>
+    Since Dokploy has no native autoscaling, I built an external script that <strong>polls the CPU usage</strong> every 30 seconds 
+    and adjusts the number of replicas accordingly.<br>
+    If CPU goes <strong>above 80%</strong>, it adds a replica. If it drops <strong>below 30%</strong>, it removes one.<br>
+    The results show that the script <strong>reacts correctly</strong> — when <strong>load increases</strong>, a new replica is created.<br>
+    There is a latency spike during the scale-up, <strong>which is expected</strong> since a new container is created.<br>
     But once deployed, latency drops back to levels similar to the 2-replica configuration.
   </aside>
 </section>
@@ -790,7 +839,7 @@
       <span style="display:flex;align-items:center;gap:5px;"><span style="width:18px;height:2px;background:#1D9E75;display:inline-block;border-radius:2px;"></span>CPU</span>
       <span style="display:flex;align-items:center;gap:5px;"><span style="width:18px;height:2px;background:#7F77DD;display:inline-block;border-radius:2px;"></span>RAM</span>
       <span style="display:flex;align-items:center;gap:5px;"><span style="width:18px;height:2px;background:#F5A623;display:inline-block;border-radius:2px;"></span>Réplicas</span>
-      <span style="display:flex;align-items:center;gap:5px;"><span style="width:18px;height:2px;background:#C47ACC;display:inline-block;border-radius:2px;"></span>Modèle</span>
+      <!-- <span style="display:flex;align-items:center;gap:5px;"><span style="width:18px;height:2px;background:#C47ACC;display:inline-block;border-radius:2px;"></span>Modèle</span> -->
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:1em;width:100%;box-sizing:border-box;">
       <div style="min-width:0;">
@@ -804,10 +853,11 @@
     </div>
   </div>
   <aside class="notes">
-    The fourth experiment added a model swapping mechanism on top of autoscaling.
-    The idea: if we're already at maximum replicas and CPU is still above 80%, switch to a lighter model that consumes fewer resources.
-    In theory this sounds smart — but in practice it backfired.
-    The error rate jumped to 58%, p95 latency reached 16 seconds, and overall throughput was worse than a fixed 2-replica setup.
+    The last experiment added a <strong>hot model swap</strong> on top of autoscaling<br> 
+    — we switch the active model <strong>at runtime</strong>, without restarting the container.<br>
+    The idea was: if we're already at maximum replicas and CPU is still above 80%, instead of doing nothing, we switch to a <strong>lighter model</strong> that consumes <strong>fewer</strong> resources.<br>
+    In theory this sounds smart — but in practice it backfired.<br>
+    The error rate jumped to 58%, p95 latency reached 16 seconds, and the overall throughput was worse than with a fixed 2-replica setup.<br>
     The model switching introduces additional latency on every request, and the constant reloading under load made things worse.
   </aside>
 </section>
@@ -821,7 +871,7 @@
   <div class="accent-rule"></div>
   <ul>
     <li>
-      <strong>Hardware</strong> — 2 vCPU / 4.2 GB RAM: no real elasticity,
+      <strong>Hardware</strong> — 2 vCPU / 4 GB RAM: no real elasticity,
       scaling redistributes fixed resources
     </li>
     <li>
@@ -838,10 +888,10 @@
     </li>
   </ul>
   <aside class="notes">
-    Let's step back and discuss what these results mean.
-    The most fundamental limit is the hardware — with only 2 vCPUs and 4.2 gigabytes of RAM, there is no real elasticity.
-    Horizontal scaling doesn't create new resources, it just redistributes the ones we have.
-    Dokploy itself also has limits — there is no native autoscaling, and the only metric we can easily access is global CPU usage, which is too coarse to build a reactive system on.
+    Let's step back and discuss what these results mean.<br>
+    The most fundamental limit is the <strong>hardware</strong> — with only 2 vCPUs and 4 gigabytes of RAM, there is no real elasticity.<br>
+    Horizontal scaling doesn't create new resources, it just redistributes the ones we have.<br>
+    Dokploy itself also has limits — there is no native autoscaling, and the external script built to compensate is not a reliable solution. It relies on a single metric and react to slowly to be effective.<br>
     Finally, the model swapping experiment showed that adding complexity to work around hardware limits can make things worse.
     Sometimes the right answer is simply: more hardware.
   </aside>
@@ -868,14 +918,14 @@
     <li><strong>Long term</strong> — migrate to k3s if needs grow significantly</li>
   </ul>
   <aside class="notes">
-    To conclude — Dokploy successfully meets the pedagogical goals of this project.
-    A student can deploy an application from a Git repository without touching the underlying infrastructure.
-    However, this project also illustrated a fundamental truth about self-hosting: unlike a public cloud, you cannot abstract away the absence of physical resources.
-    The cloud makes elasticity feel infinite — on a VPS, you hit the wall quickly.
-    Looking ahead, the most impactful short-term improvement would simply be upgrading the VPS.
-    Mid-term, adding a second node would enable true horizontal scaling.
-    And long-term, if the number of users or the criticality of applications grows significantly, a migration to k3s would be the natural next step.
-    Thank you for your attention — I'm happy to take any questions.
+    To conclude — Dokploy successfully meets the pedagogical goals of this project.<br>
+    A student can deploy an application from a Git repository without touching the underlying infrastructure.<br>
+    <!-- However, this project also illustrated a fundamental truth about self-hosting: unlike a public cloud, you cannot abstract away the absence of physical resources.<br> -->
+    <!-- The cloud makes elasticity feel infinite — on a VPS, you hit the wall quickly.<br> -->
+    Looking ahead, the most impactful <strong>short-term</strong> improvement would simply be upgrading the VPS.<br>
+    <strong>Mid-term</strong>, adding a second node would enable true horizontal scaling.<br>
+    And <strong>long-term</strong>, if the number of users or the criticality of applications grows significantly, a migration to k3s would be the natural next step.<br>
+    Thank you for your attention — I'm happy to take any questions.<br>
   </aside>
 </section>
 
@@ -1116,14 +1166,14 @@
       { label:'CPU',      data:as2Cpu,    borderColor:'#1D9E75', backgroundColor:'rgba(29,158,117,0.07)', tension:0.4, pointRadius:0, borderWidth:2.5, fill:true, yAxisID:'y' },
       { label:'RAM',      data:as2Ram,    borderColor:'#7F77DD', backgroundColor:'rgba(127,119,221,0.07)', tension:0.4, pointRadius:0, borderWidth:2,   fill:true, yAxisID:'y' },
       { label:'Réplicas', data:as2Rep,    borderColor:'#F5A623', backgroundColor:'transparent', tension:0, pointRadius:0, borderWidth:2.5, borderDash:[6,4], yAxisID:'y2', stepped:true },
-      { label:'Modèle',   data:as2Modele, borderColor:'#C47ACC', backgroundColor:'transparent', tension:0, pointRadius:0, borderWidth:2,   borderDash:[3,3], yAxisID:'y2', stepped:true }
+      // { label:'Modèle',   data:as2Modele, borderColor:'#C47ACC', backgroundColor:'transparent', tension:0, pointRadius:0, borderWidth:2,   borderDash:[3,3], yAxisID:'y2', stepped:true }
     ]},
     options:{ responsive:true, maintainAspectRatio:false, devicePixelRatio:dpr,
       plugins:{ legend:{display:false}, tooltip:{mode:'index',intersect:false, callbacks:{label:ctx=>ctx.dataset.yAxisID==='y2'?ctx.dataset.label+': '+(ctx.dataset.label==='Modèle'?['cnn_v2','cnn_v1','mlp_v0'][Math.round(ctx.parsed.y)]??'':Math.round(ctx.parsed.y)):ctx.dataset.label+': '+Math.round(ctx.parsed.y)+'%'}} },
       scales:{
         x:{...scaleDefaults, title:{display:true,text:'Temps (s)',...scaleDefaults.title}, ticks:{...scaleDefaults.ticks,maxTicksLimit:8}},
         y:{...scaleDefaults, title:{display:true,text:'CPU / RAM (%)',...scaleDefaults.title}, ticks:{...scaleDefaults.ticks,callback:v=>v+'%'}, min:0, max:105},
-        y2:{ position:'right', title:{display:true,text:'Réplicas / Modèle',color:'#888780',font:{size:10}}, grid:{drawOnChartArea:false},
+        y2:{ position:'right', title:{display:true,text:'Réplicas',color:'#888780',font:{size:10}}, grid:{drawOnChartArea:false},
           ticks:{font:{size:9}, callback:v=>['1r','2r','—'][v]??''}, min:0, max:4 }
       }
     },
